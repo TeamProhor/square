@@ -3,16 +3,16 @@ import Shell from "@/components/shell";
 import { dictionary } from "@/lib/dictionary";
 
 export default async function LandingLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }): Promise<ReactElement> {
-	const dict = dictionary;
-	const lang = "en";
+  const dict = dictionary;
+  const lang = "en";
 
-	return (
-		<Shell dict={dict} lang={lang}>
-			{children}
-		</Shell>
-	);
+  return (
+    <Shell dict={dict} lang={lang}>
+      {children}
+    </Shell>
+  );
 }

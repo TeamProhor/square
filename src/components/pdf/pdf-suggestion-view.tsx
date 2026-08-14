@@ -1,272 +1,324 @@
 "use client";
 
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import {
-	ArrowRight2,
-	Download,
-	Export,
-	FileDown,
-	FileText,
-	Flash,
-	Lock,
+  ArrowRight2,
+  Download,
+  Export,
+  FileDown,
+  FileText,
+  Flash,
+  Lock,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { getPdfSuggestions } from "@/lib/actions/pdf";
+import {
+  formatGoogleDriveDownloadUrl,
+  formatGoogleDriveUrl,
+} from "@/lib/drive";
+import type { PdfSuggestion } from "@/types";
 
 export function PdfSuggestionView() {
-	const [subject, setSubject] = useState("physics");
-	const [paper, setPaper] = useState("1st");
-	const [chapter, setChapter] = useState("");
-	const [standard, setStandard] = useState("board");
+  const [subject, setSubject] = useState("all");
+  const [paper, setPaper] = useState("all");
+  const [selectedPdfId, setSelectedPdfId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-	const [isLoading, setIsLoading] = useState(false);
+  const { data: pdfList = [], isLoading: isFetchingPdfs } = useQuery<
+    PdfSuggestion[]
+  >({
+    queryKey: ["pdf-suggestions"],
+    queryFn: () => getPdfSuggestions(),
+  });
 
-	const pdfUrl = "";
-	const filename = `File_${standard === "board" ? "Board" : "Admission"}_Suggestion.pdf`;
+  const filteredList = pdfList.filter((item) => {
+    if (
+      subject !== "all" &&
+      item.subject.toLowerCase() !== subject.toLowerCase()
+    )
+      return false;
+    if (paper !== "all" && item.paper !== paper) return false;
+    return true;
+  });
 
-	return (
-		<div className="flex flex-col lg:flex-row gap-6 w-full max-w-[1400px] mx-auto mt-2">
-			{/* Left Column: Controls */}
-			<div className="w-full lg:w-[320px] shrink-0 flex flex-col gap-5">
-				<div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
-					<div className="p-5 border-b bg-muted/30">
-						<h3 className="font-bold text-lg flex items-center gap-2">
-							<FileText className="size-5 text-primary" />
-							ফিল্টার সাজেশন
-						</h3>
-						<p className="text-xs text-muted-foreground mt-1">
-							আপনার প্রয়োজনীয় টপিক নির্বাচন করুন
-						</p>
-					</div>
+  useEffect(() => {
+    if (filteredList.length > 0 && !selectedPdfId) {
+      setSelectedPdfId(filteredList[0].id);
+    } else if (
+      filteredList.length > 0 &&
+      !filteredList.some((p) => p.id === selectedPdfId)
+    ) {
+      setSelectedPdfId(filteredList[0].id);
+    }
+  }, [filteredList, selectedPdfId]);
 
-					<div className="p-5 flex flex-col gap-5">
-						{/* Item */}
-						<div className="space-y-2">
-							<span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-								১. বিষয়
-							</span>
-							<Select value={subject} onValueChange={setSubject}>
-								<SelectTrigger className="w-full h-10 bg-background shadow-sm border-muted-foreground/20">
-									<SelectValue placeholder="বিষয় সিলেক্ট করুন" />
-								</SelectTrigger>
-								<SelectContent position="popper">
-									<SelectGroup>
-										<SelectItem value="physics">পদার্থবিজ্ঞান (Physics)</SelectItem>
-										<SelectItem value="chemistry">রসায়ন (Chemistry)</SelectItem>
-										<SelectItem value="math">
-											উচ্চতর গণিত (Higher Math)
-										</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</div>
+  const selectedPdf = filteredList.find((p) => p.id === selectedPdfId);
+  const previewUrl = selectedPdf
+    ? formatGoogleDriveUrl(selectedPdf.fileUrl)
+    : "";
+  const downloadUrl = selectedPdf
+    ? formatGoogleDriveDownloadUrl(selectedPdf.fileUrl)
+    : "";
 
-						{/* Paper */}
-						<div className="space-y-2">
-							<span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-								২. পত্র
-							</span>
-							<ToggleGroup
-								type="single"
-								value={paper}
-								onValueChange={(v) => v && setPaper(v)}
-								className="w-full h-10 p-1 bg-muted/40 rounded-lg border border-transparent hover:border-border transition-colors"
-							>
-								<ToggleGroupItem
-									value="1st"
-									className="flex-1 rounded-md text-sm font-medium"
-								>
-									১ম পত্র
-								</ToggleGroupItem>
-								<ToggleGroupItem
-									value="2nd"
-									className="flex-1 rounded-md text-sm font-medium"
-								>
-									২য় পত্র
-								</ToggleGroupItem>
-							</ToggleGroup>
-						</div>
+  return (
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-[1400px] mx-auto mt-2">
+      {/* Left Column: Controls & List */}
+      <div className="w-full lg:w-[360px] shrink-0 flex flex-col gap-5">
+        <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
+          <div className="p-4 sm:p-5 border-b bg-muted/30">
+            <h3 className="font-bold text-base sm:text-lg flex items-center gap-2">
+              <FileText className="size-5 text-primary" />
+              সাজেশন লাইব্রেরি
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              বিষয় ও পত্র অনুযায়ী ফিল্টার করুন
+            </p>
+          </div>
 
-						{/* Subitem */}
-						<div className="space-y-2">
-							<span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-								৩. অধ্যায়
-							</span>
-							<Select value={chapter} onValueChange={setChapter}>
-								<SelectTrigger className="w-full h-10 bg-background shadow-sm border-muted-foreground/20">
-									<SelectValue placeholder="অধ্যায় সিলেক্ট করুন" />
-								</SelectTrigger>
-								<SelectContent position="popper">
-									<SelectGroup>
-										<SelectItem value="ch1">অধ্যায় ১</SelectItem>
-										<SelectItem value="ch2">অধ্যায় ২</SelectItem>
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-						</div>
+          <div className="p-4 sm:p-5 flex flex-col gap-4">
+            {/* Subject */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                ১. বিষয়
+              </span>
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger className="w-full h-9 bg-background shadow-xs">
+                  <SelectValue placeholder="সকল বিষয়" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectGroup>
+                    <SelectItem value="all">সকল বিষয়</SelectItem>
+                    <SelectItem value="physics">পদার্থবিজ্ঞান</SelectItem>
+                    <SelectItem value="chemistry">রসায়ন</SelectItem>
+                    <SelectItem value="higher-math">উচ্চতর গণিত</SelectItem>
+                    <SelectItem value="biology">জীববিজ্ঞান</SelectItem>
+                    <SelectItem value="ict">আইসিটি</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
 
-						{/* Standard */}
-						<div className="space-y-2">
-							<span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-								৪. ক্যাটাগরি
-							</span>
-							<ToggleGroup
-								type="single"
-								value={standard}
-								onValueChange={(v) => v && setStandard(v)}
-								className="w-full h-10 p-1 bg-muted/40 rounded-lg border border-transparent hover:border-border transition-colors"
-							>
-								<ToggleGroupItem
-									value="board"
-									className="flex-1 rounded-md text-xs font-medium"
-								>
-									বোর্ড স্ট্যান্ডার্ড
-								</ToggleGroupItem>
-								<ToggleGroupItem
-									value="admission"
-									className="flex-1 rounded-md text-xs font-medium"
-								>
-									এডমিশন স্ট্যান্ডার্ড
-								</ToggleGroupItem>
-							</ToggleGroup>
-						</div>
-					</div>
-				</div>
+            {/* Paper */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                ২. পত্র
+              </span>
+              <ToggleGroup
+                type="single"
+                value={paper}
+                onValueChange={(v) => v && setPaper(v)}
+                className="w-full h-9 p-1 bg-muted/40 rounded-lg border border-border/40"
+              >
+                <ToggleGroupItem
+                  value="all"
+                  className="flex-1 rounded-md text-xs font-medium"
+                >
+                  উভয়
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="1st"
+                  className="flex-1 rounded-md text-xs font-medium"
+                >
+                  ১ম পত্র
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="2nd"
+                  className="flex-1 rounded-md text-xs font-medium"
+                >
+                  ২য় পত্র
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
 
-				{/* Additional Help Widget */}
-				<div className="bg-primary/5 rounded-2xl border border-primary/10 p-5 relative overflow-hidden group">
-					<div className="absolute -right-4 -bottom-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
-						<Flash className="size-24" />
-					</div>
-					<h4 className="font-bold text-primary flex items-center gap-1.5 mb-2 relative z-10 text-sm">
-						<Flash className="size-4" /> প্রো-টিপস
-					</h4>
-					<p className="text-xs text-muted-foreground leading-relaxed relative z-10">
-						বোর্ড পরীক্ষার জন্য 'বোর্ড' এবং ভার্সিটির জন্য 'এডমিশন' স্ট্যান্ডার্ড পিডিএফগুলো
-						পড়ুন। প্রতিটি সাজেশন বিগত ৩ বছরের প্রশ্ন অ্যানালাইসিস করে তৈরি।
-					</p>
-				</div>
-			</div>
+            {/* Available PDF List */}
+            <div className="space-y-1.5 pt-2 border-t border-border/40">
+              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
+                ৩. পিডিএফ ফাইলসমূহ ({filteredList.length})
+              </span>
 
-			{/* Right Column: PDF Viewer */}
-			<div className="flex-1 flex flex-col">
-				<div className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col h-[550px] lg:h-[calc(100vh-160px)] lg:min-h-[650px]">
-					{/* Viewer Header */}
-					<div className="h-14 bg-muted/30 border-b px-4 flex items-center justify-between shrink-0">
-						<div className="flex items-center gap-3 overflow-hidden">
-							<div className="flex gap-1.5 shrink-0 hidden sm:flex">
-								<div className="size-3 rounded-full bg-destructive/80 shadow-sm" />
-								<div className="size-3 rounded-full bg-amber-500/80 shadow-sm" />
-								<div className="size-3 rounded-full bg-green-500/80 shadow-sm" />
-							</div>
-							<div className="h-4 w-px bg-border hidden sm:block mx-1" />
-							<Badge
-								variant="outline"
-								className="font-mono text-[10px] sm:text-xs truncate max-w-[150px] sm:max-w-xs font-medium bg-background/50"
-							>
-								{filename}
-							</Badge>
-						</div>
-						<div className="flex items-center gap-2 shrink-0">
-							<Button
-								size="sm"
-								variant="outline"
-								className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-sm hover:shadow-md transition-all"
-								asChild
-							>
-								<a
-									href={pdfUrl || "#"}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									<Export className="size-3.5" />{" "}
-									<span className="hidden sm:inline">ওপেন</span>
-								</a>
-							</Button>
-							<Button
-								size="sm"
-								className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-sm hover:shadow-md transition-all"
-								asChild
-							>
-								<a
-									href={pdfUrl || "#"}
-									target="_blank"
-									rel="noopener noreferrer"
-								>
-									<Download className="size-3.5" />{" "}
-									<span className="hidden sm:inline">ডাউনলোড</span>
-								</a>
-							</Button>
-						</div>
-					</div>
+              {isFetchingPdfs ? (
+                <div className="p-4 text-center text-xs text-muted-foreground">
+                  লোড হচ্ছে...
+                </div>
+              ) : filteredList.length === 0 ? (
+                <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border/60">
+                  কোনো পিডিএফ ফাইল পাওয়া যায়নি।
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 max-h-[280px] overflow-y-auto pr-1">
+                  {filteredList.map((pdf) => {
+                    const isSelected = pdf.id === selectedPdfId;
+                    return (
+                      <button
+                        type="button"
+                        key={pdf.id}
+                        onClick={() => {
+                          setSelectedPdfId(pdf.id);
+                          setIsLoading(true);
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all text-xs flex flex-col gap-1 ${
+                          isSelected
+                            ? "bg-primary/10 border-primary text-primary font-semibold shadow-xs"
+                            : "bg-muted/20 border-border/50 hover:bg-muted/50 text-foreground"
+                        }`}
+                      >
+                        <span className="line-clamp-2">{pdf.title}</span>
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] px-1 py-0 h-4"
+                          >
+                            {pdf.paper}
+                          </Badge>
+                          {pdf.chapter && <span>{pdf.chapter}</span>}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
 
-					{/* Viewer Body */}
-					<div className="flex-1 relative bg-muted/10 flex flex-col">
-						{isLoading && (
-							<div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/60 backdrop-blur-sm">
-								<div className="size-10 border-[3px] border-muted border-t-primary rounded-full animate-spin mb-3 shadow-sm" />
-								<p className="text-sm font-bold text-foreground">
-									ফাইল লোড হচ্ছে...
-								</p>
-								<p className="text-xs text-muted-foreground mt-1">
-									দয়া করে অপেক্ষা করুন
-								</p>
-							</div>
-						)}
+        {/* Help Widget */}
+        <div className="bg-primary/5 rounded-2xl border border-primary/10 p-4 sm:p-5 relative overflow-hidden group">
+          <div className="absolute -right-4 -bottom-4 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+            <Flash className="size-20" />
+          </div>
+          <h4 className="font-bold text-primary flex items-center gap-1.5 mb-1.5 relative z-10 text-xs sm:text-sm">
+            <Flash className="size-4" /> পড়াশোনার টিপস
+          </h4>
+          <p className="text-xs text-muted-foreground leading-relaxed relative z-10">
+            এখানে যুক্ত হওয়া প্রতিটি সাজেশন গুগল ড্রাইভ ক্লাউডে হোস্ট করা। প্রয়োজনে সরাসরি
+            প্রিভিউ দেখে ডাউনলোড করে অফলাইনে পড়ার সুযোগ রয়েছে।
+          </p>
+        </div>
+      </div>
 
-						{pdfUrl ? (
-							<iframe
-								src={pdfUrl}
-								title="PDF Suggestion Viewer"
-								className="w-full h-full border-none"
-								allow="autoplay"
-								sandbox="allow-scripts"
-								onLoad={() => setIsLoading(false)}
-							/>
-						) : (
-							<div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-								<div className="size-20 rounded-full bg-primary/5 flex items-center justify-center mb-5 border border-primary/10 relative group">
-									<div className="absolute inset-0 bg-primary/10 rounded-full scale-0 group-hover:scale-150 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out" />
-									<FileDown className="size-8 text-primary/40 relative z-10" />
-								</div>
-								<h3 className="font-bold text-lg text-foreground">
-									ফাইল সিলেক্ট করা হয়নি
-								</h3>
-								<p className="text-sm text-muted-foreground max-w-[260px] mt-2">
-									বামপাশের প্যানেল থেকে বিষয় এবং অধ্যায় নির্বাচন করলে এখানে প্রিভিউ দেখতে
-									পাবেন।
-								</p>
-							</div>
-						)}
-					</div>
+      {/* Right Column: PDF Viewer */}
+      <div className="flex-1 flex flex-col">
+        <div className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col h-[550px] lg:h-[calc(100vh-160px)] lg:min-h-[650px]">
+          {/* Viewer Header */}
+          <div className="h-14 bg-muted/30 border-b px-4 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <Badge
+                variant="outline"
+                className="font-medium text-xs truncate max-w-xs sm:max-w-md bg-background/50"
+              >
+                {selectedPdf?.title || "কোনো ফাইল সিলেক্ট করা নেই"}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!selectedPdf}
+                className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-xs"
+                asChild={Boolean(selectedPdf)}
+              >
+                {selectedPdf ? (
+                  <a
+                    href={selectedPdf.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Export className="size-3.5" />{" "}
+                    <span className="hidden sm:inline">ওপেন ড্রাইভ</span>
+                  </a>
+                ) : (
+                  <span>ওপেন</span>
+                )}
+              </Button>
+              <Button
+                size="sm"
+                disabled={!selectedPdf}
+                className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-xs"
+                asChild={Boolean(selectedPdf)}
+              >
+                {selectedPdf ? (
+                  <a
+                    href={downloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="size-3.5" />{" "}
+                    <span className="hidden sm:inline">ডাউনলোড</span>
+                  </a>
+                ) : (
+                  <span>ডাউনলোড</span>
+                )}
+              </Button>
+            </div>
+          </div>
 
-					{/* Viewer Footer */}
-					<div className="h-10 bg-muted/40 border-t px-4 flex items-center justify-between shrink-0">
-						<div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
-							<Lock className="size-3 text-emerald-500" />
-							<span>সিকিউরড পিডিএফ ভিউয়ার</span>
-						</div>
-						<a
-							href={pdfUrl || "#"}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium group"
-						>
-							ব্রাউজার ব্লক করলে এখানে ক্লিক করুন
-							<ArrowRight2 className="size-3 transform group-hover:translate-x-0.5 transition-transform" />
-						</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+          {/* Viewer Body */}
+          <div className="flex-1 relative bg-muted/10 flex flex-col">
+            {isLoading && selectedPdf && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-xs">
+                <div className="size-8 border-[3px] border-muted border-t-primary rounded-full animate-spin mb-2" />
+                <p className="text-xs font-semibold text-foreground">
+                  গুগল ড্রাইভ থেকে লোড হচ্ছে...
+                </p>
+              </div>
+            )}
+
+            {selectedPdf ? (
+              <iframe
+                src={previewUrl}
+                title={selectedPdf.title}
+                className="w-full h-full border-none"
+                allow="autoplay"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+                onLoad={() => setIsLoading(false)}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <div className="size-16 rounded-full bg-primary/5 flex items-center justify-center mb-4 border border-primary/10">
+                  <FileDown className="size-8 text-primary/40" />
+                </div>
+                <h3 className="font-bold text-base text-foreground">
+                  কোনো পিডিএফ নির্বাচন করা হয়নি
+                </h3>
+                <p className="text-xs text-muted-foreground max-w-[260px] mt-1.5">
+                  বামপাশের তালিকা থেকে যে কোনো সাজেশনের ওপর ক্লিক করে এখানে সরাসরি ড্রাইভ
+                  প্রিভিউ দেখুন।
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Viewer Footer */}
+          <div className="h-10 bg-muted/40 border-t px-4 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
+              <Lock className="size-3 text-emerald-500" />
+              <span>Google Drive Embedded Viewer</span>
+            </div>
+            {selectedPdf && (
+              <a
+                href={selectedPdf.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium group"
+              >
+                ব্রাউজার ব্লক করলে ড্রাইভে ওপেন করুন
+                <ArrowRight2 className="size-3 transform group-hover:translate-x-0.5 transition-transform" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

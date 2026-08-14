@@ -6,24 +6,24 @@ import { auth } from "@/lib/auth";
 import { dictionary } from "@/lib/dictionary";
 
 export default async function ProtectedLayout({
-	children,
+  children,
 }: {
-	readonly children: ReactNode;
+  readonly children: ReactNode;
 }): Promise<ReactElement> {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-	if (!session?.user) {
-		redirect("/login");
-	}
+  if (!session?.user) {
+    redirect("/login");
+  }
 
-	const dict = dictionary;
-	const lang = "en";
+  const dict = dictionary;
+  const lang = "en";
 
-	return (
-		<Shell dict={dict} lang={lang}>
-			{children}
-		</Shell>
-	);
+  return (
+    <Shell dict={dict} lang={lang}>
+      {children}
+    </Shell>
+  );
 }

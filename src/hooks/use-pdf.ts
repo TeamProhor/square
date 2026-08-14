@@ -2,45 +2,53 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-	createPdfSuggestionAction,
-	getPdfSuggestionsAction,
+  type CreatePdfPayload,
+  createPdfSuggestion,
+  deletePdfSuggestion,
+  getPdfSuggestions,
 } from "@/lib/actions/pdf";
 
-export function usePdfSuggestions(subject?: string) {
-	return useQuery({
-		queryKey: ["pdfSuggestions", subject],
-		queryFn: async () => {
-			const res = await getPdfSuggestionsAction(subject);
-			if (res.error) throw new Error(res.error);
-			return res.data;
-		},
-	});
+export function usePdfSuggestions(filter?: {
+  subject?: string;
+  paper?: string;
+  chapter?: string;
+}) {
+  return useQuery({
+    queryKey: ["pdfSuggestions", filter],
+    queryFn: () => getPdfSuggestions(filter),
+  });
 }
 
 export function useCreatePdfSuggestion() {
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationFn: (vars: {
-			title: string;
-			subject: string;
-			fileUrl: string;
-			paper?: string;
-			chapter?: string;
-			hscBatch?: string;
-			thumbnailUrl?: string;
-		}) =>
-			createPdfSuggestionAction(
-				vars.title,
-				vars.subject,
-				vars.fileUrl,
-				vars.paper,
-				vars.chapter,
-				vars.hscBatch,
-				vars.thumbnailUrl,
-			),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["pdfSuggestions"] });
-		},
-	});
+  return useMutation({
+    mutationFn: async (payload: CreatePdfPayload) => {
+      const res = await createPdfSuggestion(payload);
+      if (!res.success) throw new Error(res.message || "Failed to create PDF");
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pdfSuggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-pdf-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["pdf-suggestions"] });
+    },
+  });
+}
+
+export function useDeletePdfSuggestion() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await deletePdfSuggestion(id);
+      if (!res.success) throw new Error(res.message || "Failed to delete PDF");
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pdfSuggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-pdf-suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["pdf-suggestions"] });
+    },
+  });
 }

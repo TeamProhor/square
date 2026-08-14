@@ -1,43 +1,60 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRoutineAction, getRoutinesAction } from "@/lib/actions/routine";
+import {
+  type CreateRoutinePayload,
+  createExamRoutine,
+  deleteExamRoutine,
+  getBatches,
+  getExamRoutines,
+} from "@/lib/actions/routine";
+
+export function useBatches() {
+  return useQuery({
+    queryKey: ["batches"],
+    queryFn: () => getBatches(),
+  });
+}
 
 export function useRoutines(batchId?: string) {
-	return useQuery({
-		queryKey: ["routines", batchId],
-		queryFn: async () => {
-			const res = await getRoutinesAction(batchId);
-			if (res.error) throw new Error(res.error);
-			return res.data;
-		},
-	});
+  return useQuery({
+    queryKey: ["routines", batchId],
+    queryFn: () => getExamRoutines(batchId),
+  });
 }
 
 export function useCreateRoutine() {
-	const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationFn: (vars: {
-			batchId: string;
-			title: string;
-			subject: string;
-			examDate: string;
-			durationMinutes: number;
-			totalMarks: number;
-			syllabus?: string;
-		}) =>
-			createRoutineAction(
-				vars.batchId,
-				vars.title,
-				vars.subject,
-				vars.examDate,
-				vars.durationMinutes,
-				vars.totalMarks,
-				vars.syllabus,
-			),
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["routines"] });
-		},
-	});
+  return useMutation({
+    mutationFn: async (payload: CreateRoutinePayload) => {
+      const res = await createExamRoutine(payload);
+      if (!res.success)
+        throw new Error(res.message || "Failed to create routine");
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["routines"] });
+      queryClient.invalidateQueries({ queryKey: ["exam-routines"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-routines"] });
+    },
+  });
+}
+
+export function useDeleteRoutine() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const res = await deleteExamRoutine(id);
+      if (!res.success)
+        throw new Error(res.message || "Failed to delete routine");
+      return res;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["routines"] });
+      queryClient.invalidateQueries({ queryKey: ["exam-routines"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-routines"] });
+    },
+  });
 }
