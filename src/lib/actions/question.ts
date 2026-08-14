@@ -136,3 +136,84 @@ export async function deleteTopicAction(
     return { error: error?.message || "Failed to delete topic" };
   }
 }
+
+export async function createQuestionAction(payload: any) {
+  try {
+    const [question] = await db
+      .insert(questions)
+      .values({
+        subitemId: payload.chapterId,
+        type: payload.type,
+        source: payload.source,
+        standard: payload.standard,
+        questionText: payload.questionText,
+        explanation: payload.explanation || null,
+      })
+      .returning();
+
+    if (!question) {
+      return { error: "Failed to create question" };
+    }
+
+    if (payload.type === "mcq" && payload.mcqOptions?.length) {
+      const optionsToInsert = payload.mcqOptions.map((opt: any, idx: number) => ({
+        questionId: question.id,
+        optionText: opt.optionText,
+        isCorrect: opt.isCorrect,
+        orderNo: idx + 1,
+      }));
+      await db.insert(mcqOptions).values(optionsToInsert);
+    } else if (payload.type === "cq" && payload.cqParts?.length) {
+      const partsToInsert = payload.cqParts.map((pt: any, idx: number) => ({
+        questionId: question.id,
+        partKey: pt.partKey as "a" | "b" | "c" | "d",
+        questionText: pt.questionText,
+        answerText: pt.answerText || null,
+        marks: pt.marks,
+        orderNo: idx + 1,
+      }));
+      await db.insert(cqParts).values(partsToInsert);
+    }
+
+    revalidatePath("/admin/qb");
+    return { success: true, questionId: question.id };
+  } catch (error: any) {
+    return { error: error?.message || "Failed to create question" };
+  }
+}
+
+export async function deleteQuestionAction(questionId: string) {
+  try {
+    await db.delete(questions).where(eq(questions.id, questionId));
+    revalidatePath("/admin/qb");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || "Failed to delete question" };
+  }
+}
+
+export async function getQuestionsAdminAction(filters?: {
+  subjectId?: string;
+  type?: string;
+}) {
+  try {
+    const list = await db.query.questions.findMany({
+      where: (questions, { and, eq }) => {
+        const conditions = [];
+        if (filters?.type) {
+          conditions.push(eq(questions.type, filters.type as "mcq" | "cq"));
+        }
+        return conditions.length > 0 ? and(...conditions) : undefined;
+      },
+      with: {
+        mcqOptions: true,
+        cqParts: true,
+      },
+      orderBy: (questions, { desc }) => [desc(questions.createdAt)],
+    });
+    return list || [];
+  } catch (error: any) {
+    console.error("Error fetching questions:", error);
+    return [];
+  }
+}

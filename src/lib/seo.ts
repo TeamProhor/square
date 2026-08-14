@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 
 export const siteMetadata: Metadata = {
   metadataBase: new URL("https://prohor-nextjs-starter-kit.vercel.app"),
-  title: "Prohor Next.js & Supabase Starter Kit",
-  description: "Modern Next.js & Supabase starter kit with Tailwind by Prohor.",
+  title: "Prohor HSC Question Bank & Preparation Kit",
+  description: "Modern HSC Question Bank and preparation platform built by Prohor.",
   keywords: [
     "Next.js starter",
-    "Supabase template",
+    "HSC Question Bank",
     "Tailwind CSS boilerplate",
     "Prohor Starter Kit",
     "React framework",
@@ -41,9 +41,9 @@ export const siteMetadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Prohor Next.js Starter Kit",
+    title: "Prohor HSC Question Bank & Preparation Kit",
     description:
-      "Modern Next.js & Supabase starter kit with Tailwind by Prohor.",
+      "Modern HSC Question Bank and preparation platform built by Prohor.",
     type: "website",
     siteName: "Prohor",
     locale: "bn_BD",
@@ -54,15 +54,15 @@ export const siteMetadata: Metadata = {
         url: "https://prohor-nextjs-starter-kit.vercel.app/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Prohor Next.js Starter Kit with Supabase & Tailwind CSS",
+        alt: "Prohor HSC Question Bank & Preparation Kit",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prohor Next.js Starter Kit - Build Faster Apps Today",
+    title: "Prohor HSC Question Bank & Preparation Kit",
     description:
-      "Launch your next web project faster with Prohor Next.js Starter Kit. Featuring Supabase integration, modern Tailwind CSS styling, strict Biome linting, and seamless developer experience built-in.",
+      "Launch your next web project faster with Prohor Question Bank. Featuring modern UI styling, strict Biome linting, and seamless developer experience built-in.",
     site: "@TeamProhor",
     creator: "@TeamProhor",
     images: ["https://prohor-nextjs-starter-kit.vercel.app/og-image.png"],
@@ -76,9 +76,9 @@ export const siteJsonLd = {
       "@type": "WebSite",
       "@id": "https://prohor-nextjs-starter-kit.vercel.app/#website",
       url: "https://prohor-nextjs-starter-kit.vercel.app/",
-      name: "Prohor Next.js Starter Kit",
+      name: "Prohor",
       description:
-        "Modern Next.js & Supabase starter kit with Tailwind by Prohor.",
+        "Modern HSC Question Bank and preparation platform built by Prohor.",
       inLanguage: ["en-US", "bn-BD"],
     },
     {
@@ -95,15 +95,15 @@ export const siteJsonLd = {
     },
     {
       "@type": "SoftwareApplication",
-      name: "Prohor Next.js Starter Kit",
+      name: "Prohor HSC Question Bank",
       operatingSystem: "All",
-      applicationCategory: "DeveloperApplication",
+      applicationCategory: "EducationalApplication",
       description:
-        "A fast, modern, and reliable Next.js starter kit fully equipped with Supabase, Tailwind CSS, and Biome.",
+        "A fast, modern, and reliable HSC preparation platform fully equipped with SQLite, Tailwind CSS, and Biome.",
       offers: {
         "@type": "Offer",
         price: "0",
-        priceCurrency: "USD",
+        priceCurrency: "BDT",
       },
     },
   ],

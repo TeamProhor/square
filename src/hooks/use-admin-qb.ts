@@ -2,11 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  type CreateQuestionPayload,
   createQuestionAction,
   deleteQuestionAction,
   getQuestionsAdminAction,
-} from "@/lib/actions/admin-qb";
+} from "@/lib/actions/question";
+import type { CreateQuestionPayload } from "@/types";
 
 export function useAdminQuestions(filters?: {
   subjectId?: string;

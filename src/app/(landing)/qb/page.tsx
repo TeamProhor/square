@@ -1,14 +1,12 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
 import type { Container } from "@/types";
 
 export default async function QuestionBankPage(): Promise<ReactElement> {
-  const supabase = await createClient();
-  const { data: qbs } = await supabase
-    .from("containers")
-    .select("*")
-    .order("created_at", { ascending: true });
+  const qbs = await db.query.containers.findMany({
+    orderBy: (containers, { asc }) => [asc(containers.createdAt)],
+  });
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">

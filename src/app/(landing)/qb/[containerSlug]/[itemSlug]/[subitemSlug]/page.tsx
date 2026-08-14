@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
+import { eq } from "drizzle-orm";
 import { ChapterQuestionsViewer } from "@/components/qb/ChapterQuestionsViewer";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { containers, items, questions, subitems, topics } from "@/db/schema";
 
 export default async function QbChapterPage({
   params,
@@ -14,46 +16,58 @@ export default async function QbChapterPage({
   }>;
 }): Promise<ReactElement> {
   const { containerSlug, itemSlug, subitemSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
-  const { data: subject } = await supabase
-    .from("items")
-    .select("*")
-    .eq("slug", itemSlug)
-    .eq("container_id", qb?.id)
-    .single();
+  const subject = await db.query.items.findFirst({
+    where: eq(items.slug, itemSlug),
+  });
 
-  const { data: chapter } = await supabase
-    .from("subitems")
-    .select("*")
-    .eq("slug", subitemSlug)
-    .single();
+  const chapter = await db.query.subitems.findFirst({
+    where: eq(subitems.slug, subitemSlug),
+  });
 
   if (!qb || !subject || !chapter) notFound();
 
-  // Fetch topics in this chapter
-  const { data: topics } = await supabase
-    .from("topics")
-    .select("*")
-    .eq("subitem_id", chapter.id)
-    .order("name", { ascending: true });
+  const topicList = await db.query.topics.findMany({
+    where: eq(topics.subitemId, chapter.id),
+    orderBy: (topics, { asc }) => [asc(topics.name)],
+  });
 
-  // Fetch all questions in this chapter
-  const { data: questions } = await supabase
-    .from("questions")
-    .select(`
-      *,
-      mcq_options(*),
-      cq_parts(*)
-    `)
-    .eq("subitem_id", chapter.id)
-    .order("created_at", { ascending: false });
+  const questionList = await db.query.questions.findMany({
+    where: eq(questions.subitemId, chapter.id),
+    with: {
+      mcqOptions: true,
+      cqParts: true,
+    },
+    orderBy: (questions, { desc }) => [desc(questions.createdAt)],
+  });
+
+  const formattedQuestions = questionList.map((q) => ({
+    ...q,
+    subitem_id: q.subitemId,
+    topic_id: q.topicId || undefined,
+    question_text: q.questionText,
+    explanation: q.explanation || undefined,
+    mcq_options: q.mcqOptions.map((opt) => ({
+      ...opt,
+      question_id: opt.questionId,
+      option_text: opt.optionText,
+      is_correct: opt.isCorrect,
+      order_no: opt.orderNo,
+    })),
+    cq_parts: q.cqParts.map((pt) => ({
+      ...pt,
+      question_id: pt.questionId,
+      part_key: pt.partKey,
+      question_text: pt.questionText,
+      answer_text: pt.answerText || undefined,
+      marks: pt.marks,
+      order_no: pt.orderNo,
+    })),
+  }));
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">

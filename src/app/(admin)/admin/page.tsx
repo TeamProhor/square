@@ -1,21 +1,21 @@
 import Link from "next/link";
+import { count } from "drizzle-orm";
 import { BookOpen, CalendarTick, TaskSquare, User } from "@/components/icons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { batches, exams, items, questions } from "@/db/schema";
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient();
-
   const [
-    { count: questionsCount },
-    { count: subjectsCount },
-    { count: examsCount },
-    { count: batchesCount },
+    [{ value: questionsCount }],
+    [{ value: subjectsCount }],
+    [{ value: examsCount }],
+    [{ value: batchesCount }],
   ] = await Promise.all([
-    supabase.from("questions").select("*", { count: "exact", head: true }),
-    supabase.from("items").select("*", { count: "exact", head: true }),
-    supabase.from("exams").select("*", { count: "exact", head: true }),
-    supabase.from("batches").select("*", { count: "exact", head: true }),
+    db.select({ value: count() }).from(questions),
+    db.select({ value: count() }).from(items),
+    db.select({ value: count() }).from(exams),
+    db.select({ value: count() }).from(batches),
   ]);
 
   const stats = [

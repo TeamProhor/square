@@ -178,3 +178,27 @@ export interface Question {
   readonly mcq_options?: readonly MCQOption[];
   readonly cq_parts?: readonly CQPart[];
 }
+
+export interface CreateQuestionPayload {
+  readonly subjectId: string;
+  readonly chapterId: string;
+  readonly type: "mcq" | "cq";
+  readonly source:
+    | "frostfoe"
+    | "varsity"
+    | "engineering"
+    | "board"
+    | "custom_csv_json";
+  readonly standard: "board" | "varsity" | "engineering" | "medical";
+  readonly year?: number;
+  readonly institution?: string;
+  readonly questionText: string;
+  readonly explanation?: string;
+  readonly mcqOptions?: readonly { optionText: string; isCorrect: boolean }[];
+  readonly cqParts?: readonly {
+    partKey: string;
+    questionText: string;
+    answerText?: string;
+    marks: number;
+  }[];
+}

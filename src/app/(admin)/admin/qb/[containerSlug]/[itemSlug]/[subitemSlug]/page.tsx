@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { AdminTopicsManager } from "@/components/admin/admin-topics-manager";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { containers, items, subitems, topics } from "@/db/schema";
 
 export default async function AdminQbTopicsPage({
   params,
@@ -12,42 +14,40 @@ export default async function AdminQbTopicsPage({
   }>;
 }) {
   const { containerSlug, itemSlug, subitemSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
-  const { data: subject } = await supabase
-    .from("items")
-    .select("*")
-    .eq("slug", itemSlug)
-    .single();
+  const subject = await db.query.items.findFirst({
+    where: eq(items.slug, itemSlug),
+  });
 
-  const { data: chapter } = await supabase
-    .from("subitems")
-    .select("*")
-    .eq("slug", subitemSlug)
-    .single();
+  const chapter = await db.query.subitems.findFirst({
+    where: eq(subitems.slug, subitemSlug),
+  });
 
   if (!qb || !subject || !chapter) notFound();
 
-  const { data: topics } = await supabase
-    .from("topics")
-    .select(`
-      *,
-      questions(count)
-    `)
-    .eq("subitem_id", chapter.id);
+  const topicList = await db.query.topics.findMany({
+    where: eq(topics.subitemId, chapter.id),
+    with: {
+      questions: true,
+    },
+  });
+
+  const formattedTopics = topicList.map((t) => ({
+    ...t,
+    subitem_id: t.subitemId,
+    questions: [{ count: t.questions?.length || 0 }],
+  }));
 
   return (
     <AdminTopicsManager
       qb={qb}
-      subject={subject}
-      chapter={chapter}
-      initialTopics={topics || []}
+      subject={subject as any}
+      chapter={chapter as any}
+      initialTopics={formattedTopics as any}
     />
   );
 }

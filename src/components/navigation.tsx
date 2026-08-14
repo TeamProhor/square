@@ -180,7 +180,7 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
         </div>
 
         <a
-          href={user ? "#" : "mailto:contact@vawzine.com"}
+          href={user ? "#" : "mailto:contact@square.com"}
           onClick={
             user
               ? (e) => {
@@ -195,7 +195,7 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
           <span
             className={`text-[14px] text-foreground transition-opacity duration-200 ${isCollapsed ? "opacity-0" : "opacity-100"}`}
           >
-            {user?.email ?? "contact@vawzine.com"}
+            {user?.email ?? "contact@square.com"}
           </span>
         </a>
       </div>

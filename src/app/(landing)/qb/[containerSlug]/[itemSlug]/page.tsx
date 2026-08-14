@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { containers, items, subitems } from "@/db/schema";
 import type { Subitem } from "@/types";
 
 export default async function QbChaptersPage({
@@ -10,30 +12,21 @@ export default async function QbChaptersPage({
   readonly params: Promise<{ containerSlug: string; itemSlug: string }>;
 }): Promise<ReactElement> {
   const { containerSlug, itemSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
-  const { data: subject } = await supabase
-    .from("items")
-    .select("*")
-    .eq("slug", itemSlug)
-    .eq("container_id", qb?.id)
-    .single();
+  const subject = await db.query.items.findFirst({
+    where: eq(items.slug, itemSlug),
+  });
 
   if (!qb || !subject) notFound();
 
-  const { data: subitems } = await supabase
-    .from("subitems")
-    .select("*")
-    .eq("item_id", subject.id)
-    .order("order_no", { ascending: true });
-
-  const chapterList = subitems || [];
+  const chapterList = await db.query.subitems.findMany({
+    where: eq(subitems.itemId, subject.id),
+    orderBy: (subitems, { asc }) => [asc(subitems.orderNo)],
+  });
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">

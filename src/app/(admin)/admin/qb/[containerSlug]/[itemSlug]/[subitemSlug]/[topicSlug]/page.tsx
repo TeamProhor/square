@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { AdminQuestionsManager } from "@/components/admin/admin-questions-manager";
 import { ArrowRight2 } from "@/components/icons";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { containers, items, subitems, topics } from "@/db/schema";
 
 export default async function AdminQbQuestionsPage({
   params,
@@ -15,31 +17,22 @@ export default async function AdminQbQuestionsPage({
   }>;
 }) {
   const { containerSlug, itemSlug, subitemSlug, topicSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
-  const { data: subject } = await supabase
-    .from("items")
-    .select("*")
-    .eq("slug", itemSlug)
-    .single();
+  const subject = await db.query.items.findFirst({
+    where: eq(items.slug, itemSlug),
+  });
 
-  const { data: chapter } = await supabase
-    .from("subitems")
-    .select("*")
-    .eq("slug", subitemSlug)
-    .single();
+  const chapter = await db.query.subitems.findFirst({
+    where: eq(subitems.slug, subitemSlug),
+  });
 
-  const { data: topic } = await supabase
-    .from("topics")
-    .select("*")
-    .eq("slug", topicSlug)
-    .single();
+  const topic = await db.query.topics.findFirst({
+    where: eq(topics.slug, topicSlug),
+  });
 
   if (!qb || !subject || !chapter || !topic) notFound();
 

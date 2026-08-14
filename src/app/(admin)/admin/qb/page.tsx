@@ -1,16 +1,18 @@
 import { AdminContainersManager } from "@/components/admin/admin-containers-manager";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
 
 export default async function AdminQbBanksPage() {
-  const supabase = await createClient();
+  const qbs = await db.query.containers.findMany({
+    with: {
+      items: true,
+    },
+    orderBy: (containers, { desc }) => [desc(containers.createdAt)],
+  });
 
-  const { data: qbs } = await supabase
-    .from("containers")
-    .select(`
-      *,
-      items(count)
-    `)
-    .order("created_at", { ascending: false });
+  const formatted = qbs.map((q) => ({
+    ...q,
+    items: [{ count: q.items?.length || 0 }],
+  }));
 
-  return <AdminContainersManager initialQbs={qbs || []} />;
+  return <AdminContainersManager initialQbs={formatted} />;
 }

@@ -1,8 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@/lib/auth";
 
 export async function loginWithPasswordAction(formData: FormData) {
   const email = formData.get("email") as string;
@@ -12,19 +13,21 @@ export async function loginWithPasswordAction(formData: FormData) {
     return { error: "ইমেইল এবং পাসওয়ার্ড উভয়ই প্রয়োজন" };
   }
 
-  const supabase = await createClient();
+  try {
+    const res = await auth.api.signInEmail({
+      body: { email, password },
+      headers: await headers(),
+    });
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    if (!res) {
+      return { error: "ভুল ইমেইল অথবা পাসওয়ার্ড" };
+    }
 
-  if (error) {
-    return { error: error.message };
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || "লগইন ব্যর্থ হয়েছে" };
   }
-
-  revalidatePath("/", "layout");
-  return { success: true };
 }
 
 export async function signUpWithPasswordAction(formData: FormData) {
@@ -40,49 +43,55 @@ export async function signUpWithPasswordAction(formData: FormData) {
     return { error: "পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে" };
   }
 
-  const supabase = await createClient();
-
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName || "",
+  try {
+    const res = await auth.api.signUpEmail({
+      body: {
+        email,
+        password,
+        name: fullName || email.split("@")[0],
       },
-    },
-  });
+      headers: await headers(),
+    });
 
-  if (error) {
-    return { error: error.message };
+    if (!res) {
+      return { error: "সাইন আপ ব্যর্থ হয়েছে" };
+    }
+
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error: any) {
+    return { error: error?.message || "সাইন আপ ব্যর্থ হয়েছে" };
   }
-
-  revalidatePath("/", "layout");
-  return { success: true };
 }
 
 export async function logoutAction() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    await auth.api.signOut({
+      headers: await headers(),
+    });
+  } catch (err) {
+    console.error("Logout error:", err);
+  }
   revalidatePath("/", "layout");
   redirect("/login");
 }
 
 export async function getUserAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) return null;
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+    if (!session || !session.user) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  return {
-    ...user,
-    profile,
-  };
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+      role: (session.user as any).role || "student",
+      image: session.user.image,
+      profile: session.user,
+    };
+  } catch {
+    return null;
+  }
 }

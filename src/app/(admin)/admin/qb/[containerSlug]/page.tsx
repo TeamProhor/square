@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import { eq } from "drizzle-orm";
 import { AdminItemsManager } from "@/components/admin/admin-items-manager";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db";
+import { containers, items } from "@/db/schema";
 
 export default async function AdminQbSubjectsPage({
   params,
@@ -8,24 +10,25 @@ export default async function AdminQbSubjectsPage({
   readonly params: Promise<{ containerSlug: string }>;
 }) {
   const { containerSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
   if (!qb) notFound();
 
-  const { data: items } = await supabase
-    .from("items")
-    .select(`
-      *,
-      subitems(count),
-      questions(count)
-    `)
-    .eq("container_id", qb.id);
+  const itemList = await db.query.items.findMany({
+    where: eq(items.containerId, qb.id),
+    with: {
+      subitems: true,
+    },
+  });
 
-  return <AdminItemsManager qb={qb} initialSubjects={items || []} />;
+  const formattedItems = itemList.map((item) => ({
+    ...item,
+    container_id: item.containerId,
+    subitems: [{ count: item.subitems?.length || 0 }],
+  }));
+
+  return <AdminItemsManager qb={qb} initialSubjects={formattedItems as any} />;
 }

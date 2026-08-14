@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { containers, items } from "@/db/schema";
 import type { Item } from "@/types";
 
 export default async function QbSubjectsPage({
@@ -10,21 +12,17 @@ export default async function QbSubjectsPage({
   readonly params: Promise<{ containerSlug: string }>;
 }): Promise<ReactElement> {
   const { containerSlug } = await params;
-  const supabase = await createClient();
 
-  const { data: qb } = await supabase
-    .from("containers")
-    .select("*")
-    .eq("slug", containerSlug)
-    .single();
+  const qb = await db.query.containers.findFirst({
+    where: eq(containers.slug, containerSlug),
+  });
 
   if (!qb) notFound();
 
-  const { data: items } = await supabase
-    .from("items")
-    .select("*")
-    .eq("container_id", qb.id)
-    .order("name", { ascending: true });
+  const itemList = await db.query.items.findMany({
+    where: eq(items.containerId, qb.id),
+    orderBy: (items, { asc }) => [asc(items.name)],
+  });
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">
