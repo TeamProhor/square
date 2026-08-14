@@ -13,222 +13,220 @@ import { authClient } from "@/lib/auth-client";
 import type { LoginFormProps } from "@/types";
 
 export default function LoginForm({ dict }: LoginFormProps) {
-  const l = dict.login;
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [usePasswordMode, setUsePasswordMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const l = dict.login;
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [usePasswordMode, setUsePasswordMode] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [isSuccess, setIsSuccess] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setIsLoading(true);
-    setError(null);
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!email) return;
+		setIsLoading(true);
+		setError(null);
 
-    try {
-      if (usePasswordMode) {
-        if (!password) {
-          setError("পাসওয়ার্ড প্রদান করুন");
-          setIsLoading(false);
-          return;
-        }
-        const { error: signInError } = await authClient.signIn.email({
-          email,
-          password,
-        });
-        if (signInError) {
-          setError(signInError.message || "লগইন ব্যর্থ হয়েছে");
-        } else {
-          window.location.href = "/";
-        }
-      } else {
-        const { error: magicError } = await authClient.signIn.magicLink({
-          email,
-          callbackURL: "/",
-        });
-        if (magicError) {
-          setError(magicError.message || "ম্যাজিক লিংক পাঠাতে ব্যর্থ হয়েছে");
-        } else {
-          setIsSuccess(true);
-        }
-      }
-    } catch (err: any) {
-      setError(err?.message || "একটি ত্রুটি ঘটেছে");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+		try {
+			if (usePasswordMode) {
+				if (!password) {
+					setError("পাসওয়ার্ড প্রদান করুন");
+					setIsLoading(false);
+					return;
+				}
+				const { error: signInError } = await authClient.signIn.email({
+					email,
+					password,
+				});
+				if (signInError) {
+					setError(signInError.message || "লগইন ব্যর্থ হয়েছে");
+				} else {
+					window.location.href = "/";
+				}
+			} else {
+				const { error: magicError } = await authClient.signIn.magicLink({
+					email,
+					callbackURL: "/",
+				});
+				if (magicError) {
+					setError(magicError.message || "ম্যাজিক লিংক পাঠাতে ব্যর্থ হয়েছে");
+				} else {
+					setIsSuccess(true);
+				}
+			}
+		} catch (err: any) {
+			setError(err?.message || "একটি ত্রুটি ঘটেছে");
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  return (
-    <div className="flex flex-col items-center w-full py-[24px] md:py-[40px]">
-      <div className="flex flex-col items-center gap-[48px] w-full max-w-[400px] px-[24px]">
-        <div className="flex flex-col items-center gap-8 w-full">
-          <Image
-            src="/icon.svg"
-            width={48}
-            height={48}
-            className="size-12"
-            alt="Square Logo"
-          />
+	return (
+		<div className="flex flex-col items-center w-full py-[24px] md:py-[40px]">
+			<div className="flex flex-col items-center gap-[48px] w-full max-w-[400px] px-[24px]">
+				<div className="flex flex-col items-center gap-8 w-full">
+					<Image
+						src="/icon.svg"
+						width={48}
+						height={48}
+						className="size-12"
+						alt="Square Logo"
+					/>
 
-          <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-balance font-semibold text-3xl text-foreground">
-              {l.title}
-            </h1>
-            <p className="text-pretty text-muted-foreground text-sm">
-              {l.newHere}{" "}
-              <Link className="text-foreground hover:underline" href="/">
-                {l.signUpFree}
-              </Link>
-            </p>
-          </div>
+					<div className="flex flex-col gap-2 text-center">
+						<h1 className="text-balance font-semibold text-3xl text-foreground">
+							{l.title}
+						</h1>
+						<p className="text-pretty text-muted-foreground text-sm">
+							{l.newHere}{" "}
+							<Link className="text-foreground hover:underline" href="/">
+								{l.signUpFree}
+							</Link>
+						</p>
+					</div>
 
-          {error && (
-            <div className="w-full p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium text-center">
-              {error}
-            </div>
-          )}
+					{error && (
+						<div className="w-full p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs font-medium text-center">
+							{error}
+						</div>
+					)}
 
-          {isSuccess ? (
-            <div className="w-full flex flex-col gap-4 text-center">
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
-                আপনার ইনবক্সে লগইন লিংক পাঠানো হয়েছে! ইমেইলটি চেক করুন।
-              </div>
-              <Button
-                className="w-full rounded-xl"
-                variant="outline"
-                onClick={() => {
-                  setIsSuccess(false);
-                  setEmail("");
-                  setError(null);
-                }}
-              >
-                ফিরে যান
-              </Button>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="w-full flex flex-col gap-4"
-            >
-              <Field>
-                <Input
-                  required
-                  className="w-full rounded-xl bg-background"
-                  placeholder="আপনার ইমেইল"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </Field>
+					{isSuccess ? (
+						<div className="w-full flex flex-col gap-4 text-center">
+							<div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+								আপনার ইনবক্সে লগইন লিংক পাঠানো হয়েছে! ইমেইলটি চেক করুন।
+							</div>
+							<Button
+								className="w-full rounded-xl"
+								variant="outline"
+								onClick={() => {
+									setIsSuccess(false);
+									setEmail("");
+									setError(null);
+								}}
+							>
+								ফিরে যান
+							</Button>
+						</div>
+					) : (
+						<form
+							onSubmit={handleSubmit}
+							className="w-full flex flex-col gap-4"
+						>
+							<Field>
+								<Input
+									required
+									className="w-full rounded-xl bg-background"
+									placeholder="আপনার ইমেইল"
+									type="email"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									disabled={isLoading}
+								/>
+							</Field>
 
-              {usePasswordMode && (
-                <Field>
-                  <Input
-                    required
-                    className="w-full rounded-xl bg-background"
-                    placeholder="পাসওয়ার্ড"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
-                  />
-                </Field>
-              )}
+							{usePasswordMode && (
+								<Field>
+									<Input
+										required
+										className="w-full rounded-xl bg-background"
+										placeholder="পাসওয়ার্ড"
+										type="password"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										disabled={isLoading}
+									/>
+								</Field>
+							)}
 
-              <div className="flex flex-col gap-2">
-                <Button
-                  type="submit"
-                  className="w-full rounded-xl flex items-center justify-center gap-2"
-                  size="lg"
-                  disabled={isLoading}
-                >
-                  {usePasswordMode ? (
-                    <Lock className="size-4" />
-                  ) : (
-                    <Send className="size-4" />
-                  )}
-                  {isLoading
-                    ? "অপেক্ষা করুন..."
-                    : usePasswordMode
-                      ? "লগইন করুন"
-                      : l.sendMagicLink}
-                </Button>
-                <Button
-                  type="button"
-                  className="w-full text-muted-foreground text-sm"
-                  variant="link"
-                  onClick={() => {
-                    setUsePasswordMode(!usePasswordMode);
-                    setError(null);
-                  }}
-                  disabled={isLoading}
-                >
-                  {usePasswordMode
-                    ? "ম্যাজিক লিংক ব্যবহার করুন"
-                    : l.usePassword}
-                </Button>
-              </div>
+							<div className="flex flex-col gap-2">
+								<Button
+									type="submit"
+									className="w-full rounded-xl flex items-center justify-center gap-2"
+									size="lg"
+									disabled={isLoading}
+								>
+									{usePasswordMode ? (
+										<Lock className="size-4" />
+									) : (
+										<Send className="size-4" />
+									)}
+									{isLoading
+										? "অপেক্ষা করুন..."
+										: usePasswordMode
+											? "লগইন করুন"
+											: l.sendMagicLink}
+								</Button>
+								<Button
+									type="button"
+									className="w-full text-muted-foreground text-sm"
+									variant="link"
+									onClick={() => {
+										setUsePasswordMode(!usePasswordMode);
+										setError(null);
+									}}
+									disabled={isLoading}
+								>
+									{usePasswordMode ? "ম্যাজিক লিংক ব্যবহার করুন" : l.usePassword}
+								</Button>
+							</div>
 
-              <div className="flex items-center gap-4 py-2">
-                <Separator className="flex-1" />
-                <span className="text-muted-foreground text-sm">{l.or}</span>
-                <Separator className="flex-1" />
-              </div>
+							<div className="flex items-center gap-4 py-2">
+								<Separator className="flex-1" />
+								<span className="text-muted-foreground text-sm">{l.or}</span>
+								<Separator className="flex-1" />
+							</div>
 
-              <Button
-                type="button"
-                className="w-full rounded-xl flex items-center justify-center gap-2.5 font-medium"
-                size="lg"
-                variant="outline"
-                disabled={isLoading}
-                onClick={async () => {
-                  setIsLoading(true);
-                  try {
-                    await authClient.signIn.social({
-                      provider: "google",
-                      callbackURL: "/",
-                    });
-                  } catch (err: any) {
-                    setError(err?.message || "Google লগইন ব্যর্থ হয়েছে");
-                    setIsLoading(false);
-                  }
-                }}
-              >
-                <img
-                  src="https://cdn.reicon.dev/logos/google/original.svg"
-                  alt="Google"
-                  width={18}
-                  height={18}
-                  className="size-4.5"
-                />
-                গুগল দিয়ে লগইন করুন
-              </Button>
-            </form>
-          )}
+							<Button
+								type="button"
+								className="w-full rounded-xl flex items-center justify-center gap-2.5 font-medium"
+								size="lg"
+								variant="outline"
+								disabled={isLoading}
+								onClick={async () => {
+									setIsLoading(true);
+									try {
+										await authClient.signIn.social({
+											provider: "google",
+											callbackURL: "/",
+										});
+									} catch (err: any) {
+										setError(err?.message || "Google লগইন ব্যর্থ হয়েছে");
+										setIsLoading(false);
+									}
+								}}
+							>
+								<img
+									src="https://cdn.reicon.dev/logos/google/original.svg"
+									alt="Google"
+									width={18}
+									height={18}
+									className="size-4.5"
+								/>
+								গুগল দিয়ে লগইন করুন
+							</Button>
+						</form>
+					)}
 
-          <p className="w-11/12 text-pretty text-center text-muted-foreground text-xs">
-            {l.termsText1}{" "}
-            <Link className="underline hover:text-foreground" href="/">
-              {l.termsLink}
-            </Link>{" "}
-            {l.and}{" "}
-            <Link className="underline hover:text-foreground" href="/">
-              {l.privacyLink}
-            </Link>
-            {l.termsText2}
-          </p>
-        </div>
-      </div>
+					<p className="w-11/12 text-pretty text-center text-muted-foreground text-xs">
+						{l.termsText1}{" "}
+						<Link className="underline hover:text-foreground" href="/">
+							{l.termsLink}
+						</Link>{" "}
+						{l.and}{" "}
+						<Link className="underline hover:text-foreground" href="/">
+							{l.privacyLink}
+						</Link>
+						{l.termsText2}
+					</p>
+				</div>
+			</div>
 
-      <MadeWithFooter
-        madeWithText={dict.submit.madeWith}
-        andText={dict.submit.and}
-        className="gap-[12px] mt-auto lg:hidden pt-[48px] pb-[32px]"
-      />
-    </div>
-  );
+			<MadeWithFooter
+				madeWithText={dict.submit.madeWith}
+				andText={dict.submit.and}
+				className="gap-[12px] mt-auto lg:hidden pt-[48px] pb-[32px]"
+			/>
+		</div>
+	);
 }

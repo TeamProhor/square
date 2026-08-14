@@ -1,219 +1,232 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { containers, items, subitems, topics } from "@/db/schema";
+import {
+	containers,
+	cqParts,
+	items,
+	mcqOptions,
+	questions,
+	subitems,
+	topics,
+} from "@/db/schema";
 
 export async function createContainerAction(
-  title: string,
-  slug: string,
-  description?: string,
+	title: string,
+	slug: string,
+	description?: string,
 ) {
-  try {
-    await db.insert(containers).values({
-      title,
-      slug,
-      description,
-    });
-    revalidatePath("/admin/qb");
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to create container" };
-  }
+	try {
+		await db.insert(containers).values({
+			title,
+			slug,
+			description,
+		});
+		revalidatePath("/admin/qb");
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to create container" };
+	}
 }
 
 export async function deleteContainerAction(id: string) {
-  try {
-    await db.delete(containers).where(eq(containers.id, id));
-    revalidatePath("/admin/qb");
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to delete container" };
-  }
+	try {
+		await db.delete(containers).where(eq(containers.id, id));
+		revalidatePath("/admin/qb");
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to delete container" };
+	}
 }
 
 export async function createItemAction(
-  containerId: string,
-  name: string,
-  slug: string,
-  code: string,
-  qbSlug: string,
+	containerId: string,
+	qbSlug: string,
+	idOrName: string,
+	slug: string,
+	name?: string,
+	code?: string,
 ) {
-  try {
-    await db.insert(items).values({
-      id: slug,
-      containerId,
-      name,
-      slug,
-      code,
-    });
-    revalidatePath(`/admin/qb/${qbSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to create item" };
-  }
+	try {
+		const finalName = name || idOrName;
+		const finalId = slug || idOrName;
+		await db.insert(items).values({
+			id: finalId,
+			containerId,
+			name: finalName,
+			slug,
+			code,
+		});
+		revalidatePath(`/admin/qb/${qbSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to create item" };
+	}
 }
 
 export async function deleteItemAction(itemId: string, qbSlug: string) {
-  try {
-    await db.delete(items).where(eq(items.id, itemId));
-    revalidatePath(`/admin/qb/${qbSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to delete item" };
-  }
+	try {
+		await db.delete(items).where(eq(items.id, itemId));
+		revalidatePath(`/admin/qb/${qbSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to delete item" };
+	}
 }
 
 export async function createSubitemAction(
-  itemId: string,
-  qbSlug: string,
-  itemSlug: string,
-  name: string,
-  slug: string,
-  paper?: string,
+	itemId: string,
+	qbSlug: string,
+	itemSlug: string,
+	name: string,
+	slug: string,
+	paper?: string,
 ) {
-  try {
-    await db.insert(subitems).values({
-      itemId,
-      name,
-      slug,
-      paper,
-    });
-    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to create subitem" };
-  }
+	try {
+		await db.insert(subitems).values({
+			itemId,
+			name,
+			slug,
+			paper,
+		});
+		revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to create subitem" };
+	}
 }
 
 export async function deleteSubitemAction(
-  subitemId: string,
-  qbSlug: string,
-  itemSlug: string,
+	subitemId: string,
+	qbSlug: string,
+	itemSlug: string,
 ) {
-  try {
-    await db.delete(subitems).where(eq(subitems.id, subitemId));
-    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to delete subitem" };
-  }
+	try {
+		await db.delete(subitems).where(eq(subitems.id, subitemId));
+		revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to delete subitem" };
+	}
 }
 
 export async function createTopicAction(
-  subitemId: string,
-  qbSlug: string,
-  itemSlug: string,
-  subitemSlug: string,
-  name: string,
-  slug: string,
+	subitemId: string,
+	qbSlug: string,
+	itemSlug: string,
+	subitemSlug: string,
+	name: string,
+	slug: string,
 ) {
-  try {
-    await db.insert(topics).values({
-      subitemId,
-      name,
-      slug,
-    });
-    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to create topic" };
-  }
+	try {
+		await db.insert(topics).values({
+			subitemId,
+			name,
+			slug,
+		});
+		revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to create topic" };
+	}
 }
 
 export async function deleteTopicAction(
-  topicId: string,
-  qbSlug: string,
-  itemSlug: string,
-  subitemSlug: string,
+	topicId: string,
+	qbSlug: string,
+	itemSlug: string,
+	subitemSlug: string,
 ) {
-  try {
-    await db.delete(topics).where(eq(topics.id, topicId));
-    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to delete topic" };
-  }
+	try {
+		await db.delete(topics).where(eq(topics.id, topicId));
+		revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to delete topic" };
+	}
 }
 
 export async function createQuestionAction(payload: any) {
-  try {
-    const [question] = await db
-      .insert(questions)
-      .values({
-        subitemId: payload.chapterId,
-        type: payload.type,
-        source: payload.source,
-        standard: payload.standard,
-        questionText: payload.questionText,
-        explanation: payload.explanation || null,
-      })
-      .returning();
+	try {
+		const [question] = await db
+			.insert(questions)
+			.values({
+				subitemId: payload.chapterId,
+				type: payload.type,
+				source: payload.source,
+				standard: payload.standard,
+				questionText: payload.questionText,
+				explanation: payload.explanation || null,
+			})
+			.returning();
 
-    if (!question) {
-      return { error: "Failed to create question" };
-    }
+		if (!question) {
+			return { error: "Failed to create question" };
+		}
 
-    if (payload.type === "mcq" && payload.mcqOptions?.length) {
-      const optionsToInsert = payload.mcqOptions.map((opt: any, idx: number) => ({
-        questionId: question.id,
-        optionText: opt.optionText,
-        isCorrect: opt.isCorrect,
-        orderNo: idx + 1,
-      }));
-      await db.insert(mcqOptions).values(optionsToInsert);
-    } else if (payload.type === "cq" && payload.cqParts?.length) {
-      const partsToInsert = payload.cqParts.map((pt: any, idx: number) => ({
-        questionId: question.id,
-        partKey: pt.partKey as "a" | "b" | "c" | "d",
-        questionText: pt.questionText,
-        answerText: pt.answerText || null,
-        marks: pt.marks,
-        orderNo: idx + 1,
-      }));
-      await db.insert(cqParts).values(partsToInsert);
-    }
+		if (payload.type === "mcq" && payload.mcqOptions?.length) {
+			const optionsToInsert = payload.mcqOptions.map(
+				(opt: any, idx: number) => ({
+					questionId: question.id,
+					optionText: opt.optionText,
+					isCorrect: opt.isCorrect,
+					orderNo: idx + 1,
+				}),
+			);
+			await db.insert(mcqOptions).values(optionsToInsert);
+		} else if (payload.type === "cq" && payload.cqParts?.length) {
+			const partsToInsert = payload.cqParts.map((pt: any, idx: number) => ({
+				questionId: question.id,
+				partKey: pt.partKey as "a" | "b" | "c" | "d",
+				questionText: pt.questionText,
+				answerText: pt.answerText || null,
+				marks: pt.marks,
+				orderNo: idx + 1,
+			}));
+			await db.insert(cqParts).values(partsToInsert);
+		}
 
-    revalidatePath("/admin/qb");
-    return { success: true, questionId: question.id };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to create question" };
-  }
+		revalidatePath("/admin/qb");
+		return { success: true, questionId: question.id };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to create question" };
+	}
 }
 
 export async function deleteQuestionAction(questionId: string) {
-  try {
-    await db.delete(questions).where(eq(questions.id, questionId));
-    revalidatePath("/admin/qb");
-    return { success: true };
-  } catch (error: any) {
-    return { error: error?.message || "Failed to delete question" };
-  }
+	try {
+		await db.delete(questions).where(eq(questions.id, questionId));
+		revalidatePath("/admin/qb");
+		return { success: true };
+	} catch (error: any) {
+		return { error: error?.message || "Failed to delete question" };
+	}
 }
 
 export async function getQuestionsAdminAction(filters?: {
-  subjectId?: string;
-  type?: string;
+	subjectId?: string;
+	type?: string;
 }) {
-  try {
-    const list = await db.query.questions.findMany({
-      where: (questions, { and, eq }) => {
-        const conditions = [];
-        if (filters?.type) {
-          conditions.push(eq(questions.type, filters.type as "mcq" | "cq"));
-        }
-        return conditions.length > 0 ? and(...conditions) : undefined;
-      },
-      with: {
-        mcqOptions: true,
-        cqParts: true,
-      },
-      orderBy: (questions, { desc }) => [desc(questions.createdAt)],
-    });
-    return list || [];
-  } catch (error: any) {
-    console.error("Error fetching questions:", error);
-    return [];
-  }
+	try {
+		const list = await db.query.questions.findMany({
+			where: (questions, { and, eq }) => {
+				const conditions = [];
+				if (filters?.type) {
+					conditions.push(eq(questions.type, filters.type as "mcq" | "cq"));
+				}
+				return conditions.length > 0 ? and(...conditions) : undefined;
+			},
+			with: {
+				mcqOptions: true,
+				cqParts: true,
+			},
+			orderBy: (questions, { desc }) => [desc(questions.createdAt)],
+		});
+		return list || [];
+	} catch (error: any) {
+		console.error("Error fetching questions:", error);
+		return [];
+	}
 }

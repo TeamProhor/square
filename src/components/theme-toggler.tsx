@@ -6,17 +6,17 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import type { ThemeTogglerProps } from "@/types";
 
 export function ThemeToggler({
-  variant = "circle",
-  ...props
+	variant = "circle",
+	...props
 }: ThemeTogglerProps): ReactElement | null {
-  const { resolvedTheme, setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useTheme();
 
-  return (
-    <AnimatedThemeToggler
-      variant={variant}
-      theme={resolvedTheme as "light" | "dark"}
-      onThemeChange={setTheme}
-      {...props}
-    />
-  );
+	return (
+		<AnimatedThemeToggler
+			variant={variant}
+			theme={resolvedTheme as "light" | "dark"}
+			onThemeChange={setTheme}
+			{...props}
+		/>
+	);
 }

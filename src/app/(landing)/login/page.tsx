@@ -3,7 +3,7 @@ import LoginForm from "@/components/auth/LoginForm";
 import { dictionary } from "@/lib/dictionary";
 
 export default async function LoginPage(): Promise<ReactElement> {
-  const dict = dictionary;
+	const dict = dictionary;
 
-  return <LoginForm dict={dict} />;
+	return <LoginForm dict={dict} />;
 }
