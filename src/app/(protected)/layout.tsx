@@ -5,7 +5,7 @@ import Shell from "@/components/shell";
 import { auth } from "@/lib/auth";
 import { dictionary } from "@/lib/dictionary";
 
-export default async function AdminLayout({
+export default async function ProtectedLayout({
 	children,
 }: {
 	readonly children: ReactNode;

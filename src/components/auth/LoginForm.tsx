@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Lock, Send } from "@/components/icons";
+import { Lock, Send, SquareLogo } from "@/components/icons";
 import { MadeWithFooter } from "@/components/shared/made-with-footer";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -65,13 +65,7 @@ export default function LoginForm({ dict }: LoginFormProps) {
 		<div className="flex flex-col items-center w-full py-[24px] md:py-[40px]">
 			<div className="flex flex-col items-center gap-[48px] w-full max-w-[400px] px-[24px]">
 				<div className="flex flex-col items-center gap-8 w-full">
-					<Image
-						src="/icon.svg"
-						width={48}
-						height={48}
-						className="size-12"
-						alt="Square Logo"
-					/>
+					<SquareLogo className="size-12" />
 
 					<div className="flex flex-col gap-2 text-center">
 						<h1 className="text-balance font-semibold text-3xl text-foreground">

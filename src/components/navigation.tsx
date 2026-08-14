@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { SquareLogo } from "@/components/icons";
 import { LanguageToggler } from "@/components/language-toggler";
 import { ThemeToggler } from "@/components/theme-toggler";
 import { Button } from "@/components/ui/button";
@@ -32,13 +33,7 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
 							onClick={onClose}
 							className="flex items-center px-[8px] py-[4px] rounded-[8px] hover:bg-accent transition-colors overflow-hidden shrink-0"
 						>
-							<Image
-								src="/icon.svg"
-								width={24}
-								height={24}
-								className="shrink-0 mr-[12px] size-6"
-								alt="Prohor Logo"
-							/>
+							<SquareLogo className="shrink-0 mr-[12px] size-6" />
 							<h3
 								className={`font-[800] text-[18px] lg:text-[16px] whitespace-nowrap mt-[3px] transition-opacity duration-200 ${isCollapsed ? "opacity-0" : "opacity-100"}`}
 							>

@@ -142,20 +142,20 @@ export function ProfileMenu(): ReactElement {
 						label="ভুল ব্যাংক"
 						iconColorClass="text-chart-3"
 						path="/profile/wrong-bank"
-						badge={43}
+						badge={0}
 					/>
 					<MenuItem
 						icon={Clipboard}
 						label="গত পরীক্ষাগুলো"
 						path="/profile/past-exams"
-						badge={16}
+						badge={0}
 					/>
 					<MenuItem
 						icon={Gamepad}
 						label="গত ব্যাটেলগুলো"
 						iconColorClass="text-chart-1"
 						path="/profile/past-battles"
-						badge={3}
+						badge={0}
 					/>
 				</div>
 
@@ -170,7 +170,7 @@ export function ProfileMenu(): ReactElement {
 						icon={Download}
 						label="অ্যাপ ডাউনলোড করুন"
 						iconColorClass="text-primary"
-						path="/ReadingZone.apk"
+						path="/square.apk"
 					/>
 				</div>
 

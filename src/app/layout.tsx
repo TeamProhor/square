@@ -93,7 +93,7 @@ export default async function RootLayout({
 					}}
 				/>
 			</head>
-			<body className="min-h-full flex flex-col">
+			<body className="min-h-full flex flex-col" suppressHydrationWarning>
 				<ThemeProvider>
 					<ReactQueryProvider>
 						<TooltipProvider>{children}</TooltipProvider>

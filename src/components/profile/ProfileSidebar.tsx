@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Camera, Crown, Flame, Phone, Trophy } from "@/components/icons";
+import { Camera, Crown, Flame, Trophy } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSession } from "@/lib/auth-client";
 
 interface ProfileBadgeProps {
 	readonly icon: typeof Trophy;
@@ -40,6 +41,13 @@ function ProfileBadge({
 }
 
 export function ProfileSidebar(): ReactElement {
+	const { data: session } = useSession();
+	const user = session?.user;
+
+	const displayName = user?.name || "ব্যবহারকারী";
+	const email = user?.email || "user@example.com";
+	const initial = displayName.charAt(0).toUpperCase();
+
 	return (
 		<aside className="shrink-0 w-full lg:w-[340px] flex flex-col gap-4 md:gap-5 lg:sticky lg:top-8 lg:self-start">
 			<div className="flex flex-col items-center gap-1 bg-card text-card-foreground shadow-sm p-4 md:p-6 rounded-2xl md:rounded-[24px] w-full border border-border relative overflow-hidden">
@@ -48,12 +56,14 @@ export function ProfileSidebar(): ReactElement {
 				{/* Avatar Upload Container */}
 				<div className="relative z-10 group cursor-pointer">
 					<Avatar className="size-20 md:size-24 border-4 border-card shadow-md transition-transform active:scale-95">
-						<AvatarImage
-							src="https://api.readingzonebd.com/storage/v1/object/public/profiles/56d252d9-ad98-4cf8-bebb-98f9369b616e/1779631819312.webp"
-							alt="Fahhhh"
-							className="object-cover"
-						/>
-						<AvatarFallback className="text-xl">F</AvatarFallback>
+						{user?.image ? (
+							<AvatarImage
+								src={user.image}
+								alt={displayName}
+								className="object-cover"
+							/>
+						) : null}
+						<AvatarFallback className="text-xl">{initial}</AvatarFallback>
 					</Avatar>
 
 					<div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -70,19 +80,10 @@ export function ProfileSidebar(): ReactElement {
 				{/* User Details */}
 				<div className="flex flex-col items-center gap-0.5 md:gap-1 mt-2 md:mt-3 text-center z-10 w-full">
 					<h4 className="font-bold text-lg md:text-xl text-card-foreground leading-tight">
-						Fahhhh
+						{displayName}
 					</h4>
 					<p className="text-muted-foreground text-xs md:text-[13px] font-medium mt-0.5">
-						@ff_4096
-					</p>
-
-					<p className="text-muted-foreground text-[11px] md:text-xs font-bold bg-muted px-2 py-0.5 rounded-full mt-1 border border-border/50">
-						রোল: RdZ-০০৫
-					</p>
-
-					<p className="text-muted-foreground text-[11px] md:text-xs font-bold mt-1 flex items-center gap-1">
-						<Phone size={12} />
-						০১৮১৬৫১৫৭৮৫
+						{email}
 					</p>
 
 					{/* Badges */}
@@ -91,10 +92,10 @@ export function ProfileSidebar(): ReactElement {
 						<ProfileBadge
 							icon={Flame}
 							label="Streak"
-							value="2"
+							value="1"
 							variant="orange"
 						/>
-						<ProfileBadge icon={Crown} label="Early Bird" variant="blue" />
+						<ProfileBadge icon={Crown} label="Member" variant="blue" />
 					</div>
 				</div>
 			</div>

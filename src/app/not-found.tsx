@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { SquareLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { hindSiliguri } from "@/lib/fonts";
 import "@/app/globals.css";
@@ -12,13 +12,7 @@ export default function NotFound() {
 			<body className="min-h-full flex flex-col">
 				<main className="flex flex-grow min-h-screen flex-col items-center justify-center bg-background px-6">
 					<div className="flex flex-col items-center gap-6 text-center">
-						<Image
-							src="/icon.svg"
-							width={96}
-							height={96}
-							className="size-24"
-							alt="Prohor Logo"
-						/>
+						<SquareLogo className="size-24" />
 
 						<div className="flex flex-col gap-2">
 							<h1 className="text-balance text-4xl font-normal tracking-tight font-serif text-foreground">

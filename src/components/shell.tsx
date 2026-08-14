@@ -4,8 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft2 } from "@/components/icons";
+import { ArrowLeft2, User as UserIcon } from "@/components/icons";
 import { ThemeToggler } from "@/components/theme-toggler";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useSession } from "@/lib/auth-client";
 import type { ShellProps } from "@/types";
 import { MobileBottomNav, Sidebar } from "./navigation";
 
@@ -13,6 +15,9 @@ export default function Shell({ children, dict, lang }: ShellProps) {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const _pathname = usePathname();
 	const router = useRouter();
+	const { data: session } = useSession();
+	const user = session?.user;
+	const initial = user?.name?.charAt(0).toUpperCase() || "U";
 
 	return (
 		<div className="flex h-[100dvh] w-full bg-muted text-foreground font-sans overflow-hidden relative">
@@ -42,18 +47,22 @@ export default function Shell({ children, dict, lang }: ShellProps) {
 					<div className="flex flex-row items-center gap-[12px]">
 						<ThemeToggler variant="circle" />
 						<Link
-							href="/profile"
+							href={user ? "/profile" : "/login"}
 							className="relative size-8 rounded-full overflow-hidden border border-border shadow-xs hover:opacity-85 transition-opacity"
 							onClick={() => setIsSidebarOpen(false)}
 						>
-							<Image
-								src="https://api.readingzonebd.com/storage/v1/object/public/profiles/56d252d9-ad98-4cf8-bebb-98f9369b616e/1779631819312.webp"
-								alt="Profile"
-								className="object-cover"
-								fill
-								sizes="32px"
-								unoptimized
-							/>
+							<Avatar className="size-8">
+								{user?.image ? (
+									<AvatarImage
+										src={user.image}
+										alt={user.name || "Profile"}
+										className="object-cover"
+									/>
+								) : null}
+								<AvatarFallback className="text-xs font-bold bg-muted text-foreground">
+									{user ? initial : <UserIcon className="size-4 text-muted-foreground" />}
+								</AvatarFallback>
+							</Avatar>
 						</Link>
 					</div>
 				</div>
