@@ -1,5 +1,6 @@
 "use client";
 
+import Add from "reicon-react/icons/Add";
 import ArrowLeft2 from "reicon-react/icons/ArrowLeft2";
 import ArrowRight2 from "reicon-react/icons/ArrowRight2";
 import Bookmark from "reicon-react/icons/Bookmark";
@@ -10,10 +11,13 @@ import Camera from "reicon-react/icons/Camera";
 import Chart from "reicon-react/icons/Chart";
 import Clipboard from "reicon-react/icons/Clipboard";
 import Clock from "reicon-react/icons/Clock";
+import CloseCircle from "reicon-react/icons/CloseCircle";
+import Copy from "reicon-react/icons/Copy";
 import Crown from "reicon-react/icons/Crown";
 import Danger from "reicon-react/icons/Danger";
 import DocumentDownload from "reicon-react/icons/DocumentDownload";
 import Download from "reicon-react/icons/Download";
+import Edit from "reicon-react/icons/Edit";
 import Export from "reicon-react/icons/Export";
 import FileDown from "reicon-react/icons/FileDown";
 import FileText from "reicon-react/icons/FileText";
@@ -38,12 +42,14 @@ import Star from "reicon-react/icons/Star";
 import StatusUp from "reicon-react/icons/StatusUp";
 import Sun from "reicon-react/icons/Sun";
 import TaskSquare from "reicon-react/icons/TaskSquare";
+import TickCircle from "reicon-react/icons/TickCircle";
 import Trash2 from "reicon-react/icons/Trash2";
 import Trophy from "reicon-react/icons/Trophy";
 import User from "reicon-react/icons/User";
 import Warning from "reicon-react/icons/Warning";
 
 export {
+  Add,
   ArrowLeft2,
   ArrowRight2,
   Bookmark,
@@ -54,10 +60,13 @@ export {
   Chart,
   Clipboard,
   Clock,
+  CloseCircle,
+  Copy,
   Crown,
   Danger,
   DocumentDownload,
   Download,
+  Edit,
   Export,
   FileDown,
   FileText,
@@ -82,6 +91,7 @@ export {
   StatusUp,
   Sun,
   TaskSquare,
+  TickCircle,
   Trash2,
   Trophy,
   User,

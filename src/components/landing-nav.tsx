@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { User } from "@/components/icons";
 import { ThemeToggler } from "@/components/theme-toggler";
@@ -12,10 +13,13 @@ export function LandingHeader() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="size-9 md:size-10 rounded-xl bg-transparent flex items-center justify-center p-1 group-hover:scale-105 transition-transform duration-200">
-            <img
+            <Image
               alt="Square Logo"
               className="w-full h-full object-contain"
               src="https://raw.githubusercontent.com/shuyaib105/square/refs/heads/main/1536-removebg-preview.png"
+              width={40}
+              height={40}
+              unoptimized
             />
           </div>
           <div className="flex flex-col">
@@ -72,10 +76,13 @@ export function LandingFooter() {
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="size-9 rounded-xl bg-background border border-border/60 p-1 flex items-center justify-center">
-                <img
+                <Image
                   alt="Logo"
                   className="w-full h-full object-contain"
                   src="https://raw.githubusercontent.com/shuyaib105/square/refs/heads/main/1536-removebg-preview.png"
+                  width={36}
+                  height={36}
+                  unoptimized
                 />
               </div>
               <span className="text-base font-extrabold tracking-tight text-foreground">
@@ -83,7 +90,8 @@ export function LandingFooter() {
               </span>
             </div>
             <p className="text-muted-foreground text-xs leading-relaxed italic border-l-2 border-primary/40 pl-3">
-              "শুধু পড়াশোনা নয়, তৈরি করো নিজেকে যুগের সাথে তাল মিলিয়ে। ইঞ্জিনিয়ারিং প্রস্তুতি এবার বাড়ির কাছে।"
+              "শুধু পড়াশোনা নয়, তৈরি করো নিজেকে যুগের সাথে তাল মিলিয়ে। ইঞ্জিনিয়ারিং
+              প্রস্তুতি এবার বাড়ির কাছে।"
             </p>
           </div>
 
@@ -94,19 +102,28 @@ export function LandingFooter() {
             </h4>
             <ul className="space-y-2.5 text-xs text-muted-foreground font-medium">
               <li>
-                <Link href="/pdf" className="hover:text-primary transition-colors flex items-center gap-2">
+                <Link
+                  href="/pdf"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
                   <span className="size-1.5 rounded-full bg-primary/60" />
                   সাজেশন পিডিএফ পোর্টাল
                 </Link>
               </li>
               <li>
-                <Link href="/calendar" className="hover:text-primary transition-colors flex items-center gap-2">
+                <Link
+                  href="/calendar"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
                   <span className="size-1.5 rounded-full bg-primary/60" />
                   এইচএসসি ২০২৬ পরীক্ষার দিনপঞ্জি
                 </Link>
               </li>
               <li>
-                <Link href="/poll" className="hover:text-primary transition-colors flex items-center gap-2">
+                <Link
+                  href="/poll"
+                  className="hover:text-primary transition-colors flex items-center gap-2"
+                >
                   <span className="size-1.5 rounded-full bg-primary/60" />
                   লাইভ পোল ও এমসিকিউ কুইজ
                 </Link>
@@ -133,7 +150,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="https://facebook.com"
                   className="hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <span className="size-1.5 rounded-full bg-primary/60" />
@@ -145,7 +162,8 @@ export function LandingFooter() {
         </div>
 
         <div className="pt-8 border-t border-border/40 text-center text-muted-foreground text-xs">
-          © 2026 স্কয়ার (Engr. Platform). All rights reserved. Designed with craftsmanship & precision.
+          © 2026 স্কয়ার (Engr. Platform). All rights reserved. Designed with
+          craftsmanship & precision.
         </div>
       </div>
     </footer>

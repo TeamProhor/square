@@ -17,6 +17,7 @@ export const auth = betterAuth({
     "http://localhost:3000",
   trustedOrigins: [
     "http://79.143.185.101:3001",
+    "http://79.143.185.101:3002",
     "http://localhost:3000",
     "https://square.prohor.dev",
   ],

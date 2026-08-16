@@ -3,17 +3,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CalendarTick, Clock, Flash, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -111,7 +103,7 @@ export default function AdminExamsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-20">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
@@ -123,120 +115,115 @@ export default function AdminExamsPage() {
           </p>
         </div>
 
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
+        <ResponsiveDialog
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          trigger={
             <Button className="rounded-full shadow-xs gap-1.5 h-10 px-5 font-semibold">
               <Flash className="size-4" /> নতুন পরীক্ষার সূচী যোগ করুন
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[540px]">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>নতুন পরীক্ষার রুটিন যোগ করুন</DialogTitle>
-                <DialogDescription>
-                  তারিখ, বিষয় ও সিলেবাস নির্ধারণ করে ক্যালেন্ডারে প্রকাশ করুন।
-                </DialogDescription>
-              </DialogHeader>
+          }
+          title="নতুন পরীক্ষার রুটিন যোগ করুন"
+          description="তারিখ, বিষয় ও সিলেবাস নির্ধারণ করে ক্যালেন্ডারে প্রকাশ করুন।"
+          className="sm:max-w-[540px]"
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-4 py-2">
+              {formError && (
+                <div className="p-3 text-xs font-semibold rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
+                  {formError}
+                </div>
+              )}
 
-              <div className="flex flex-col gap-4 py-4">
-                {formError && (
-                  <div className="p-3 text-xs font-semibold rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
-                    {formError}
-                  </div>
-                )}
+              <div className="space-y-1.5">
+                <Label htmlFor="exam-title">পরীক্ষার নাম / শিরোনাম *</Label>
+                <Input
+                  id="exam-title"
+                  placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র - ভেক্টর স্পেশাল এক্সাম"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="exam-title">পরীক্ষার নাম / শিরোনাম *</Label>
+                  <Label htmlFor="exam-subject">বিষয় *</Label>
                   <Input
-                    id="exam-title"
-                    placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র - ভেক্টর স্পেশাল এক্সাম"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    id="exam-subject"
+                    placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exam-subject">বিষয় *</Label>
-                    <Input
-                      id="exam-subject"
-                      placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exam-date">পরীক্ষার তারিখ ও সময় *</Label>
-                    <Input
-                      id="exam-date"
-                      type="datetime-local"
-                      value={examDate}
-                      onChange={(e) => setExamDate(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exam-duration">সময় (মিনিট)</Label>
-                    <Input
-                      id="exam-duration"
-                      type="number"
-                      value={durationMinutes}
-                      onChange={(e) =>
-                        setDurationMinutes(Number(e.target.value))
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="exam-marks">মোট নম্বর</Label>
-                    <Input
-                      id="exam-marks"
-                      type="number"
-                      value={totalMarks}
-                      onChange={(e) => setTotalMarks(Number(e.target.value))}
-                    />
-                  </div>
-                </div>
-
                 <div className="space-y-1.5">
-                  <Label htmlFor="exam-syllabus">সিলেবাস (ঐচ্ছিক)</Label>
+                  <Label htmlFor="exam-date">পরীক্ষার তারিখ ও সময় *</Label>
                   <Input
-                    id="exam-syllabus"
-                    placeholder="যেমন: অধ্যায় ২ (সম্পূর্ণ ভেক্টর)"
-                    value={syllabus}
-                    onChange={(e) => setSyllabus(e.target.value)}
+                    id="exam-date"
+                    type="datetime-local"
+                    value={examDate}
+                    onChange={(e) => setExamDate(e.target.value)}
+                    required
                   />
                 </div>
               </div>
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  disabled={createMutation.isPending}
-                >
-                  বাতিল
-                </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? (
-                    <>
-                      <Spinner className="mr-2" /> সেভ হচ্ছে...
-                    </>
-                  ) : (
-                    "রুটিন যুক্ত করুন"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="exam-duration">সময় (মিনিট)</Label>
+                  <Input
+                    id="exam-duration"
+                    type="number"
+                    value={durationMinutes}
+                    onChange={(e) => setDurationMinutes(Number(e.target.value))}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="exam-marks">মোট নম্বর</Label>
+                  <Input
+                    id="exam-marks"
+                    type="number"
+                    value={totalMarks}
+                    onChange={(e) => setTotalMarks(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="exam-syllabus">সিলেবাস (ঐচ্ছিক)</Label>
+                <Input
+                  id="exam-syllabus"
+                  placeholder="যেমন: অধ্যায় ২ (সম্পূর্ণ ভেক্টর)"
+                  value={syllabus}
+                  onChange={(e) => setSyllabus(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                disabled={createMutation.isPending}
+              >
+                বাতিল
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? (
+                  <>
+                    <Spinner className="mr-2" /> সেভ হচ্ছে...
+                  </>
+                ) : (
+                  "রুটিন যুক্ত করুন"
+                )}
+              </Button>
+            </div>
+          </form>
+        </ResponsiveDialog>
       </div>
 
       {/* Routine Table */}

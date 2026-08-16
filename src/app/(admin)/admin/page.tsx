@@ -50,7 +50,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-8">
       <div>
         <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
           এডমিন ড্যাশবোর্ড ওভারভিউ

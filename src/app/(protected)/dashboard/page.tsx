@@ -6,8 +6,6 @@ import {
   Flame,
   StatusUp,
   TaskSquare,
-  Trophy,
-  User,
 } from "@/components/icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/db";
@@ -63,7 +61,8 @@ export default async function DashboardPage(): Promise<ReactElement> {
             স্বাগতম স্কয়ার ড্যাশবোর্ডে!
           </h1>
           <p className="text-muted-foreground text-sm mt-1 max-w-2xl">
-            আপনার অ্যাকাডেমিক ও এডমিশন প্রস্তুতির প্রয়োজনীয় সব রিসোর্স ও পরীক্ষা এক নজরে এক্সপ্লোর করুন।
+            আপনার অ্যাকাডেমিক ও এডমিশন প্রস্তুতির প্রয়োজনীয় সব রিসোর্স ও পরীক্ষা এক নজরে
+            এক্সপ্লোর করুন।
           </p>
         </div>
       </div>
@@ -99,8 +98,12 @@ export default async function DashboardPage(): Promise<ReactElement> {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-foreground">জনপ্রিয় প্রশ্নব্যাংক</h2>
-              <p className="text-xs text-muted-foreground">সরাসরি চ্যাপ্টারভিত্তিক প্রশ্ন সমাধান শুরু করুন</p>
+              <h2 className="text-xl font-bold text-foreground">
+                জনপ্রিয় প্রশ্নব্যাংক
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                সরাসরি চ্যাপ্টারভিত্তিক প্রশ্ন সমাধান শুরু করুন
+              </p>
             </div>
             <Link
               href="/qb"

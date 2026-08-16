@@ -9,17 +9,9 @@ import {
   Flash,
   Trash2,
 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -112,7 +104,7 @@ export default function AdminPdfPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 max-w-7xl mx-auto w-full pb-20">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
@@ -125,136 +117,130 @@ export default function AdminPdfPage() {
           </p>
         </div>
 
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
+        <ResponsiveDialog
+          open={isOpen}
+          onOpenChange={setIsOpen}
+          trigger={
             <Button className="rounded-full shadow-xs gap-1.5 h-10 px-5 font-semibold">
               <Flash className="size-4" /> নতুন পিডিএফ যোগ করুন
             </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[540px]">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>নতুন সাজেশন পিডিএফ যোগ করুন</DialogTitle>
-                <DialogDescription>
-                  গুগল ড্রাইভের শেয়ারেবল লিংক দিয়ে সহজে যুক্ত করুন।
-                </DialogDescription>
-              </DialogHeader>
+          }
+          title="নতুন সাজেশন পিডিএফ যোগ করুন"
+          description="গুগল ড্রাইভের শেয়ারেবল লিংক দিয়ে সহজে যুক্ত করুন।"
+          className="sm:max-w-[540px]"
+        >
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-4 py-2">
+              {formError && (
+                <div className="p-3 text-xs font-semibold rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
+                  {formError}
+                </div>
+              )}
 
-              <div className="flex flex-col gap-4 py-4">
-                {formError && (
-                  <div className="p-3 text-xs font-semibold rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
-                    {formError}
-                  </div>
-                )}
+              <div className="space-y-1.5">
+                <Label htmlFor="pdf-title">পিডিএফ শিরোনাম *</Label>
+                <Input
+                  id="pdf-title"
+                  placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র - ভেক্টর স্পেশাল নোট"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="pdf-title">পিডিএফ শিরোনাম *</Label>
-                  <Input
-                    id="pdf-title"
-                    placeholder="যেমন: পদার্থবিজ্ঞান ১ম পত্র - ভেক্টর স্পেশাল নোট"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label>বিষয় *</Label>
-                    <Select value={subject} onValueChange={setSubject}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="বিষয় সিলেক্ট করুন" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectGroup>
-                          <SelectItem value="physics">পদার্থবিজ্ঞান</SelectItem>
-                          <SelectItem value="chemistry">রসায়ন</SelectItem>
-                          <SelectItem value="higher-math">
-                            উচ্চতর গণিত
-                          </SelectItem>
-                          <SelectItem value="biology">জীববিজ্ঞান</SelectItem>
-                          <SelectItem value="ict">আইসিটি (ICT)</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label>পত্র *</Label>
-                    <Select value={paper} onValueChange={setPaper}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="পত্র" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectGroup>
-                          <SelectItem value="1st">১ম পত্র</SelectItem>
-                          <SelectItem value="2nd">২য় পত্র</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pdf-chapter">অধ্যায় (ঐচ্ছিক)</Label>
-                    <Input
-                      id="pdf-chapter"
-                      placeholder="যেমন: ভেক্টর"
-                      value={chapter}
-                      onChange={(e) => setChapter(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pdf-batch">টার্গেট ব্যাচ</Label>
-                    <Input
-                      id="pdf-batch"
-                      placeholder="HSC 2026"
-                      value={hscBatch}
-                      onChange={(e) => setHscBatch(e.target.value)}
-                    />
-                  </div>
+                  <Label>বিষয় *</Label>
+                  <Select value={subject} onValueChange={setSubject}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="বিষয় সিলেক্ট করুন" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectGroup>
+                        <SelectItem value="physics">পদার্থবিজ্ঞান</SelectItem>
+                        <SelectItem value="chemistry">রসায়ন</SelectItem>
+                        <SelectItem value="higher-math">উচ্চতর গণিত</SelectItem>
+                        <SelectItem value="biology">জীববিজ্ঞান</SelectItem>
+                        <SelectItem value="ict">আইসিটি (ICT)</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="pdf-url">গুগল ড্রাইভ লিংক *</Label>
-                  <Input
-                    id="pdf-url"
-                    placeholder="https://drive.google.com/file/d/..."
-                    value={driveUrl}
-                    onChange={(e) => setDriveUrl(e.target.value)}
-                    required
-                  />
-                  <p className="text-[11px] text-muted-foreground">
-                    ড্রাইভ ফাইলের পারমিশন "Anyone with the link can view" নিশ্চিত
-                    করুন।
-                  </p>
+                  <Label>পত্র *</Label>
+                  <Select value={paper} onValueChange={setPaper}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="পত্র" />
+                    </SelectTrigger>
+                    <SelectContent position="popper">
+                      <SelectGroup>
+                        <SelectItem value="1st">১ম পত্র</SelectItem>
+                        <SelectItem value="2nd">২য় পত্র</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  disabled={createMutation.isPending}
-                >
-                  বাতিল
-                </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? (
-                    <>
-                      <Spinner className="mr-2" /> সেভ হচ্ছে...
-                    </>
-                  ) : (
-                    "পিডিএফ যুক্ত করুন"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pdf-chapter">অধ্যায় (ঐচ্ছিক)</Label>
+                  <Input
+                    id="pdf-chapter"
+                    placeholder="যেমন: ভেক্টর"
+                    value={chapter}
+                    onChange={(e) => setChapter(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="pdf-batch">টার্গেট ব্যাচ</Label>
+                  <Input
+                    id="pdf-batch"
+                    placeholder="HSC 2026"
+                    value={hscBatch}
+                    onChange={(e) => setHscBatch(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pdf-url">গুগল ড্রাইভ লিংক *</Label>
+                <Input
+                  id="pdf-url"
+                  placeholder="https://drive.google.com/file/d/..."
+                  value={driveUrl}
+                  onChange={(e) => setDriveUrl(e.target.value)}
+                  required
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  ড্রাইভ ফাইলের পারমিশন "Anyone with the link can view" নিশ্চিত করুন।
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                disabled={createMutation.isPending}
+              >
+                বাতিল
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? (
+                  <>
+                    <Spinner className="mr-2" /> সেভ হচ্ছে...
+                  </>
+                ) : (
+                  "পিডিএফ যুক্ত করুন"
+                )}
+              </Button>
+            </div>
+          </form>
+        </ResponsiveDialog>
       </div>
 
       {/* PDF Table/Cards */}

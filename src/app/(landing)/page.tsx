@@ -1,20 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
-import {
-  BookOpen,
-  CalendarTick,
-  DocumentDownload,
-  Flame,
-  Information,
-  Search,
-  Star,
-  StatusUp,
-  TaskSquare,
-} from "@/components/icons";
-import { LandingFooter, LandingHeader } from "@/components/landing-nav";
-import { FeatureSection } from "@/components/feature-section";
 import { CoursesPricingSection } from "@/components/courses-pricing-section";
+import { FeatureSection } from "@/components/feature-section";
+import { Flame } from "@/components/icons";
+import { LandingFooter, LandingHeader } from "@/components/landing-nav";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -22,8 +12,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { COURSES } from "@/lib/courses";
 
 export default function LandingHomePage() {
   const sliderImages = [
@@ -59,10 +47,12 @@ export default function LandingHomePage() {
               {sliderImages.map((slide) => (
                 <CarouselItem key={slide.title}>
                   <div className="relative w-full aspect-[16/9] md:aspect-[21/9] min-h-[300px] md:min-h-[400px] flex items-end p-5 sm:p-8 md:p-10 overflow-hidden">
-                    <img
+                    <Image
                       alt={slide.title}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-102 transition-transform duration-700 brightness-90 dark:brightness-75"
                       src={slide.url}
+                      fill
+                      unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent dark:from-background dark:via-background/70 dark:to-transparent" />
 
@@ -108,7 +98,8 @@ export default function LandingHomePage() {
               এক নজরে সকল সার্ভিস
             </h2>
             <p className="text-muted-foreground text-xs sm:text-sm max-w-lg">
-              তোমার প্রস্তুতিকে এক ধাপ এগিয়ে নিতে স্কয়ার প্ল্যাটফর্মের প্রতিটি ফিচার সম্পূর্ণ ইন্টারঅ্যাক্টিভ ও গোছানো।
+              তোমার প্রস্তুতিকে এক ধাপ এগিয়ে নিতে স্কয়ার প্ল্যাটফর্মের প্রতিটি ফিচার সম্পূর্ণ
+              ইন্টারঅ্যাক্টিভ ও গোছানো।
             </p>
           </div>
 

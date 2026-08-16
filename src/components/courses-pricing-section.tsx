@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CalendarTick,
   Flame,
@@ -10,15 +10,29 @@ import {
   Star,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { COURSES, type Course } from "@/lib/courses";
+import { getCourses } from "@/lib/actions/course";
 
 export function CoursesPricingSection() {
-  const [selectedBatch, setSelectedBatch] = useState<"HSC 26" | "HSC 27" | "Admission">("HSC 26");
+  const [selectedBatch, setSelectedBatch] = useState<
+    "HSC 26" | "HSC 27" | "Admission"
+  >("HSC 26");
+  const [filteredCourses, setFilteredCourses] = useState<
+    Awaited<ReturnType<typeof getCourses>>
+  >([]);
 
-  const filteredCourses = COURSES.filter((course) => course.hscBatch === selectedBatch);
+  useEffect(() => {
+    async function loadCourses() {
+      const courses = await getCourses(selectedBatch);
+      setFilteredCourses(courses);
+    }
+    loadCourses();
+  }, [selectedBatch]);
 
   return (
-    <section id="courses-section" className="w-full overflow-hidden py-4 md:py-8 scroll-mt-20">
+    <section
+      id="courses-section"
+      className="w-full overflow-hidden py-4 md:py-8 scroll-mt-20"
+    >
       <div className="mx-auto w-full max-w-7xl px-4 md:px-6">
         {/* Section Header */}
         <div className="mb-6 max-w-2xl space-y-2">
@@ -26,7 +40,8 @@ export function CoursesPricingSection() {
             আমাদের এক্সক্লুসিভ কোর্সসমূহ
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            লাইভ ক্লাস, অধ্যায়ভিত্তিক মেগা এক্সাম, ডেডিকেটেড ডাউট সলভ ও বোর্ড স্ট্যান্ডার্ড শিটসহ সম্পূর্ণ একাডেমিক ও এডমিশন প্রস্তুতি।
+            লাইভ ক্লাস, অধ্যায়ভিত্তিক মেগা এক্সাম, ডেডিকেটেড ডাউট সলভ ও বোর্ড স্ট্যান্ডার্ড শিটসহ
+            সম্পূর্ণ একাডেমিক ও এডমিশন প্রস্তুতি।
           </p>
         </div>
 
@@ -42,7 +57,7 @@ export function CoursesPricingSection() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              HSC 26 ব্যাচ ({COURSES.filter((c) => c.hscBatch === "HSC 26").length})
+              HSC 26 ব্যাচ
             </button>
             <button
               type="button"
@@ -79,7 +94,7 @@ export function CoursesPricingSection() {
 
           {selectedBatch === "HSC 26" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-border/80">
-              {filteredCourses.map((course: Course, idx: number) => {
+              {filteredCourses.map((course, idx) => {
                 const isFeatured = idx === 0;
 
                 return (
@@ -113,7 +128,8 @@ export function CoursesPricingSection() {
                         </span>
                         {isFeatured && (
                           <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1">
-                            <Star className="size-3 fill-amber-500 text-amber-500" /> সর্বাধিক ভর্তি
+                            <Star className="size-3 fill-amber-500 text-amber-500" />{" "}
+                            সর্বাধিক ভর্তি
                           </span>
                         )}
                       </div>
@@ -136,7 +152,9 @@ export function CoursesPricingSection() {
                               ৳{course.originalPrice}
                             </span>
                           )}
-                          <span className="text-[11px] font-semibold text-muted-foreground">/ এককালীন</span>
+                          <span className="text-[11px] font-semibold text-muted-foreground">
+                            / এককালীন
+                          </span>
                         </div>
                       </div>
 
@@ -150,10 +168,6 @@ export function CoursesPricingSection() {
                             </p>
                           </div>
                         ))}
-                        <div className="flex items-start gap-2 text-[11px] text-muted-foreground pt-1">
-                          <CalendarTick className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                          <span className="line-clamp-1">শিডিউল: {course.routineInfo.schedule}</span>
-                        </div>
                       </div>
                     </div>
 
@@ -167,7 +181,9 @@ export function CoursesPricingSection() {
                             : "bg-foreground text-background hover:bg-foreground/90"
                         }`}
                       >
-                        <Link href={`/courses/${course.slug}`}>এখনই এনরোল করুন</Link>
+                        <Link href={`/courses/${course.slug}`}>
+                          এখনই এনরোল করুন
+                        </Link>
                       </Button>
 
                       <div className="grid grid-cols-2 gap-2">
@@ -206,10 +222,19 @@ export function CoursesPricingSection() {
                 HSC 27 ব্যাচের কোর্স খুব শীঘ্রই উন্মুক্ত করা হবে
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-                আমাদের টেলিগ্রাম সাপোর্ট গ্রুপে যুক্ত হয়ে সবার আগে ব্যাচ সংক্রান্ত আপডেট ও স্পেশাল ছাড় পেয়ে যান।
+                আমাদের টেলিগ্রাম সাপোর্ট গ্রুপে যুক্ত হয়ে সবার আগে ব্যাচ সংক্রান্ত আপডেট ও
+                স্পেশাল ছাড় পেয়ে যান।
               </p>
-              <Button asChild variant="outline" className="mt-2 rounded-xl font-bold text-xs">
-                <a href="https://t.me/shu_yaib" target="_blank" rel="noopener noreferrer">
+              <Button
+                asChild
+                variant="outline"
+                className="mt-2 rounded-xl font-bold text-xs"
+              >
+                <a
+                  href="https://t.me/shu_yaib"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   টেলিগ্রাম গ্রুপে যুক্ত হোন &rarr;
                 </a>
               </Button>
@@ -225,8 +250,16 @@ export function CoursesPricingSection() {
               <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
                 এইচএসসি বোর্ড পরীক্ষার পরই শুরু হবে পূর্ণাঙ্গ ডেডিকেটেড এডমিশন মাস্টারক্লাস।
               </p>
-              <Button asChild variant="outline" className="mt-2 rounded-xl font-bold text-xs">
-                <a href="https://t.me/shu_yaib" target="_blank" rel="noopener noreferrer">
+              <Button
+                asChild
+                variant="outline"
+                className="mt-2 rounded-xl font-bold text-xs"
+              >
+                <a
+                  href="https://t.me/shu_yaib"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   নোটিফিকেশনের জন্য যুক্ত থাকুন &rarr;
                 </a>
               </Button>

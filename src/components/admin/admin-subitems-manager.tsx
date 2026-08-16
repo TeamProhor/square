@@ -6,15 +6,9 @@ import { useState } from "react";
 import { NewChapterForm } from "@/components/admin/forms/new-chapter-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { deleteSubitemAction as deleteChapterAction } from "@/lib/actions/question";
 import type { Container, Item, Subitem } from "@/types";
 
@@ -77,7 +71,7 @@ export function AdminSubitemsManager({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground flex-wrap">
         <Link
           href="/admin/qb"
@@ -123,28 +117,24 @@ export function AdminSubitemsManager({
 
       <QuickList items={items} columns={{ sm: 1, md: 2, lg: 3 }} gap="md" />
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {subject.name} এ নতুন অধ্যায়
-            </DialogTitle>
-            <DialogDescription>
-              অধ্যায়ের নাম, slug ও পেপার নির্বাচন করুন।
-            </DialogDescription>
-          </DialogHeader>
-          <NewChapterForm
-            qbSlug={qb.slug}
-            subjectId={subject.id}
-            subjectSlug={subject.slug}
-            onSuccess={() => {
-              setIsCreateOpen(false);
-              router.refresh();
-            }}
-            onCancel={() => setIsCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ResponsiveDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        title={`${subject.name} এ নতুন অধ্যায়`}
+        description="অধ্যায়ের নাম, slug ও পেপার নির্বাচন করুন।"
+        className="sm:max-w-lg"
+      >
+        <NewChapterForm
+          qbSlug={qb.slug}
+          subjectId={subject.id}
+          subjectSlug={subject.slug}
+          onSuccess={() => {
+            setIsCreateOpen(false);
+            router.refresh();
+          }}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </ResponsiveDialog>
     </div>
   );
 }

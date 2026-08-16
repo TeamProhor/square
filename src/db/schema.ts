@@ -413,3 +413,140 @@ export const examsRelations = relations(exams, ({ many }) => ({
   examQuestions: many(examQuestions),
   submissions: many(examSubmissions),
 }));
+
+export const courses = sqliteTable("courses", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  description: text("description").notNull(),
+  hscBatch: text("hsc_batch").notNull(), // "HSC 26" | "HSC 27" | "Admission"
+  price: integer("price").notNull(),
+  originalPrice: integer("original_price"),
+  image: text("image").notNull(),
+  badge: text("badge"),
+  isPublished: integer("is_published", { mode: "boolean" }).default(true),
+  orderIndex: integer("order_index").default(0),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const courseDetails = sqliteTable("course_details", {
+  id: text("id").primaryKey(),
+  courseId: text("course_id")
+    .notNull()
+    .unique()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  routinePdfUrl: text("routine_pdf_url"),
+  telegramGroupUrl: text("telegram_group_url"),
+  features: text("features", { mode: "json" }).$type<string[]>(),
+  modules: text("modules", { mode: "json" }).$type<
+    {
+      id: string;
+      title: string;
+      totalClasses: number;
+      chapters: string[];
+    }[]
+  >(),
+  faqs: text("faqs", { mode: "json" }).$type<
+    {
+      question: string;
+      answer: string;
+    }[]
+  >(),
+  instructors: text("instructors", { mode: "json" }).$type<
+    {
+      name: string;
+      role: string;
+      institution: string;
+      image?: string;
+    }[]
+  >(),
+});
+
+export const courseEnrollmentRequests = sqliteTable(
+  "course_enrollment_requests",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
+    senderNumber: text("sender_number").notNull(),
+    transactionId: text("transaction_id").notNull(),
+    amountPaid: integer("amount_paid").notNull(),
+    status: text("status").default("pending"), // "pending" | "approved" | "rejected"
+    adminNote: text("admin_note"),
+    reviewedBy: text("reviewed_by").references(() => user.id),
+    reviewedAt: integer("reviewed_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+);
+
+export const courseEnrollments = sqliteTable("course_enrollments", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  courseId: text("course_id")
+    .notNull()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  requestId: text("request_id").references(() => courseEnrollmentRequests.id),
+  status: text("status").default("active"), // "active" | "revoked"
+  enrolledAt: integer("enrolled_at", { mode: "timestamp" }).notNull(),
+});
+
+export const coursesRelations = relations(courses, ({ one, many }) => ({
+  details: one(courseDetails, {
+    fields: [courses.id],
+    references: [courseDetails.courseId],
+  }),
+  enrollments: many(courseEnrollments),
+  enrollmentRequests: many(courseEnrollmentRequests),
+}));
+
+export const courseDetailsRelations = relations(courseDetails, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseDetails.courseId],
+    references: [courses.id],
+  }),
+}));
+
+export const courseEnrollmentsRelations = relations(
+  courseEnrollments,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [courseEnrollments.userId],
+      references: [user.id],
+    }),
+    course: one(courses, {
+      fields: [courseEnrollments.courseId],
+      references: [courses.id],
+    }),
+    request: one(courseEnrollmentRequests, {
+      fields: [courseEnrollments.requestId],
+      references: [courseEnrollmentRequests.id],
+    }),
+  }),
+);
+
+export const courseEnrollmentRequestsRelations = relations(
+  courseEnrollmentRequests,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [courseEnrollmentRequests.userId],
+      references: [user.id],
+    }),
+    course: one(courses, {
+      fields: [courseEnrollmentRequests.courseId],
+      references: [courses.id],
+    }),
+    reviewer: one(user, {
+      fields: [courseEnrollmentRequests.reviewedBy],
+      references: [user.id],
+    }),
+  }),
+);

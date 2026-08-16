@@ -6,15 +6,9 @@ import { useState } from "react";
 import { NewSubjectForm } from "@/components/admin/forms/new-subject-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { deleteItemAction as deleteSubjectAction } from "@/lib/actions/question";
 import type { Container, Item } from "@/types";
 
@@ -76,7 +70,7 @@ export function AdminItemsManager({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
         <Link
           href="/admin/qb"
@@ -108,25 +102,23 @@ export function AdminItemsManager({
 
       <QuickList items={items} columns={{ sm: 1, md: 2, lg: 3 }} gap="md" />
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {qb.title} এ নতুন বিষয়
-            </DialogTitle>
-            <DialogDescription>বিষয়ের আইডি, নাম ও কোড লিখুন।</DialogDescription>
-          </DialogHeader>
-          <NewSubjectForm
-            qbId={qb.id}
-            qbSlug={qb.slug}
-            onSuccess={() => {
-              setIsCreateOpen(false);
-              router.refresh();
-            }}
-            onCancel={() => setIsCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ResponsiveDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        title={`${qb.title} এ নতুন বিষয়`}
+        description="বিষয়ের আইডি, নাম ও কোড লিখুন।"
+        className="sm:max-w-lg"
+      >
+        <NewSubjectForm
+          qbId={qb.id}
+          qbSlug={qb.slug}
+          onSuccess={() => {
+            setIsCreateOpen(false);
+            router.refresh();
+          }}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </ResponsiveDialog>
     </div>
   );
 }

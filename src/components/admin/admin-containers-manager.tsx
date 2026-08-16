@@ -5,14 +5,8 @@ import { useState } from "react";
 import { NewQuestionBankForm } from "@/components/admin/forms/new-qb-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { BookOpen, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { deleteContainerAction } from "@/lib/actions/question";
 import type { Container } from "@/types";
 
@@ -64,7 +58,7 @@ export function AdminContainersManager({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
@@ -85,25 +79,21 @@ export function AdminContainersManager({
 
       <QuickList items={items} columns={{ sm: 1, lg: 2 }} gap="md" />
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              নতুন প্রশ্নব্যাংক
-            </DialogTitle>
-            <DialogDescription>
-              প্রশ্নব্যাংকের শিরোনাম ও বিবরণ লিখুন।
-            </DialogDescription>
-          </DialogHeader>
-          <NewQuestionBankForm
-            onSuccess={() => {
-              setIsCreateOpen(false);
-              router.refresh();
-            }}
-            onCancel={() => setIsCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ResponsiveDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        title="নতুন প্রশ্নব্যাংক"
+        description="প্রশ্নব্যাংকের শিরোনাম ও বিবরণ লিখুন।"
+        className="sm:max-w-lg"
+      >
+        <NewQuestionBankForm
+          onSuccess={() => {
+            setIsCreateOpen(false);
+            router.refresh();
+          }}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </ResponsiveDialog>
     </div>
   );
 }

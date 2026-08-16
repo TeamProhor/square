@@ -6,14 +6,8 @@ import { useState } from "react";
 import { NewTopicForm } from "@/components/admin/forms/new-topic-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { deleteTopicAction } from "@/lib/actions/question";
 import type { Container, Item, Subitem, Topic } from "@/types";
 
@@ -68,7 +62,7 @@ export function AdminTopicsManager({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground flex-wrap">
         <Link
           href="/admin/qb"
@@ -121,27 +115,25 @@ export function AdminTopicsManager({
 
       <QuickList items={items} columns={{ sm: 1, md: 2, lg: 3 }} gap="md" />
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {chapter.name} এ নতুন টপিক
-            </DialogTitle>
-            <DialogDescription>টপিকের নাম লিখুন।</DialogDescription>
-          </DialogHeader>
-          <NewTopicForm
-            qbSlug={qb.slug}
-            subjectSlug={subject.slug}
-            chapterId={chapter.id}
-            chapterSlug={chapter.slug}
-            onSuccess={() => {
-              setIsCreateOpen(false);
-              router.refresh();
-            }}
-            onCancel={() => setIsCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ResponsiveDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        title={`${chapter.name} এ নতুন টপিক`}
+        description="টপিকের নাম লিখুন।"
+        className="sm:max-w-lg"
+      >
+        <NewTopicForm
+          qbSlug={qb.slug}
+          subjectSlug={subject.slug}
+          chapterId={chapter.id}
+          chapterSlug={chapter.slug}
+          onSuccess={() => {
+            setIsCreateOpen(false);
+            router.refresh();
+          }}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </ResponsiveDialog>
     </div>
   );
 }

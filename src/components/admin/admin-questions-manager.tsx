@@ -4,16 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { NewQuestionForm } from "@/components/admin/forms/new-question-form";
 import { ArrowRight2, TaskSquare, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useAdminQuestions, useDeleteQuestion } from "@/hooks/use-admin-qb";
 import type { MCQOption, Question } from "@/types";
 
@@ -180,24 +174,20 @@ export function AdminQuestionsManager({
         )}
       </div>
 
-      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">
-              {topicName} এ নতুন প্রশ্ন
-            </DialogTitle>
-            <DialogDescription>
-              প্রশ্নের ধরন, বিবরণ ও উত্তর লিখুন।
-            </DialogDescription>
-          </DialogHeader>
-          <NewQuestionForm
-            subjectId={subjectId}
-            chapterId={chapterId}
-            onSuccess={() => setIsCreateOpen(false)}
-            onCancel={() => setIsCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <ResponsiveDialog
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        title={`${topicName} এ নতুন প্রশ্ন`}
+        description="প্রশ্নের ধরন, বিবরণ ও উত্তর লিখুন।"
+        className="sm:max-w-2xl"
+      >
+        <NewQuestionForm
+          subjectId={subjectId}
+          chapterId={chapterId}
+          onSuccess={() => setIsCreateOpen(false)}
+          onCancel={() => setIsCreateOpen(false)}
+        />
+      </ResponsiveDialog>
     </div>
   );
 }
