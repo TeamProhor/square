@@ -41,12 +41,12 @@ export default function LoginForm({ dict }: LoginFormProps) {
         if (signInError) {
           setError(signInError.message || "লগইন ব্যর্থ হয়েছে");
         } else {
-          window.location.href = "/";
+          window.location.href = "/dashboard";
         }
       } else {
         const { error: magicError } = await authClient.signIn.magicLink({
           email,
-          callbackURL: "/",
+          callbackURL: "/dashboard",
         });
         if (magicError) {
           setError(magicError.message || "ম্যাজিক লিংক পাঠাতে ব্যর্থ হয়েছে");
@@ -182,7 +182,7 @@ export default function LoginForm({ dict }: LoginFormProps) {
                   try {
                     await authClient.signIn.social({
                       provider: "google",
-                      callbackURL: "/",
+                      callbackURL: "/dashboard",
                     });
                   } catch (err: unknown) {
                     setError(

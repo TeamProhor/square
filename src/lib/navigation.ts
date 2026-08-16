@@ -10,7 +10,7 @@ import {
 import type { Dictionary, NavItem, SidebarAnnouncement } from "@/types";
 
 export const USER_NAV_ITEMS: readonly NavItem[] = [
-  { name: "হোম", path: "/", exact: true, icon: Home },
+  { name: "ড্যাশবোর্ড", path: "/dashboard", exact: true, icon: Home },
   { name: "প্রশ্নব্যাংক", path: "/qb", exact: false, icon: TaskSquare },
   { name: "পিডিএফ", path: "/pdf", exact: false, icon: DocumentDownload },
   { name: "ক্যালেন্ডার", path: "/calendar", exact: false, icon: CalendarTick },
@@ -41,7 +41,7 @@ export function getNavItems(
   if (dict?.sidebar) {
     const d = dict.sidebar;
     return [
-      { name: d.home, path: "/", exact: true, icon: Home },
+      { name: d.dashboard, path: "/dashboard", exact: true, icon: Home },
       { name: d.qb, path: "/qb", exact: false, icon: TaskSquare },
       { name: d.pdf, path: "/pdf", exact: false, icon: DocumentDownload },
       { name: d.calendar, path: "/calendar", exact: false, icon: CalendarTick },

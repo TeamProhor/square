@@ -29,7 +29,7 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-[48px] lg:gap-0">
           <div className="flex items-center justify-between w-full">
             <Link
-              href={`/`}
+              href="/dashboard"
               onClick={onClose}
               className="flex items-center px-[8px] py-[4px] rounded-[8px] hover:bg-accent transition-colors overflow-hidden shrink-0"
             >

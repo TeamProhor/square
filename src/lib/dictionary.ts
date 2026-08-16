@@ -14,6 +14,7 @@ export const dictionary = {
     language: "bn",
   },
   sidebar: {
+    dashboard: "ড্যাশবোর্ড",
     home: "হোম",
     freeDrops: "ফ্রি ড্রপস",
     vipDrops: "ভিআইপি ড্রপস",
