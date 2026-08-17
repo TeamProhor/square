@@ -7,11 +7,11 @@ import { CheckoutModal } from "@/components/checkout-modal";
 import {
   ArrowLeft2,
   Calendar,
-  CheckCircle,
   FileDown,
   Flame,
   Send,
   Star,
+  TickCircle,
   User,
 } from "@/components/icons";
 import { LandingFooter, LandingHeader } from "@/components/landing-nav";
