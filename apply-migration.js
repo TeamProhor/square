@@ -1,9 +1,9 @@
-const postgres = require('postgres');
-const fs = require('fs');
+const postgres = require("postgres");
+const fs = require("node:fs");
 
 async function main() {
   const sql = postgres(process.env.DATABASE_URL);
-  const migration = fs.readFileSync('drizzle/0000_quick_jubilee.sql', 'utf8');
+  const migration = fs.readFileSync("drizzle/0000_quick_jubilee.sql", "utf8");
   console.log("Applying migration...");
   try {
     await sql.unsafe(migration);

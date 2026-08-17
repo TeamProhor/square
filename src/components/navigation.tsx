@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useLogout, useUser } from "@/hooks/use-auth";
 import { getNavItems, sidebarAnnouncement } from "@/lib/navigation";
 import type { Dictionary, SidebarProps } from "@/types";
-import { CalendarTick, StatusUp } from "@/components/icons";
 
 export function Sidebar({ onClose, dict, lang }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);

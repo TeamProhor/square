@@ -1,9 +1,9 @@
 "use server";
 
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { exams, examQuestions, batchExams, examSubmissions } from "@/db/schema";
+import { examQuestions, examSubmissions, exams } from "@/db/schema";
 import type { ExamDetail } from "@/types";
 
 export async function createExamAction(data: {
@@ -24,18 +24,28 @@ export async function createExamAction(data: {
     revalidatePath("/admin/exams");
     return { success: true, data: res[0] as unknown as ExamDetail };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to create exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create exam",
+    };
   }
 }
 
 export async function updateExamAction(id: string, data: Partial<ExamDetail>) {
   try {
-    const res = await db.update(exams).set({ ...data, updatedAt: sql`(CURRENT_TIMESTAMP)` }).where(eq(exams.id, id)).returning();
+    const res = await db
+      .update(exams)
+      .set({ ...data, updatedAt: sql`(CURRENT_TIMESTAMP)` })
+      .where(eq(exams.id, id))
+      .returning();
     revalidatePath(`/admin/exams/${id}`);
     revalidatePath("/admin/exams");
     return { success: true, data: res[0] as unknown as ExamDetail };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to update exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update exam",
+    };
   }
 }
 
@@ -45,18 +55,27 @@ export async function deleteExamAction(id: string) {
     revalidatePath("/admin/exams");
     return { success: true };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to delete exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete exam",
+    };
   }
 }
 
 export async function publishExamAction(id: string) {
   try {
-    await db.update(exams).set({ isPublished: true, updatedAt: sql`(CURRENT_TIMESTAMP)` }).where(eq(exams.id, id));
+    await db
+      .update(exams)
+      .set({ isPublished: true, updatedAt: sql`(CURRENT_TIMESTAMP)` })
+      .where(eq(exams.id, id));
     revalidatePath(`/admin/exams/${id}`);
     revalidatePath("/admin/exams");
     return { success: true };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to publish exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to publish exam",
+    };
   }
 }
 
@@ -65,42 +84,65 @@ export async function addQuestionToExamAction(
   questionId: string,
   orderNo: number,
   marks: number,
-  section?: string
+  section?: string,
 ) {
   try {
-    const res = await db.insert(examQuestions).values({
-      examId,
-      questionId,
-      orderNo,
-      marks,
-      section,
-    }).returning();
+    const res = await db
+      .insert(examQuestions)
+      .values({
+        examId,
+        questionId,
+        orderNo,
+        marks,
+        section,
+      })
+      .returning();
     revalidatePath(`/admin/exams/${examId}/questions`);
     return { success: true, data: res[0] };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to add question" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to add question",
+    };
   }
 }
 
-export async function removeQuestionFromExamAction(examQuestionId: string, examId: string) {
+export async function removeQuestionFromExamAction(
+  examQuestionId: string,
+  examId: string,
+) {
   try {
     await db.delete(examQuestions).where(eq(examQuestions.id, examQuestionId));
     revalidatePath(`/admin/exams/${examId}/questions`);
     return { success: true };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to remove question" };
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to remove question",
+    };
   }
 }
 
-export async function reorderExamQuestionsAction(examId: string, orderedIds: string[]) {
+export async function reorderExamQuestionsAction(
+  examId: string,
+  orderedIds: string[],
+) {
   try {
     for (let i = 0; i < orderedIds.length; i++) {
-      await db.update(examQuestions).set({ orderNo: i + 1 }).where(eq(examQuestions.id, orderedIds[i]));
+      await db
+        .update(examQuestions)
+        .set({ orderNo: i + 1 })
+        .where(eq(examQuestions.id, orderedIds[i]));
     }
     revalidatePath(`/admin/exams/${examId}/questions`);
     return { success: true };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to reorder questions" };
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to reorder questions",
+    };
   }
 }
 
@@ -120,7 +162,10 @@ export async function getExamWithQuestionsAdmin(examId: string) {
     if (!exam) return { success: false, error: "Exam not found" };
     return { success: true, data: exam };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch exam",
+    };
   }
 }
 
@@ -135,7 +180,10 @@ export async function getExamResultsAdmin(examId: string) {
     });
     return { success: true, data: list };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch results" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch results",
+    };
   }
 }
 
@@ -146,6 +194,9 @@ export async function getAllExamsAdmin() {
     });
     return { success: true, data: list };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch exams" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch exams",
+    };
   }
 }

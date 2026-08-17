@@ -24,10 +24,14 @@ export default function Shell({ children, dict, lang }: ShellProps) {
   const isQbChapterQuestionsPage = segments[0] === "qb" && segments.length >= 4;
   const isPollTakingPage =
     pathname.startsWith("/poll/take") || pathname.startsWith("/poll/solve");
-  const isExamTakePage = pathname.startsWith("/exams/") && pathname.endsWith("/take");
+  const isExamTakePage =
+    pathname.startsWith("/exams/") && pathname.endsWith("/take");
 
   const shouldShowBottomNav =
-    !isLoginPage && !isQbChapterQuestionsPage && !isPollTakingPage && !isExamTakePage;
+    !isLoginPage &&
+    !isQbChapterQuestionsPage &&
+    !isPollTakingPage &&
+    !isExamTakePage;
   const shouldHideTopNav = isExamTakePage;
 
   return (
@@ -109,7 +113,9 @@ export default function Shell({ children, dict, lang }: ShellProps) {
       )}
 
       {/* Main Content Area */}
-      <div className={`flex-1 bg-background relative overflow-hidden rounded-[0px] lg:rounded-[24px] border-0 lg:border-[0.5px] lg:border-border ${shouldHideTopNav ? "m-0" : "mt-0 lg:my-[20px] lg:mr-[20px] pt-[56px] lg:pt-0"}`}>
+      <div
+        className={`flex-1 bg-background relative overflow-hidden rounded-[0px] lg:rounded-[24px] border-0 lg:border-[0.5px] lg:border-border ${shouldHideTopNav ? "m-0" : "mt-0 lg:my-[20px] lg:mr-[20px] pt-[56px] lg:pt-0"}`}
+      >
         <div
           className={`w-full h-full overflow-y-auto ${shouldHideTopNav ? "" : "p-4 sm:p-6 md:p-8 lg:p-10"} ${shouldShowBottomNav ? "pb-24 sm:pb-24 lg:pb-10" : "pb-0"}`}
         >

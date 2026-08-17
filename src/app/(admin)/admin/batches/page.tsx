@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { getAllBatchesAction } from "@/lib/actions/batch";
+import { CalendarTick, User } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { User, CalendarTick } from "@/components/icons";
+import { getAllBatchesAction } from "@/lib/actions/batch";
 
 export default async function AdminBatchesPage() {
   const { data: batches } = await getAllBatchesAction();
@@ -24,13 +24,20 @@ export default async function AdminBatchesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {batches?.map((batch) => (
-          <div key={batch.id} className="border rounded-xl p-5 bg-card hover:border-primary/50 transition-all flex flex-col gap-4">
+          <div
+            key={batch.id}
+            className="border rounded-xl p-5 bg-card hover:border-primary/50 transition-all flex flex-col gap-4"
+          >
             <div>
               <h3 className="font-bold text-lg">{batch.name}</h3>
-              <p className="text-xs text-muted-foreground truncate">{batch.slug}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {batch.slug}
+              </p>
             </div>
             {batch.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">{batch.description}</p>
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {batch.description}
+              </p>
             )}
             <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground mt-auto pt-2">
               <span className="flex items-center gap-1.5">
@@ -41,12 +48,16 @@ export default async function AdminBatchesPage() {
                 <CalendarTick className="size-4 text-primary" />
                 পরীক্ষা
               </span>
-              <span className={`ml-auto px-2 py-0.5 rounded-full text-[10px] ${batch.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
-                {batch.isActive ? 'Active' : 'Inactive'}
+              <span
+                className={`ml-auto px-2 py-0.5 rounded-full text-[10px] ${batch.isActive ? "bg-emerald-500/10 text-emerald-600" : "bg-red-500/10 text-red-600"}`}
+              >
+                {batch.isActive ? "Active" : "Inactive"}
               </span>
             </div>
             <Link href={`/admin/batches/${batch.id}`} className="mt-2">
-              <Button variant="outline" className="w-full rounded-xl" size="sm">বিস্তারিত দেখুন</Button>
+              <Button variant="outline" className="w-full rounded-xl" size="sm">
+                বিস্তারিত দেখুন
+              </Button>
             </Link>
           </div>
         ))}

@@ -1,7 +1,7 @@
-import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { user } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 
 async function main() {
   const email = "admin@square.dev";
@@ -21,7 +21,10 @@ async function main() {
     });
     console.log("Sign up response:", res);
   } catch (error) {
-    console.log("Sign up attempt note:", error instanceof Error ? error.message : error);
+    console.log(
+      "Sign up attempt note:",
+      error instanceof Error ? error.message : error,
+    );
   }
 
   // Ensure role is admin and email is verified in the database

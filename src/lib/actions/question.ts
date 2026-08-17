@@ -179,8 +179,11 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
           type: payload.type,
           source: payload.source || "custom",
           standard:
-            (payload.standard as "HSC" | "Varsity" | "Engineering" | "Medical") ||
-            "HSC",
+            (payload.standard as
+              | "HSC"
+              | "Varsity"
+              | "Engineering"
+              | "Medical") || "HSC",
           questionText: payload.questionText,
           explanation: payload.explanation || null,
         })
@@ -233,7 +236,8 @@ export async function updateQuestionAction(
       if (payload.type !== undefined) updateData.type = payload.type;
       if (payload.source !== undefined)
         updateData.source = payload.source || "custom";
-      if (payload.standard !== undefined) updateData.standard = payload.standard;
+      if (payload.standard !== undefined)
+        updateData.standard = payload.standard;
       if (payload.questionText !== undefined)
         updateData.questionText = payload.questionText;
       if (payload.explanation !== undefined)
@@ -246,12 +250,14 @@ export async function updateQuestionAction(
       if (payload.type === "mcq" && payload.mcqOptions) {
         await tx.delete(mcqOptions).where(eq(mcqOptions.questionId, id));
         if (payload.mcqOptions.length > 0) {
-          const optionsToInsert = payload.mcqOptions.map((opt, idx: number) => ({
-            questionId: id,
-            optionText: opt.optionText,
-            isCorrect: opt.isCorrect,
-            orderNo: idx + 1,
-          }));
+          const optionsToInsert = payload.mcqOptions.map(
+            (opt, idx: number) => ({
+              questionId: id,
+              optionText: opt.optionText,
+              isCorrect: opt.isCorrect,
+              orderNo: idx + 1,
+            }),
+          );
           await tx.insert(mcqOptions).values(optionsToInsert);
         }
       } else if (payload.type === "cq" && payload.cqParts) {
@@ -335,7 +341,12 @@ export async function importQuestionsAction(
           }));
           await tx.insert(mcqOptions).values(optionsToInsert);
         } else if (item.type === "cq" && item.cqParts?.length) {
-          const defaultKeys: Array<"a" | "b" | "c" | "d"> = ["a", "b", "c", "d"];
+          const defaultKeys: Array<"a" | "b" | "c" | "d"> = [
+            "a",
+            "b",
+            "c",
+            "d",
+          ];
           const partsToInsert = item.cqParts.map((pt, idx: number) => ({
             questionId: question.id,
             partKey: (pt.partKey || defaultKeys[idx] || "a") as

@@ -1,13 +1,12 @@
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
+  boolean,
+  integer,
+  json,
   pgTable,
   text,
-  integer,
-  boolean,
   timestamp,
-  json,
-  uuid,
-  uniqueIndex
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -143,9 +142,7 @@ export const mcqOptions = pgTable("mcq_options", {
     .notNull()
     .references(() => questions.id, { onDelete: "cascade" }),
   optionText: text("option_text").notNull(),
-  isCorrect: boolean("is_correct")
-    .default(false)
-    .notNull(),
+  isCorrect: boolean("is_correct").default(false).notNull(),
   orderNo: integer("order_no").default(0).notNull(),
 });
 
@@ -208,51 +205,50 @@ export const courseDetails = pgTable("course_details", {
   routinePdfUrl: text("routine_pdf_url"),
   telegramGroupUrl: text("telegram_group_url"),
   features: json("features").$type<string[]>(),
-  modules: json("modules").$type<
-    {
-      id: string;
-      title: string;
-      totalClasses: number;
-      chapters: string[];
-    }[]
-  >(),
+  modules:
+    json("modules").$type<
+      {
+        id: string;
+        title: string;
+        totalClasses: number;
+        chapters: string[];
+      }[]
+    >(),
   faqs: json("faqs").$type<
     {
       question: string;
       answer: string;
     }[]
   >(),
-  instructors: json("instructors").$type<
-    {
-      name: string;
-      role: string;
-      institution: string;
-      image?: string;
-    }[]
-  >(),
+  instructors:
+    json("instructors").$type<
+      {
+        name: string;
+        role: string;
+        institution: string;
+        image?: string;
+      }[]
+    >(),
 });
 
-export const courseEnrollmentRequests = pgTable(
-  "course_enrollment_requests",
-  {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    courseId: text("course_id")
-      .notNull()
-      .references(() => courses.id, { onDelete: "cascade" }),
-    paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
-    senderNumber: text("sender_number").notNull(),
-    transactionId: text("transaction_id").notNull(),
-    amountPaid: integer("amount_paid").notNull(),
-    status: text("status").default("pending"), // "pending" | "approved" | "rejected"
-    adminNote: text("admin_note"),
-    reviewedBy: text("reviewed_by").references(() => user.id),
-    reviewedAt: timestamp("reviewed_at"),
-    createdAt: timestamp("created_at").notNull(),
-  },
-);
+export const courseEnrollmentRequests = pgTable("course_enrollment_requests", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  courseId: text("course_id")
+    .notNull()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
+  senderNumber: text("sender_number").notNull(),
+  transactionId: text("transaction_id").notNull(),
+  amountPaid: integer("amount_paid").notNull(),
+  status: text("status").default("pending"), // "pending" | "approved" | "rejected"
+  adminNote: text("admin_note"),
+  reviewedBy: text("reviewed_by").references(() => user.id),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").notNull(),
+});
 
 export const courseEnrollments = pgTable("course_enrollments", {
   id: text("id").primaryKey(),
@@ -335,9 +331,7 @@ export const exams = pgTable("exams", {
   passMarks: integer("pass_marks"),
   // Stored as string for exact precision; parse with parseFloat()
   negativeMarking: text("negative_marking").default("0.25").notNull(),
-  isPublished: boolean("is_published")
-    .default(false)
-    .notNull(),
+  isPublished: boolean("is_published").default(false).notNull(),
   showResultImmediately: boolean("show_result_immediately")
     .default(true)
     .notNull(),
@@ -364,9 +358,7 @@ export const batchExams = pgTable(
       .references(() => exams.id, { onDelete: "cascade" }),
     startsAt: text("starts_at"),
     endsAt: text("ends_at"),
-    isRequired: boolean("is_required")
-      .default(true)
-      .notNull(),
+    isRequired: boolean("is_required").default(true).notNull(),
     maxAttempts: integer("max_attempts"), // NULL = unlimited
     assignedAt: timestamp("assigned_at").defaultNow().notNull(),
   },
@@ -469,9 +461,7 @@ export const examResponses = pgTable("exam_responses", {
     onDelete: "set null",
   }),
   cqAnswerText: text("cq_answer_text"),
-  isCorrect: boolean("is_correct")
-    .default(false)
-    .notNull(),
+  isCorrect: boolean("is_correct").default(false).notNull(),
   marksObtained: text("marks_obtained").default("0").notNull(),
 });
 
@@ -489,9 +479,7 @@ export const pdfSuggestions = pgTable("pdf_suggestions", {
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
   downloadCount: integer("download_count").default(0).notNull(),
-  isFeatured: boolean("is_featured")
-    .default(false)
-    .notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -517,9 +505,7 @@ export const pollOptions = pgTable("poll_options", {
     .notNull()
     .references(() => polls.id, { onDelete: "cascade" }),
   optionText: text("option_text").notNull(),
-  isCorrect: boolean("is_correct")
-    .default(false)
-    .notNull(),
+  isCorrect: boolean("is_correct").default(false).notNull(),
   votesCount: integer("votes_count").default(0).notNull(),
   orderNo: integer("order_no").default(0).notNull(),
 });

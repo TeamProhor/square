@@ -300,7 +300,12 @@ export interface ExamDetail {
   readonly title: string;
   readonly slug: string;
   readonly description?: string | null;
-  readonly type: "practice" | "chapter_test" | "weekly" | "model_test" | "live_contest";
+  readonly type:
+    | "practice"
+    | "chapter_test"
+    | "weekly"
+    | "model_test"
+    | "live_contest";
   readonly durationMinutes: number;
   readonly totalMarks: number;
   readonly passMarks?: number | null;

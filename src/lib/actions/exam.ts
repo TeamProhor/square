@@ -1,19 +1,15 @@
 "use server";
 
-import { desc, eq, and, or, sql, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
-  exams,
-  examQuestions,
-  questions,
-  mcqOptions,
-  cqParts,
   batchExams,
   batchMembers,
-  examSubmissions,
+  examQuestions,
   examResponses,
-  user,
+  examSubmissions,
+  exams,
 } from "@/db/schema";
 import type { ExamDetail, ExamSubmission, LeaderboardEntry } from "@/types";
 
@@ -28,7 +24,14 @@ export async function getPublishedExams() {
     });
     return { success: true, data: list as ExamDetail[] };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch published exams", data: [] };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch published exams",
+      data: [],
+    };
   }
 }
 
@@ -61,7 +64,10 @@ export async function getExamBySlug(slug: string) {
     if (!exam) return { success: false, error: "Exam not found" };
     return { success: true, data: exam as unknown as ExamDetail };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch exam",
+    };
   }
 }
 
@@ -71,7 +77,10 @@ export async function getExamBySlug(slug: string) {
 export async function getStudentExams(userId: string) {
   try {
     const userBatchMemberships = await db.query.batchMembers.findMany({
-      where: and(eq(batchMembers.userId, userId), eq(batchMembers.status, "active")),
+      where: and(
+        eq(batchMembers.userId, userId),
+        eq(batchMembers.status, "active"),
+      ),
     });
 
     if (userBatchMemberships.length === 0) return { success: true, data: [] };
@@ -88,7 +97,14 @@ export async function getStudentExams(userId: string) {
 
     return { success: true, data: bExams };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to fetch student exams", data: [] };
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch student exams",
+      data: [],
+    };
   }
 }
 
@@ -111,21 +127,28 @@ export async function checkExamAccess(userId: string, examId: string) {
       where: eq(batchExams.examId, examId),
     });
 
-    if (bExams.length === 0) return { allowed: false, error: "Not assigned to any batch" };
+    if (bExams.length === 0)
+      return { allowed: false, error: "Not assigned to any batch" };
 
     const batchIds = bExams.map((be) => be.batchId);
 
     const membership = await db.query.batchMembers.findFirst({
-      where: and(eq(batchMembers.userId, userId), inArray(batchMembers.batchId, batchIds), eq(batchMembers.status, "active")),
+      where: and(
+        eq(batchMembers.userId, userId),
+        inArray(batchMembers.batchId, batchIds),
+        eq(batchMembers.status, "active"),
+      ),
     });
 
     if (membership) {
-      const relatedBatchExam = bExams.find((be) => be.batchId === membership.batchId);
+      const relatedBatchExam = bExams.find(
+        (be) => be.batchId === membership.batchId,
+      );
       return { allowed: true, batchExamId: relatedBatchExam?.id };
     }
 
     return { allowed: false, error: "You do not have access to this exam" };
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return { allowed: false, error: "Access check failed" };
   }
 }
@@ -133,11 +156,18 @@ export async function checkExamAccess(userId: string, examId: string) {
 /**
  * Start an exam (creates in_progress submission)
  */
-export async function startExamAction(examId: string, userId: string, batchExamId?: string) {
+export async function startExamAction(
+  examId: string,
+  userId: string,
+  batchExamId?: string,
+) {
   try {
     // Determine attempt number
     const prevSubmissions = await db.query.examSubmissions.findMany({
-      where: and(eq(examSubmissions.examId, examId), eq(examSubmissions.userId, userId)),
+      where: and(
+        eq(examSubmissions.examId, examId),
+        eq(examSubmissions.userId, userId),
+      ),
     });
 
     const attemptNumber = prevSubmissions.length + 1;
@@ -159,7 +189,10 @@ export async function startExamAction(examId: string, userId: string, batchExamI
 
     return { success: true, submission: res[0] as ExamSubmission };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to start exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to start exam",
+    };
   }
 }
 
@@ -175,7 +208,7 @@ export interface SubmitResponsePayload {
 export async function submitExamAction(
   submissionId: string,
   responses: SubmitResponsePayload[],
-  timeTakenSeconds: number
+  timeTakenSeconds: number,
 ) {
   try {
     const submission = await db.query.examSubmissions.findFirst({
@@ -186,7 +219,8 @@ export async function submitExamAction(
     });
 
     if (!submission) return { success: false, error: "Submission not found" };
-    if (submission.status !== "in_progress") return { success: false, error: "Exam already submitted" };
+    if (submission.status !== "in_progress")
+      return { success: false, error: "Exam already submitted" };
 
     const exam = submission.exam;
     if (!exam) return { success: false, error: "Exam data missing" };
@@ -204,40 +238,44 @@ export async function submitExamAction(
     const negativeMark = parseFloat(exam.negativeMarking || "0");
     const totalExamMarks = examQs.reduce((acc, q) => acc + q.marks, 0);
 
-    const insertResponses = responses.map((r) => {
-      const eqData = examQs.find((q) => q.id === r.examQuestionId);
-      if (!eqData) return null;
+    const insertResponses = responses
+      .map((r) => {
+        const eqData = examQs.find((q) => q.id === r.examQuestionId);
+        if (!eqData) return null;
 
-      let isCorrect = false;
-      let marksObtained = 0;
+        let isCorrect = false;
+        let marksObtained = 0;
 
-      if (eqData.question?.type === "mcq") {
-        const correctOpt = eqData.question.mcqOptions.find((o) => o.isCorrect);
-        if (correctOpt && correctOpt.id === r.selectedOptionId) {
-          isCorrect = true;
-          marksObtained = eqData.marks;
-        } else if (r.selectedOptionId) {
-          // Attempted but wrong -> negative marking
+        if (eqData.question?.type === "mcq") {
+          const correctOpt = eqData.question.mcqOptions.find(
+            (o) => o.isCorrect,
+          );
+          if (correctOpt && correctOpt.id === r.selectedOptionId) {
+            isCorrect = true;
+            marksObtained = eqData.marks;
+          } else if (r.selectedOptionId) {
+            // Attempted but wrong -> negative marking
+            isCorrect = false;
+            marksObtained = -negativeMark;
+          }
+        } else {
+          // CQ evaluation is manual later
           isCorrect = false;
-          marksObtained = -negativeMark;
+          marksObtained = 0;
         }
-      } else {
-        // CQ evaluation is manual later
-        isCorrect = false;
-        marksObtained = 0;
-      }
 
-      totalScore += marksObtained;
+        totalScore += marksObtained;
 
-      return {
-        submissionId,
-        examQuestionId: r.examQuestionId,
-        selectedOptionId: r.selectedOptionId || null,
-        cqAnswerText: r.cqAnswerText || null,
-        isCorrect,
-        marksObtained: marksObtained.toString(),
-      };
-    }).filter(Boolean) as any[];
+        return {
+          submissionId,
+          examQuestionId: r.examQuestionId,
+          selectedOptionId: r.selectedOptionId || null,
+          cqAnswerText: r.cqAnswerText || null,
+          isCorrect,
+          marksObtained: marksObtained.toString(),
+        };
+      })
+      .filter(Boolean) as any[];
 
     if (insertResponses.length > 0) {
       await db.insert(examResponses).values(insertResponses);
@@ -258,17 +296,26 @@ export async function submitExamAction(
     revalidatePath(`/exams/${exam.slug}`);
     return { success: true, submission: updated[0] };
   } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to submit exam" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to submit exam",
+    };
   }
 }
 
 /**
  * Get detailed submission result.
  */
-export async function getSubmissionResult(submissionId: string, userId: string) {
+export async function getSubmissionResult(
+  submissionId: string,
+  userId: string,
+) {
   try {
     const submission = await db.query.examSubmissions.findFirst({
-      where: and(eq(examSubmissions.id, submissionId), eq(examSubmissions.userId, userId)),
+      where: and(
+        eq(examSubmissions.id, submissionId),
+        eq(examSubmissions.userId, userId),
+      ),
       with: {
         exam: true,
         responses: {
@@ -290,7 +337,7 @@ export async function getSubmissionResult(submissionId: string, userId: string) 
 
     if (!submission) return { success: false, error: "Result not found" };
     return { success: true, data: submission };
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return { success: false, error: "Failed to fetch result" };
   }
 }
@@ -301,7 +348,10 @@ export async function getSubmissionResult(submissionId: string, userId: string) 
 export async function getExamLeaderboard(examId: string) {
   try {
     const list = await db.query.examSubmissions.findMany({
-      where: and(eq(examSubmissions.examId, examId), eq(examSubmissions.status, "submitted")),
+      where: and(
+        eq(examSubmissions.examId, examId),
+        eq(examSubmissions.status, "submitted"),
+      ),
       with: {
         user: true,
       },
@@ -326,7 +376,7 @@ export async function getExamLeaderboard(examId: string) {
     }));
 
     return { success: true, data: leaderboard };
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return { success: false, error: "Failed to fetch leaderboard" };
   }
 }
@@ -345,7 +395,7 @@ export async function getMySubmissions(userId: string) {
     });
 
     return { success: true, data: list };
-  } catch (error: unknown) {
+  } catch (_error: unknown) {
     return { success: false, error: "Failed to fetch submissions" };
   }
 }

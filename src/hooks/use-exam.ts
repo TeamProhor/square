@@ -4,9 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getPublishedExams,
   getStudentExams,
+  type SubmitResponsePayload,
   startExamAction,
   submitExamAction,
-  SubmitResponsePayload,
 } from "@/lib/actions/exam";
 
 export function usePublishedExams() {
@@ -36,8 +36,11 @@ export function useStartExam() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (vars: { examId: string; userId: string; batchExamId?: string }) =>
-      startExamAction(vars.examId, vars.userId, vars.batchExamId),
+    mutationFn: (vars: {
+      examId: string;
+      userId: string;
+      batchExamId?: string;
+    }) => startExamAction(vars.examId, vars.userId, vars.batchExamId),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ["exam", vars.examId] });
       queryClient.invalidateQueries({ queryKey: ["submissions", vars.userId] });
@@ -59,7 +62,7 @@ export function useSubmitExam() {
         vars.responses,
         vars.timeTakenSeconds,
       ),
-    onSuccess: (_, vars) => {
+    onSuccess: (_, _vars) => {
       // Invalidate relevant queries; since we don't have user id here easily,
       // we might want to invalidate all submissions just in case, or let the component do it.
       queryClient.invalidateQueries({ queryKey: ["submissions"] });
