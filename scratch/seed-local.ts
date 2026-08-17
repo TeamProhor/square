@@ -75,7 +75,7 @@ async function seed() {
     .returning();
 
   console.log("Created topic:", topic1.name);
-  console.log("✅ Local SQLite database successfully seeded!");
+  console.log("✅ PostgreSQL database successfully seeded!");
   process.exit(0);
 }
 

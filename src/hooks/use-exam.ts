@@ -1,15 +1,46 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getExamsAction, submitExamAction } from "@/lib/actions/exam";
+import {
+  getPublishedExams,
+  getStudentExams,
+  startExamAction,
+  submitExamAction,
+  SubmitResponsePayload,
+} from "@/lib/actions/exam";
 
-export function useExams() {
+export function usePublishedExams() {
   return useQuery({
-    queryKey: ["exams"],
+    queryKey: ["publishedExams"],
     queryFn: async () => {
-      const res = await getExamsAction();
-      if (res.error) throw new Error(res.error);
+      const res = await getPublishedExams();
+      if (!res.success) throw new Error(res.error);
       return res.data;
+    },
+  });
+}
+
+export function useStudentExams(userId: string) {
+  return useQuery({
+    queryKey: ["studentExams", userId],
+    queryFn: async () => {
+      const res = await getStudentExams(userId);
+      if (!res.success) throw new Error(res.error);
+      return res.data;
+    },
+    enabled: !!userId,
+  });
+}
+
+export function useStartExam() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vars: { examId: string; userId: string; batchExamId?: string }) =>
+      startExamAction(vars.examId, vars.userId, vars.batchExamId),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["exam", vars.examId] });
+      queryClient.invalidateQueries({ queryKey: ["submissions", vars.userId] });
     },
   });
 }
@@ -19,22 +50,19 @@ export function useSubmitExam() {
 
   return useMutation({
     mutationFn: (vars: {
-      examId: string;
-      userId: string;
-      score: string;
-      totalMarks: number;
+      submissionId: string;
+      responses: SubmitResponsePayload[];
       timeTakenSeconds: number;
     }) =>
       submitExamAction(
-        vars.examId,
-        vars.userId,
-        vars.score,
-        vars.totalMarks,
+        vars.submissionId,
+        vars.responses,
         vars.timeTakenSeconds,
       ),
     onSuccess: (_, vars) => {
-      queryClient.invalidateQueries({ queryKey: ["exam", vars.examId] });
-      queryClient.invalidateQueries({ queryKey: ["submissions", vars.userId] });
+      // Invalidate relevant queries; since we don't have user id here easily,
+      // we might want to invalidate all submissions just in case, or let the component do it.
+      queryClient.invalidateQueries({ queryKey: ["submissions"] });
     },
   });
 }

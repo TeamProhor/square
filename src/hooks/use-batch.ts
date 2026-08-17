@@ -21,10 +21,10 @@ export function useCreateBatch() {
     mutationFn: (vars: {
       name: string;
       slug: string;
-      hscYear: string;
       description?: string;
+      courseId?: string;
     }) =>
-      createBatchAction(vars.name, vars.slug, vars.hscYear, vars.description),
+      createBatchAction(vars.name, vars.slug, vars.description, vars.courseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["batches"] });
     },

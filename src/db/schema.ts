@@ -1,25 +1,36 @@
 import { relations, sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  pgTable,
+  text,
+  integer,
+  boolean,
+  timestamp,
+  json,
+  uuid,
+  uniqueIndex
+} from "drizzle-orm/pg-core";
 
-export const user = sqliteTable("user", {
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
+  emailVerified: boolean("email_verified").notNull(),
   image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
   role: text("role").default("student"),
   hscBatch: text("hsc_batch"),
   college: text("college"),
 });
 
-export const session = sqliteTable("session", {
+export const session = pgTable("session", {
   id: text("id").primaryKey(),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
   token: text("token").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
@@ -27,7 +38,7 @@ export const session = sqliteTable("session", {
     .references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const account = sqliteTable("account", {
+export const account = pgTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
@@ -37,40 +48,38 @@ export const account = sqliteTable("account", {
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
-  accessTokenExpiresAt: integer("access_token_expires_at", {
-    mode: "timestamp",
-  }),
-  refreshTokenExpiresAt: integer("refresh_token_expires_at", {
-    mode: "timestamp",
-  }),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
   password: text("password"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const verification = sqliteTable("verification", {
+export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }),
-  updatedAt: integer("updated_at", { mode: "timestamp" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
 });
 
 export const profiles = user;
 
-export const containers = sqliteTable("containers", {
+// ─── Question Bank ────────────────────────────────────────────────────────────
+
+export const containers = pgTable("containers", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   description: text("description"),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const items = sqliteTable("items", {
+export const items = pgTable("items", {
   id: text("id").primaryKey(),
   containerId: text("container_id")
     .notNull()
@@ -80,7 +89,7 @@ export const items = sqliteTable("items", {
   slug: text("slug").notNull().unique(),
 });
 
-export const subitems = sqliteTable("subitems", {
+export const subitems = pgTable("subitems", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -93,7 +102,7 @@ export const subitems = sqliteTable("subitems", {
   orderNo: integer("order_no").default(0).notNull(),
 });
 
-export const topics = sqliteTable("topics", {
+export const topics = pgTable("topics", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -104,7 +113,7 @@ export const topics = sqliteTable("topics", {
   slug: text("slug").notNull(),
 });
 
-export const questions = sqliteTable("questions", {
+export const questions = pgTable("questions", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -123,10 +132,10 @@ export const questions = sqliteTable("questions", {
     .notNull(),
   questionText: text("question_text").notNull(),
   explanation: text("explanation"),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const mcqOptions = sqliteTable("mcq_options", {
+export const mcqOptions = pgTable("mcq_options", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -134,13 +143,13 @@ export const mcqOptions = sqliteTable("mcq_options", {
     .notNull()
     .references(() => questions.id, { onDelete: "cascade" }),
   optionText: text("option_text").notNull(),
-  isCorrect: integer("is_correct", { mode: "boolean" })
+  isCorrect: boolean("is_correct")
     .default(false)
     .notNull(),
   orderNo: integer("order_no").default(0).notNull(),
 });
 
-export const cqParts = sqliteTable("cq_parts", {
+export const cqParts = pgTable("cq_parts", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -154,14 +163,14 @@ export const cqParts = sqliteTable("cq_parts", {
   orderNo: integer("order_no").notNull(),
 });
 
-export const tags = sqliteTable("tags", {
+export const tags = pgTable("tags", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull().unique(),
 });
 
-export const questionTags = sqliteTable("question_tags", {
+export const questionTags = pgTable("question_tags", {
   questionId: text("question_id")
     .notNull()
     .references(() => questions.id, { onDelete: "cascade" }),
@@ -170,62 +179,236 @@ export const questionTags = sqliteTable("question_tags", {
     .references(() => tags.id, { onDelete: "cascade" }),
 });
 
-export const exams = sqliteTable("exams", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+// ─── Courses ──────────────────────────────────────────────────────────────────
+// Declared before batches because batches.courseId references courses.id.
+
+export const courses = pgTable("courses", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
-  description: text("description"),
-  type: text("type", {
-    enum: ["practice", "chapter_test", "weekly", "model_test"],
-  })
-    .default("practice")
-    .notNull(),
-  durationMinutes: integer("duration_minutes").default(30).notNull(),
-  totalMarks: integer("total_marks").default(25).notNull(),
-  negativeMarking: text("negative_marking").default("0.25").notNull(),
-  startsAt: text("starts_at"),
-  endsAt: text("ends_at"),
-  isPublished: integer("is_published", { mode: "boolean" })
-    .default(false)
-    .notNull(),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  subtitle: text("subtitle"),
+  description: text("description").notNull(),
+  hscBatch: text("hsc_batch").notNull(), // "HSC 26" | "HSC 27" | "Admission"
+  price: integer("price").notNull(),
+  originalPrice: integer("original_price"),
+  image: text("image").notNull(),
+  badge: text("badge"),
+  isPublished: boolean("is_published").default(true),
+  orderIndex: integer("order_index").default(0),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
-export const examQuestions = sqliteTable("exam_questions", {
-  examId: text("exam_id")
+export const courseDetails = pgTable("course_details", {
+  id: text("id").primaryKey(),
+  courseId: text("course_id")
     .notNull()
-    .references(() => exams.id, { onDelete: "cascade" }),
-  questionId: text("question_id")
-    .notNull()
-    .references(() => questions.id, { onDelete: "cascade" }),
-  marks: integer("marks").default(1).notNull(),
-  orderNo: integer("order_no").default(0).notNull(),
+    .unique()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  routinePdfUrl: text("routine_pdf_url"),
+  telegramGroupUrl: text("telegram_group_url"),
+  features: json("features").$type<string[]>(),
+  modules: json("modules").$type<
+    {
+      id: string;
+      title: string;
+      totalClasses: number;
+      chapters: string[];
+    }[]
+  >(),
+  faqs: json("faqs").$type<
+    {
+      question: string;
+      answer: string;
+    }[]
+  >(),
+  instructors: json("instructors").$type<
+    {
+      name: string;
+      role: string;
+      institution: string;
+      image?: string;
+    }[]
+  >(),
 });
 
-export const batches = sqliteTable("batches", {
+export const courseEnrollmentRequests = pgTable(
+  "course_enrollment_requests",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    courseId: text("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
+    senderNumber: text("sender_number").notNull(),
+    transactionId: text("transaction_id").notNull(),
+    amountPaid: integer("amount_paid").notNull(),
+    status: text("status").default("pending"), // "pending" | "approved" | "rejected"
+    adminNote: text("admin_note"),
+    reviewedBy: text("reviewed_by").references(() => user.id),
+    reviewedAt: timestamp("reviewed_at"),
+    createdAt: timestamp("created_at").notNull(),
+  },
+);
+
+export const courseEnrollments = pgTable("course_enrollments", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  courseId: text("course_id")
+    .notNull()
+    .references(() => courses.id, { onDelete: "cascade" }),
+  requestId: text("request_id").references(() => courseEnrollmentRequests.id),
+  status: text("status").default("active"), // "active" | "revoked"
+  enrolledAt: timestamp("enrolled_at").notNull(),
+});
+
+// ─── Batches ──────────────────────────────────────────────────────────────────
+// A batch is a cohort of students, optionally tied to a course.
+// hscYear is omitted — courses.hscBatch is the canonical source of truth for
+// the academic year; duplicating it here risks contradictory data.
+
+export const batches = pgTable("batches", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   description: text("description"),
-  hscYear: text("hsc_year").notNull(),
-  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  courseId: text("course_id").references(() => courses.id, {
+    onDelete: "set null",
+  }),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const batchExams = sqliteTable("batch_exams", {
-  batchId: text("batch_id")
-    .notNull()
-    .references(() => batches.id, { onDelete: "cascade" }),
-  examId: text("exam_id")
-    .notNull()
-    .references(() => exams.id, { onDelete: "cascade" }),
-  assignedAt: text("assigned_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+// Membership is separate from exam assignment — enables:
+// user → batch_members → batch → batch_exams → exam (authorization chain)
+export const batchMembers = pgTable(
+  "batch_members",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    batchId: text("batch_id")
+      .notNull()
+      .references(() => batches.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role", { enum: ["student", "moderator", "instructor"] })
+      .default("student")
+      .notNull(),
+    status: text("status", { enum: ["active", "suspended", "completed"] })
+      .default("active")
+      .notNull(),
+    joinedAt: timestamp("joined_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("batch_member_unique_idx").on(table.batchId, table.userId),
+  ],
+);
+
+// ─── Exams ────────────────────────────────────────────────────────────────────
+// Exams are reusable independent objects. Scheduling/access policy lives in
+// batch_exams, not here.
+
+export const exams = pgTable("exams", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  description: text("description"),
+  type: text("type", {
+    enum: ["practice", "chapter_test", "weekly", "model_test", "live_contest"],
+  })
+    .default("practice")
+    .notNull(),
+  durationMinutes: integer("duration_minutes").default(30).notNull(),
+  totalMarks: integer("total_marks").default(25).notNull(),
+  passMarks: integer("pass_marks"),
+  // Stored as string for exact precision; parse with parseFloat()
+  negativeMarking: text("negative_marking").default("0.25").notNull(),
+  isPublished: boolean("is_published")
+    .default(false)
+    .notNull(),
+  showResultImmediately: boolean("show_result_immediately")
+    .default(true)
+    .notNull(),
+  createdBy: text("created_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const examRoutines = sqliteTable("exam_routines", {
+// Scheduling + per-batch access policy for an exam.
+// maxAttempts: NULL = unlimited, 1 = one attempt, 3 = three attempts, etc.
+export const batchExams = pgTable(
+  "batch_exams",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    batchId: text("batch_id")
+      .notNull()
+      .references(() => batches.id, { onDelete: "cascade" }),
+    examId: text("exam_id")
+      .notNull()
+      .references(() => exams.id, { onDelete: "cascade" }),
+    startsAt: text("starts_at"),
+    endsAt: text("ends_at"),
+    isRequired: boolean("is_required")
+      .default(true)
+      .notNull(),
+    maxAttempts: integer("max_attempts"), // NULL = unlimited
+    assignedAt: timestamp("assigned_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("batch_exam_unique_idx").on(table.batchId, table.examId),
+  ],
+);
+
+// Each row is one question slot inside a specific exam.
+// negativeMarks is absent — the exam's negativeMarking applies globally.
+export const examQuestions = pgTable(
+  "exam_questions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    examId: text("exam_id")
+      .notNull()
+      .references(() => exams.id, { onDelete: "cascade" }),
+    questionId: text("question_id")
+      .notNull()
+      .references(() => questions.id, { onDelete: "cascade" }),
+    orderNo: integer("order_no").notNull(),
+    marks: integer("marks").default(1).notNull(), // may differ per exam
+    section: text("section"), // optional grouping: "Physics", "Section A", etc.
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    // No two questions can occupy the same position in the same exam
+    uniqueIndex("exam_question_order_unique_idx").on(
+      table.examId,
+      table.orderNo,
+    ),
+    // A question can only appear once in a given exam
+    uniqueIndex("exam_question_unique_idx").on(table.examId, table.questionId),
+  ],
+);
+
+// ─── Exam Routines ────────────────────────────────────────────────────────────
+// Calendar/routine entries for a batch (separate from the live exam system).
+
+export const examRoutines = pgTable("exam_routines", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -235,13 +418,66 @@ export const examRoutines = sqliteTable("exam_routines", {
   title: text("title").notNull(),
   subject: text("subject").notNull(),
   syllabus: text("syllabus"),
-  examDate: text("exam_date").notNull(),
+  examDate: timestamp("exam_date").notNull(),
   durationMinutes: integer("duration_minutes").default(30).notNull(),
   totalMarks: integer("total_marks").default(25).notNull(),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const pdfSuggestions = sqliteTable("pdf_suggestions", {
+// ─── Submissions & Responses ──────────────────────────────────────────────────
+
+// One row per student attempt at an exam.
+// examId is kept alongside batchExamId for fast filtering; app must keep them in sync.
+// submittedAt is nullable: NULL while status = "in_progress".
+export const examSubmissions = pgTable("exam_submissions", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  examId: text("exam_id")
+    .notNull()
+    .references(() => exams.id, { onDelete: "cascade" }),
+  batchExamId: text("batch_exam_id").references(() => batchExams.id, {
+    onDelete: "set null",
+  }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => profiles.id, { onDelete: "cascade" }),
+  score: text("score").default("0").notNull(),
+  totalMarks: integer("total_marks").notNull(),
+  attemptNumber: integer("attempt_number").default(1).notNull(),
+  timeTakenSeconds: integer("time_taken_seconds").default(0).notNull(),
+  status: text("status", { enum: ["in_progress", "submitted", "evaluated"] })
+    .default("submitted")
+    .notNull(),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  submittedAt: timestamp("submitted_at"), // NULL while in_progress
+});
+
+// One row per question answer per submission.
+// questionId is NOT stored here — derive via examQuestion → question.
+export const examResponses = pgTable("exam_responses", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  submissionId: text("submission_id")
+    .notNull()
+    .references(() => examSubmissions.id, { onDelete: "cascade" }),
+  examQuestionId: text("exam_question_id")
+    .notNull()
+    .references(() => examQuestions.id, { onDelete: "cascade" }),
+  selectedOptionId: text("selected_option_id").references(() => mcqOptions.id, {
+    onDelete: "set null",
+  }),
+  cqAnswerText: text("cq_answer_text"),
+  isCorrect: boolean("is_correct")
+    .default(false)
+    .notNull(),
+  marksObtained: text("marks_obtained").default("0").notNull(),
+});
+
+// ─── Other Tables ─────────────────────────────────────────────────────────────
+
+export const pdfSuggestions = pgTable("pdf_suggestions", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -253,13 +489,13 @@ export const pdfSuggestions = sqliteTable("pdf_suggestions", {
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
   downloadCount: integer("download_count").default(0).notNull(),
-  isFeatured: integer("is_featured", { mode: "boolean" })
+  isFeatured: boolean("is_featured")
     .default(false)
     .notNull(),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const polls = sqliteTable("polls", {
+export const polls = pgTable("polls", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -269,11 +505,11 @@ export const polls = sqliteTable("polls", {
   chapter: text("chapter"),
   explanation: text("explanation"),
   expiresAt: text("expires_at"),
-  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const pollOptions = sqliteTable("poll_options", {
+export const pollOptions = pgTable("poll_options", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -281,14 +517,14 @@ export const pollOptions = sqliteTable("poll_options", {
     .notNull()
     .references(() => polls.id, { onDelete: "cascade" }),
   optionText: text("option_text").notNull(),
-  isCorrect: integer("is_correct", { mode: "boolean" })
+  isCorrect: boolean("is_correct")
     .default(false)
     .notNull(),
   votesCount: integer("votes_count").default(0).notNull(),
   orderNo: integer("order_no").default(0).notNull(),
 });
 
-export const pollVotes = sqliteTable("poll_votes", {
+export const pollVotes = pgTable("poll_votes", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
@@ -301,43 +537,10 @@ export const pollVotes = sqliteTable("poll_votes", {
   userId: text("user_id")
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" }),
-  createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const examSubmissions = sqliteTable("exam_submissions", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  examId: text("exam_id")
-    .notNull()
-    .references(() => exams.id, { onDelete: "cascade" }),
-  userId: text("user_id")
-    .notNull()
-    .references(() => profiles.id, { onDelete: "cascade" }),
-  score: text("score").default("0").notNull(),
-  totalMarks: integer("total_marks").notNull(),
-  timeTakenSeconds: integer("time_taken_seconds").default(0).notNull(),
-  submittedAt: text("submitted_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),
-});
-
-export const examResponses = sqliteTable("exam_responses", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  submissionId: text("submission_id")
-    .notNull()
-    .references(() => examSubmissions.id, { onDelete: "cascade" }),
-  questionId: text("question_id")
-    .notNull()
-    .references(() => questions.id, { onDelete: "cascade" }),
-  selectedOptionId: text("selected_option_id").references(() => mcqOptions.id, {
-    onDelete: "set null",
-  }),
-  isCorrect: integer("is_correct", { mode: "boolean" })
-    .default(false)
-    .notNull(),
-  marksObtained: text("marks_obtained").default("0").notNull(),
-});
+// ─── Relations ────────────────────────────────────────────────────────────────
 
 export const containersRelations = relations(containers, ({ many }) => ({
   items: many(items),
@@ -379,6 +582,7 @@ export const questionsRelations = relations(questions, ({ one, many }) => ({
   }),
   mcqOptions: many(mcqOptions),
   cqParts: many(cqParts),
+  examQuestions: many(examQuestions),
 }));
 
 export const mcqOptionsRelations = relations(mcqOptions, ({ one }) => ({
@@ -408,106 +612,12 @@ export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
   votes: many(pollVotes),
 }));
 
-export const batchesRelations = relations(batches, ({ many }) => ({
-  routines: many(examRoutines),
-  batchExams: many(batchExams),
-}));
-
-export const examsRelations = relations(exams, ({ many }) => ({
-  examQuestions: many(examQuestions),
-  submissions: many(examSubmissions),
-}));
-
-export const courses = sqliteTable("courses", {
-  id: text("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  title: text("title").notNull(),
-  subtitle: text("subtitle"),
-  description: text("description").notNull(),
-  hscBatch: text("hsc_batch").notNull(), // "HSC 26" | "HSC 27" | "Admission"
-  price: integer("price").notNull(),
-  originalPrice: integer("original_price"),
-  image: text("image").notNull(),
-  badge: text("badge"),
-  isPublished: integer("is_published", { mode: "boolean" }).default(true),
-  orderIndex: integer("order_index").default(0),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
-
-export const courseDetails = sqliteTable("course_details", {
-  id: text("id").primaryKey(),
-  courseId: text("course_id")
-    .notNull()
-    .unique()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  routinePdfUrl: text("routine_pdf_url"),
-  telegramGroupUrl: text("telegram_group_url"),
-  features: text("features", { mode: "json" }).$type<string[]>(),
-  modules: text("modules", { mode: "json" }).$type<
-    {
-      id: string;
-      title: string;
-      totalClasses: number;
-      chapters: string[];
-    }[]
-  >(),
-  faqs: text("faqs", { mode: "json" }).$type<
-    {
-      question: string;
-      answer: string;
-    }[]
-  >(),
-  instructors: text("instructors", { mode: "json" }).$type<
-    {
-      name: string;
-      role: string;
-      institution: string;
-      image?: string;
-    }[]
-  >(),
-});
-
-export const courseEnrollmentRequests = sqliteTable(
-  "course_enrollment_requests",
-  {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    courseId: text("course_id")
-      .notNull()
-      .references(() => courses.id, { onDelete: "cascade" }),
-    paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
-    senderNumber: text("sender_number").notNull(),
-    transactionId: text("transaction_id").notNull(),
-    amountPaid: integer("amount_paid").notNull(),
-    status: text("status").default("pending"), // "pending" | "approved" | "rejected"
-    adminNote: text("admin_note"),
-    reviewedBy: text("reviewed_by").references(() => user.id),
-    reviewedAt: integer("reviewed_at", { mode: "timestamp" }),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  },
-);
-
-export const courseEnrollments = sqliteTable("course_enrollments", {
-  id: text("id").primaryKey(),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  courseId: text("course_id")
-    .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  requestId: text("request_id").references(() => courseEnrollmentRequests.id),
-  status: text("status").default("active"), // "active" | "revoked"
-  enrolledAt: integer("enrolled_at", { mode: "timestamp" }).notNull(),
-});
-
 export const coursesRelations = relations(courses, ({ one, many }) => ({
   details: one(courseDetails, {
     fields: [courses.id],
     references: [courseDetails.courseId],
   }),
+  batches: many(batches),
   enrollments: many(courseEnrollments),
   enrollmentRequests: many(courseEnrollmentRequests),
 }));
@@ -554,3 +664,95 @@ export const courseEnrollmentRequestsRelations = relations(
     }),
   }),
 );
+
+export const batchesRelations = relations(batches, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [batches.courseId],
+    references: [courses.id],
+  }),
+  members: many(batchMembers),
+  routines: many(examRoutines),
+  batchExams: many(batchExams),
+}));
+
+export const batchMembersRelations = relations(batchMembers, ({ one }) => ({
+  batch: one(batches, {
+    fields: [batchMembers.batchId],
+    references: [batches.id],
+  }),
+  user: one(user, {
+    fields: [batchMembers.userId],
+    references: [user.id],
+  }),
+}));
+
+export const examsRelations = relations(exams, ({ one, many }) => ({
+  creator: one(user, {
+    fields: [exams.createdBy],
+    references: [user.id],
+  }),
+  examQuestions: many(examQuestions),
+  batchExams: many(batchExams),
+  submissions: many(examSubmissions),
+}));
+
+export const batchExamsRelations = relations(batchExams, ({ one, many }) => ({
+  batch: one(batches, {
+    fields: [batchExams.batchId],
+    references: [batches.id],
+  }),
+  exam: one(exams, {
+    fields: [batchExams.examId],
+    references: [exams.id],
+  }),
+  submissions: many(examSubmissions),
+}));
+
+export const examQuestionsRelations = relations(
+  examQuestions,
+  ({ one, many }) => ({
+    exam: one(exams, {
+      fields: [examQuestions.examId],
+      references: [exams.id],
+    }),
+    question: one(questions, {
+      fields: [examQuestions.questionId],
+      references: [questions.id],
+    }),
+    responses: many(examResponses),
+  }),
+);
+
+export const examSubmissionsRelations = relations(
+  examSubmissions,
+  ({ one, many }) => ({
+    exam: one(exams, {
+      fields: [examSubmissions.examId],
+      references: [exams.id],
+    }),
+    batchExam: one(batchExams, {
+      fields: [examSubmissions.batchExamId],
+      references: [batchExams.id],
+    }),
+    user: one(user, {
+      fields: [examSubmissions.userId],
+      references: [user.id],
+    }),
+    responses: many(examResponses),
+  }),
+);
+
+export const examResponsesRelations = relations(examResponses, ({ one }) => ({
+  submission: one(examSubmissions, {
+    fields: [examResponses.submissionId],
+    references: [examSubmissions.id],
+  }),
+  examQuestion: one(examQuestions, {
+    fields: [examResponses.examQuestionId],
+    references: [examQuestions.id],
+  }),
+  selectedOption: one(mcqOptions, {
+    fields: [examResponses.selectedOptionId],
+    references: [mcqOptions.id],
+  }),
+}));

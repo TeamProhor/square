@@ -1,0 +1,6 @@
+#!/usr/bin/expect -f
+set timeout -1
+spawn bunx drizzle-kit push
+expect "Is course_id column in batches table created or renamed from another column?"
+send "\r"
+expect eof

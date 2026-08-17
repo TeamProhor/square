@@ -23,7 +23,7 @@ export async function getBatches(): Promise<Batch[]> {
     return (await db
       .select()
       .from(batches)
-      .orderBy(desc(batches.createdAt))) as Batch[];
+      .orderBy(desc(batches.createdAt))) as unknown as Batch[];
   } catch (error) {
     console.error("Error fetching batches:", error);
     return [];
@@ -83,7 +83,6 @@ export async function createExamRoutine(
           .values({
             name: "HSC 2026 ব্যাচ",
             slug: "hsc-2026",
-            hscYear: "2026",
             description: "HSC 2026 মূল ব্যাচ",
           })
           .returning();
@@ -99,7 +98,7 @@ export async function createExamRoutine(
         title: payload.title.trim(),
         subject: payload.subject.trim(),
         syllabus: payload.syllabus?.trim() || null,
-        examDate: payload.examDate.trim(),
+        examDate: new Date(payload.examDate.trim()),
         durationMinutes: payload.durationMinutes || 30,
         totalMarks: payload.totalMarks || 25,
       })

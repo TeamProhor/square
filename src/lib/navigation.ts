@@ -12,6 +12,7 @@ import type { Dictionary, NavItem, SidebarAnnouncement } from "@/types";
 export const USER_NAV_ITEMS: readonly NavItem[] = [
   { name: "ড্যাশবোর্ড", path: "/dashboard", exact: true, icon: Home },
   { name: "প্রশ্নব্যাংক", path: "/qb", exact: false, icon: TaskSquare },
+  { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
   { name: "পিডিএফ", path: "/pdf", exact: false, icon: DocumentDownload },
   { name: "ক্যালেন্ডার", path: "/calendar", exact: false, icon: CalendarTick },
   { name: "পোল", path: "/poll", exact: false, icon: StatusUp },
@@ -27,9 +28,16 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
   },
   { name: "এনরোলমেন্টস", path: "/admin/enrollments", exact: false, icon: User },
   { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
+  { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
   {
-    name: "পরীক্ষা ও সূচী",
+    name: "ম্যানেজ পরীক্ষা",
     path: "/admin/exams",
+    exact: true,
+    icon: TaskSquare,
+  },
+  {
+    name: "রুটিন ক্যালেন্ডার",
+    path: "/admin/exams/routines",
     exact: false,
     icon: CalendarTick,
   },
@@ -49,6 +57,7 @@ export function getNavItems(
     return [
       { name: d.dashboard, path: "/dashboard", exact: true, icon: Home },
       { name: d.qb, path: "/qb", exact: false, icon: TaskSquare },
+      { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
       { name: d.pdf, path: "/pdf", exact: false, icon: DocumentDownload },
       { name: d.calendar, path: "/calendar", exact: false, icon: CalendarTick },
       { name: d.poll, path: "/poll", exact: false, icon: StatusUp },

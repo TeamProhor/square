@@ -37,8 +37,14 @@ export function AdminSidebar() {
     { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
     { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
     {
-      name: "পরীক্ষা ও সূচী",
+      name: "ম্যানেজ পরীক্ষা",
       path: "/admin/exams",
+      exact: true,
+      icon: TaskSquare,
+    },
+    {
+      name: "রুটিন ক্যালেন্ডার",
+      path: "/admin/exams/routines",
       exact: false,
       icon: CalendarTick,
     },

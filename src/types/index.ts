@@ -104,7 +104,7 @@ export interface Exam {
   readonly countdown?: string;
   readonly title?: string;
   readonly syllabus?: string | null;
-  readonly examDate?: string;
+  readonly examDate?: Date | null;
   readonly durationMinutes?: number;
   readonly totalMarks?: number;
   readonly batchId?: string;
@@ -116,10 +116,10 @@ export interface ExamRoutine {
   readonly title: string;
   readonly subject: string;
   readonly syllabus?: string | null;
-  readonly examDate: string;
+  readonly examDate: Date;
   readonly durationMinutes: number;
   readonly totalMarks: number;
-  readonly createdAt?: string;
+  readonly createdAt?: Date;
 }
 
 export interface Batch {
@@ -127,9 +127,10 @@ export interface Batch {
   readonly name: string;
   readonly slug: string;
   readonly description?: string | null;
-  readonly hscYear: string;
+  readonly courseId?: string | null;
   readonly isActive?: boolean;
-  readonly createdAt?: string;
+  readonly createdAt?: Date;
+  readonly updatedAt?: Date;
 }
 
 export interface SidebarAnnouncement {
@@ -146,7 +147,7 @@ export interface Container {
   readonly title: string;
   readonly description?: string | null;
   readonly items?: { readonly count: number }[];
-  readonly createdAt?: string;
+  readonly createdAt?: Date;
 }
 
 export interface Item {
@@ -291,5 +292,94 @@ export interface PdfSuggestion {
   readonly thumbnailUrl?: string | null;
   readonly downloadCount?: number;
   readonly isFeatured?: boolean;
-  readonly createdAt?: string;
+  readonly createdAt?: Date;
+}
+
+export interface ExamDetail {
+  readonly id: string;
+  readonly title: string;
+  readonly slug: string;
+  readonly description?: string | null;
+  readonly type: "practice" | "chapter_test" | "weekly" | "model_test" | "live_contest";
+  readonly durationMinutes: number;
+  readonly totalMarks: number;
+  readonly passMarks?: number | null;
+  readonly negativeMarking: string;
+  readonly isPublished: boolean;
+  readonly showResultImmediately: boolean;
+  readonly createdBy?: string | null;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+  readonly examQuestions?: readonly ExamQuestion[];
+}
+
+export interface ExamQuestion {
+  readonly id: string;
+  readonly examId: string;
+  readonly questionId: string;
+  readonly orderNo: number;
+  readonly marks: number;
+  readonly section?: string | null;
+  readonly question?: Question;
+}
+
+export interface ExamSubmission {
+  readonly id: string;
+  readonly examId: string;
+  readonly batchExamId?: string | null;
+  readonly userId: string;
+  readonly score: string;
+  readonly totalMarks: number;
+  readonly attemptNumber: number;
+  readonly timeTakenSeconds: number;
+  readonly status: "in_progress" | "submitted" | "evaluated" | string;
+  readonly startedAt: Date;
+  readonly submittedAt?: Date | null;
+}
+
+export interface ExamResponse {
+  readonly id: string;
+  readonly submissionId: string;
+  readonly examQuestionId: string;
+  readonly selectedOptionId?: string | null;
+  readonly cqAnswerText?: string | null;
+  readonly isCorrect: boolean;
+  readonly marksObtained: string;
+}
+
+export interface LeaderboardEntry {
+  readonly rank: number;
+  readonly userId: string;
+  readonly userName: string;
+  readonly score: string;
+  readonly totalMarks: number;
+  readonly timeTakenSeconds: number;
+  readonly submittedAt: Date | null;
+}
+
+export interface BatchMember {
+  readonly id: string;
+  readonly batchId: string;
+  readonly userId: string;
+  readonly name?: string;
+  readonly email?: string;
+  readonly role: string;
+  readonly status: string;
+  readonly joinedAt: string;
+}
+
+export interface BatchExamDetail {
+  readonly id: string;
+  readonly batchId: string;
+  readonly examId: string;
+  readonly exam?: { readonly title: string; readonly slug: string };
+  readonly startsAt?: string | null;
+  readonly endsAt?: string | null;
+  readonly isRequired: boolean;
+  readonly maxAttempts?: number | null;
+}
+
+export interface BatchDetail extends Batch {
+  readonly members?: readonly BatchMember[];
+  readonly batchExams?: readonly BatchExamDetail[];
 }

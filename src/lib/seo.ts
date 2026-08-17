@@ -100,7 +100,7 @@ export const siteJsonLd = {
       operatingSystem: "All",
       applicationCategory: "EducationalApplication",
       description:
-        "A fast, modern, and reliable HSC preparation platform fully equipped with SQLite, Tailwind CSS, and Biome.",
+        "A fast, modern, and reliable HSC preparation platform fully equipped with PostgreSQL, Tailwind CSS, and Biome.",
       offers: {
         "@type": "Offer",
         price: "0",
