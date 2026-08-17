@@ -3,20 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import {
-  Calendar,
-  Flame,
-  Information,
-  Star,
-} from "@/components/icons";
+import { Calendar, Flame, Information, Star } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { getCourses } from "@/lib/actions/course";
 import { COURSES } from "@/lib/courses";
 
@@ -25,7 +15,7 @@ type CourseItem = {
   readonly title: string;
   readonly price: number;
   readonly image: string;
-  readonly badge?: string;
+  readonly badge?: string | null;
 };
 
 export function CoursesPricingSection() {
@@ -165,7 +155,10 @@ export function CoursesPricingSection() {
                         className="flex items-center justify-center gap-2 py-2.5 h-auto border-border/80 rounded-xl text-muted-foreground font-bold hover:border-foreground hover:text-foreground transition-all"
                       >
                         <Link href={`/courses/${course.slug}`}>
-                          <Calendar data-icon="inline-start" className="size-4" />
+                          <Calendar
+                            data-icon="inline-start"
+                            className="size-4"
+                          />
                           <span className="text-xs">রুটিন</span>
                         </Link>
                       </Button>
@@ -176,7 +169,10 @@ export function CoursesPricingSection() {
                         className="flex items-center justify-center gap-1.5 py-2.5 h-auto border-border/80 rounded-xl text-foreground font-bold hover:bg-muted transition-all"
                       >
                         <Link href={`/courses/${course.slug}`}>
-                          <Information data-icon="inline-start" className="size-3.5" />
+                          <Information
+                            data-icon="inline-start"
+                            className="size-3.5"
+                          />
                           <span className="text-xs font-bold">বিস্তারিত</span>
                         </Link>
                       </Button>
@@ -195,7 +191,8 @@ export function CoursesPricingSection() {
               HSC 27 ব্যাচের কোর্স খুব শীঘ্রই উন্মুক্ত করা হবে
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
-              আমাদের টেলিগ্রাম সাপোর্ট গ্রুপে যুক্ত হয়ে সবার আগে ব্যাচ সংক্রান্ত আপডেট ও স্পেশাল ছাড় পেয়ে যান।
+              আমাদের টেলিগ্রাম সাপোর্ট গ্রুপে যুক্ত হয়ে সবার আগে ব্যাচ সংক্রান্ত আপডেট ও স্পেশাল
+              ছাড় পেয়ে যান।
             </p>
             <Button
               asChild
@@ -241,5 +238,3 @@ export function CoursesPricingSection() {
     </section>
   );
 }
-
-

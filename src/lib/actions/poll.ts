@@ -58,7 +58,12 @@ export async function getPollQuestionsAction(params: {
           conditions.push(eq(questions.subitemId, params.subitemId));
         }
         if (params.standard) {
-          conditions.push(eq(questions.standard, params.standard));
+          conditions.push(
+            eq(
+              questions.standard,
+              params.standard as "HSC" | "Varsity" | "Engineering" | "Medical",
+            ),
+          );
         }
         return and(...conditions);
       },

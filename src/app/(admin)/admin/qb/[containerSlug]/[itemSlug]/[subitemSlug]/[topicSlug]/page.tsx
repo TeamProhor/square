@@ -75,6 +75,7 @@ export default async function AdminQbQuestionsPage({
         subjectSlug={subject.slug}
         subjectId={subject.id}
         chapterId={chapter.id}
+        topicId={topic.id}
         topicName={topic.name}
         chapterSlug={chapter.slug}
       />

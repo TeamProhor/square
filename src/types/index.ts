@@ -234,17 +234,23 @@ export interface Question {
   readonly cqParts?: readonly CQPart[];
 }
 
+export type QuestionSource = "board" | "varsity" | "engineering" | "custom";
+
+export const QUESTION_STANDARDS = [
+  "HSC",
+  "Varsity",
+  "Engineering",
+  "Medical",
+] as const;
+
+export type QuestionStandard = (typeof QUESTION_STANDARDS)[number];
+
 export interface CreateQuestionPayload {
   readonly subjectId: string;
   readonly chapterId: string;
   readonly type: "mcq" | "cq";
-  readonly source:
-    | "frostfoe"
-    | "varsity"
-    | "engineering"
-    | "board"
-    | "custom_csv_json";
-  readonly standard?: "board" | "varsity" | "engineering" | "medical";
+  readonly source?: QuestionSource | string;
+  readonly standard?: QuestionStandard | string;
   readonly questionText: string;
   readonly explanation?: string;
   readonly mcqOptions?: readonly { optionText: string; isCorrect: boolean }[];
@@ -253,6 +259,24 @@ export interface CreateQuestionPayload {
     questionText: string;
     answerText?: string;
     marks: number;
+  }[];
+}
+
+export interface ImportQuestionItem {
+  readonly type: "mcq" | "cq";
+  readonly source?: string;
+  readonly standard?: QuestionStandard;
+  readonly questionText: string;
+  readonly explanation?: string;
+  readonly mcqOptions?: readonly {
+    readonly optionText: string;
+    readonly isCorrect: boolean;
+  }[];
+  readonly cqParts?: readonly {
+    readonly partKey: "a" | "b" | "c" | "d";
+    readonly questionText: string;
+    readonly answerText?: string;
+    readonly marks: number;
   }[];
 }
 

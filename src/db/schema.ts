@@ -116,7 +116,11 @@ export const questions = sqliteTable("questions", {
   }),
   type: text("type", { enum: ["mcq", "cq"] }).notNull(),
   source: text("source").notNull(),
-  standard: text("standard").default("HSC").notNull(),
+  standard: text("standard", {
+    enum: ["HSC", "Varsity", "Engineering", "Medical"],
+  })
+    .default("HSC")
+    .notNull(),
   questionText: text("question_text").notNull(),
   explanation: text("explanation"),
   createdAt: text("created_at").default(sql`(CURRENT_TIMESTAMP)`).notNull(),

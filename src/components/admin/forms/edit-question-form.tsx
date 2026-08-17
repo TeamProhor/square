@@ -9,40 +9,70 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-import { useCreateQuestion } from "@/hooks/use-admin-qb";
+import { useUpdateQuestion } from "@/hooks/use-admin-qb";
 import { cn } from "@/lib/utils";
+import type { Question } from "@/types";
 
-interface NewQuestionFormProps {
-  readonly subjectId: string;
-  readonly chapterId: string;
+interface EditQuestionFormProps {
+  readonly question: Question;
   readonly onSuccess?: () => void;
   readonly onCancel?: () => void;
 }
 
-export function NewQuestionForm({
-  subjectId,
-  chapterId,
+export function EditQuestionForm({
+  question,
   onSuccess,
   onCancel,
-}: NewQuestionFormProps) {
-  const [type, setType] = useState<"mcq" | "cq">("mcq");
-  const [source, setSource] = useState("Board");
-  const [standard, setStandard] = useState("HSC");
-  const [questionText, setQuestionText] = useState("");
-  const [explanation, setExplanation] = useState("");
+}: EditQuestionFormProps) {
+  const [type, setType] = useState<"mcq" | "cq">(question.type || "mcq");
+  const [source, setSource] = useState(question.source || "Custom");
+  const normalizedStandard = (() => {
+    const s = question.standard?.toLowerCase();
+    if (s === "varsity") return "Varsity";
+    if (s === "engineering") return "Engineering";
+    if (s === "medical") return "Medical";
+    return "HSC";
+  })();
+  const [standard, setStandard] = useState(normalizedStandard);
+  const [questionText, setQuestionText] = useState(
+    question.questionText || question.question_text || "",
+  );
+  const [explanation, setExplanation] = useState(question.explanation || "");
 
-  const [mcqOptions, setMcqOptions] = useState([
-    { optionText: "", isCorrect: true },
-    { optionText: "", isCorrect: false },
-    { optionText: "", isCorrect: false },
-    { optionText: "", isCorrect: false },
-  ]);
+  const initialOptions = (question.mcqOptions || question.mcq_options)?.map(
+    (o, idx) => ({
+      key: o.id || `opt-slot-${idx}`,
+      optionText: o.optionText || o.option_text || "",
+      isCorrect: o.isCorrect ?? o.is_correct ?? false,
+    }),
+  ) || [
+    { key: "opt-slot-0", optionText: "", isCorrect: true },
+    { key: "opt-slot-1", optionText: "", isCorrect: false },
+    { key: "opt-slot-2", optionText: "", isCorrect: false },
+    { key: "opt-slot-3", optionText: "", isCorrect: false },
+  ];
 
-  const createMutation = useCreateQuestion();
+  const [mcqOptions, setMcqOptions] = useState(initialOptions);
+
+  const initialParts = (question.cqParts || question.cq_parts)?.map((p) => ({
+    partKey: p.partKey || p.part_key || "a",
+    questionText: p.questionText || p.question_text || "",
+    answerText: p.answerText || p.answer_text || "",
+    marks: p.marks || 1,
+  })) || [
+    { partKey: "a", questionText: "", answerText: "", marks: 1 },
+    { partKey: "b", questionText: "", answerText: "", marks: 2 },
+    { partKey: "c", questionText: "", answerText: "", marks: 3 },
+    { partKey: "d", questionText: "", answerText: "", marks: 4 },
+  ];
+
+  const [cqParts, setCqParts] = useState(initialParts);
+
+  const updateMutation = useUpdateQuestion();
 
   const handleOptionChange = (idx: number, text: string) => {
     const next = [...mcqOptions];
-    next[idx].optionText = text;
+    next[idx] = { ...next[idx], optionText: text };
     setMcqOptions(next);
   };
 
@@ -54,20 +84,32 @@ export function NewQuestionForm({
     setMcqOptions(next);
   };
 
+  const handlePartChange = (
+    idx: number,
+    field: "questionText" | "answerText" | "marks",
+    value: string | number,
+  ) => {
+    const next = [...cqParts];
+    next[idx] = { ...next[idx], [field]: value };
+    setCqParts(next);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!questionText) return;
 
-    createMutation.mutate(
+    updateMutation.mutate(
       {
-        subjectId,
-        chapterId,
-        type,
-        source: source.trim() || "Custom",
-        standard: standard.trim() || "HSC",
-        questionText,
-        explanation,
-        mcqOptions: type === "mcq" ? mcqOptions : undefined,
+        id: question.id,
+        payload: {
+          type,
+          source: source.trim() || "Custom",
+          standard: standard.trim() || "HSC",
+          questionText,
+          explanation,
+          mcqOptions: type === "mcq" ? mcqOptions : undefined,
+          cqParts: type === "cq" ? cqParts : undefined,
+        },
       },
       {
         onSuccess: () => {
@@ -78,10 +120,13 @@ export function NewQuestionForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      {createMutation.error && (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 max-h-[80vh] overflow-y-auto pr-1"
+    >
+      {updateMutation.error && (
         <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {createMutation.error.message}
+          {updateMutation.error.message}
         </p>
       )}
 
@@ -104,9 +149,9 @@ export function NewQuestionForm({
             placeholder="যেমন: কুমিল্লা বোর্ড ২০২৩, ঢাকা বোর্ড ২০২২..."
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            list="new-source-suggestions"
+            list="edit-source-suggestions"
           />
-          <datalist id="new-source-suggestions">
+          <datalist id="edit-source-suggestions">
             <option value="ঢাকা বোর্ড ২০২৩" />
             <option value="কুমিল্লা বোর্ড ২০২৩" />
             <option value="চট্টগ্রাম বোর্ড ২০২৩" />
@@ -154,7 +199,7 @@ export function NewQuestionForm({
           <div className="grid gap-3 sm:grid-cols-2">
             {mcqOptions.map((opt, idx) => (
               <div
-                key={opt.optionText || (opt.isCorrect ? "correct" : "option")}
+                key={opt.key}
                 className={cn(
                   "flex items-center gap-2 rounded-md border p-2 transition-colors",
                   opt.isCorrect
@@ -164,7 +209,7 @@ export function NewQuestionForm({
               >
                 <input
                   type="radio"
-                  name="correctOption"
+                  name="editCorrectOption"
                   checked={opt.isCorrect}
                   onChange={() => handleCorrectSelect(idx)}
                   className="size-4 shrink-0 accent-primary"
@@ -186,6 +231,63 @@ export function NewQuestionForm({
         </div>
       )}
 
+      {type === "cq" && (
+        <div className="flex flex-col gap-3">
+          <span className="text-sm font-medium">
+            CQ উপ-প্রশ্নসমূহ (ক, খ, গ, ঘ)
+          </span>
+          <div className="flex flex-col gap-3">
+            {cqParts.map((pt, idx) => (
+              <div
+                key={`part-${pt.partKey || idx}`}
+                className="flex flex-col gap-2 rounded-xl border p-3 bg-muted/20"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-primary text-xs uppercase">
+                    অংশ ({pt.partKey})
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">নম্বর:</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={10}
+                      className="w-16 h-7 text-xs text-center"
+                      value={pt.marks}
+                      onChange={(e) =>
+                        handlePartChange(
+                          idx,
+                          "marks",
+                          Number.parseInt(e.target.value, 10) || 1,
+                        )
+                      }
+                    />
+                  </div>
+                </div>
+                <Input
+                  required
+                  placeholder={`প্রশ্ন (${pt.partKey})...`}
+                  value={pt.questionText}
+                  onChange={(e) =>
+                    handlePartChange(idx, "questionText", e.target.value)
+                  }
+                  className="text-xs"
+                />
+                <Textarea
+                  rows={2}
+                  placeholder={`উত্তর / সমাধান (${pt.partKey}) [ঐচ্ছিক]`}
+                  value={pt.answerText}
+                  onChange={(e) =>
+                    handlePartChange(idx, "answerText", e.target.value)
+                  }
+                  className="text-xs"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Field>
         <FieldLabel>ব্যাখ্যা (Optional)</FieldLabel>
         <Textarea
@@ -200,8 +302,8 @@ export function NewQuestionForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           বাতিল
         </Button>
-        <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+        <Button type="submit" disabled={updateMutation.isPending}>
+          {updateMutation.isPending ? "আপডেট হচ্ছে..." : "আপডেট করুন"}
         </Button>
       </div>
     </form>

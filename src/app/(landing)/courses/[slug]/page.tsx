@@ -6,12 +6,10 @@ import type { ReactElement } from "react";
 import { CheckoutModal } from "@/components/checkout-modal";
 import {
   ArrowLeft2,
-  Calendar,
   FileDown,
   Flame,
   Send,
   Star,
-  TickCircle,
   User,
 } from "@/components/icons";
 import { LandingFooter, LandingHeader } from "@/components/landing-nav";
@@ -78,8 +76,7 @@ export default async function CourseDetailPage({
       courseWithDetails?.details?.instructors ||
       staticCourse?.instructors ||
       [],
-    modules:
-      courseWithDetails?.details?.modules || staticCourse?.modules || [],
+    modules: courseWithDetails?.details?.modules || staticCourse?.modules || [],
     faqs: courseWithDetails?.details?.faqs || staticCourse?.faqs || [],
   };
 
@@ -288,7 +285,8 @@ export default async function CourseDetailPage({
                 <div className="flex flex-col gap-2">
                   {enrollmentStatus === "rejected" && (
                     <div className="w-full bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 text-center font-bold py-3 px-3 rounded-xl text-xs shadow-xs leading-snug">
-                      আপনার পূর্বের পেমেন্ট রিকোয়েস্ট বাতিল করা হয়েছে। অনুগ্রহ করে সঠিক তথ্য দিয়ে পুনরায় সাবমিট করুন।
+                      আপনার পূর্বের পেমেন্ট রিকোয়েস্ট বাতিল করা হয়েছে। অনুগ্রহ করে সঠিক
+                      তথ্য দিয়ে পুনরায় সাবমিট করুন।
                     </div>
                   )}
                   <CheckoutModal
@@ -317,7 +315,10 @@ export default async function CourseDetailPage({
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2"
                 >
-                  <Send data-icon="inline-start" className="size-3.5 text-sky-500" />
+                  <Send
+                    data-icon="inline-start"
+                    className="size-3.5 text-sky-500"
+                  />
                   <span>ভর্তি সংক্রান্ত সহায়তা (টেলিগ্রাম)</span>
                 </a>
               </Button>
@@ -360,4 +361,3 @@ export default async function CourseDetailPage({
     </div>
   );
 }
-

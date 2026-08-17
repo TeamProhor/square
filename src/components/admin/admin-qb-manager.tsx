@@ -1,12 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Star, TaskSquare, Trash2 } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
+import { EditQuestionForm } from "@/components/admin/forms/edit-question-form";
+import { Edit, Star, TaskSquare, Trash2 } from "@/components/icons";
+import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -19,18 +30,23 @@ import {
   useCreateQuestion,
   useDeleteQuestion,
 } from "@/hooks/use-admin-qb";
-import type { MCQOption, Question } from "@/types";
+import type { Question } from "@/types";
+
+const ITEMS_PER_PAGE = 10;
 
 export function AdminQbManager() {
   const [activeTab, setActiveTab] = useState<"list" | "create">("list");
+  const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [revealedSolutions, setRevealedSolutions] = useState<
+    Record<string, boolean>
+  >({});
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+
   const [subjectId, setSubjectId] = useState("physics");
   const [type, setType] = useState<"mcq" | "cq">("mcq");
-  const [source, setSource] = useState<
-    "frostfoe" | "varsity" | "engineering" | "board" | "custom_csv_json"
-  >("board");
-  const [standard, _setStandard] = useState<
-    "board" | "varsity" | "engineering" | "medical"
-  >("board");
+  const [source, setSource] = useState("Board");
+  const [standard, setStandard] = useState("HSC");
   const [questionText, setQuestionText] = useState("");
   const [explanation, setExplanation] = useState("");
 
@@ -44,6 +60,13 @@ export function AdminQbManager() {
   const { data: questions, isLoading } = useAdminQuestions();
   const createMutation = useCreateQuestion();
   const deleteMutation = useDeleteQuestion();
+
+  const totalQuestions = questions?.length ?? 0;
+  const totalPages = Math.ceil(totalQuestions / ITEMS_PER_PAGE);
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedQuestions =
+    questions?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
 
   const handleOptionChange = (idx: number, text: string) => {
     const next = [...mcqOptions];
@@ -84,6 +107,45 @@ export function AdminQbManager() {
     );
   };
 
+  const handleSelectOption = (questionId: string, optionId: string) => {
+    setUserAnswers((prev) => ({ ...prev, [questionId]: optionId }));
+  };
+
+  const toggleSolution = (questionId: string) => {
+    setRevealedSolutions((prev) => ({
+      ...prev,
+      [questionId]: !prev[questionId],
+    }));
+  };
+
+  const getPageNumbers = (): (number | { key: string })[] => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 3) {
+      return [1, 2, 3, 4, { key: "ellipsis-end" }, totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 2) {
+      return [
+        1,
+        { key: "ellipsis-start" },
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+    return [
+      1,
+      { key: "ellipsis-start" },
+      safeCurrentPage - 1,
+      safeCurrentPage,
+      safeCurrentPage + 1,
+      { key: "ellipsis-end" },
+      totalPages,
+    ];
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -119,82 +181,131 @@ export function AdminQbManager() {
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold flex items-center gap-2">
               <TaskSquare className="size-5 text-primary" /> মোট প্রশ্ন (
-              {questions?.length ?? 0})
+              {totalQuestions})
             </h2>
+            {totalPages > 1 && (
+              <span className="text-xs font-medium text-muted-foreground">
+                পৃষ্ঠা {safeCurrentPage} / {totalPages} (প্রতি পৃষ্ঠায় {ITEMS_PER_PAGE}
+                টি)
+              </span>
+            )}
           </div>
 
           {isLoading ? (
             <div className="p-12 text-center text-muted-foreground bg-card border rounded-2xl">
               প্রশ্ন লোড হচ্ছে...
             </div>
-          ) : questions?.length === 0 ? (
+          ) : totalQuestions === 0 ? (
             <div className="p-12 text-center text-muted-foreground bg-card border rounded-2xl">
               কোনো প্রশ্ন পাওয়া যায়নি।
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {questions?.map((q: Question) => (
-                <Card
-                  key={q.id}
-                  className="shadow-xs hover:border-primary/40 transition-all flex flex-col justify-between p-5 rounded-2xl border"
-                >
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className="uppercase font-bold text-[10px]"
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {paginatedQuestions.map((q: Question, idx: number) => (
+                  <UniversalQuestionCard
+                    key={q.id}
+                    question={q}
+                    questionIndex={startIndex + idx}
+                    selectedOptionId={userAnswers[q.id]}
+                    isSolutionOpen={Boolean(revealedSolutions[q.id])}
+                    onSelectOption={handleSelectOption}
+                    onToggleSolution={toggleSolution}
+                    footerActions={
+                      <div className="flex items-center gap-1.5">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingQuestion(q)}
+                          className="text-primary hover:bg-primary/10 gap-1.5 rounded-xl text-xs"
                         >
-                          {q.type}
-                        </Badge>
-                        <Badge
-                          variant="secondary"
-                          className="capitalize text-[10px] font-semibold"
+                          <Edit className="size-3.5" />
+                          <span>এডিট</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteMutation.mutate(q.id)}
+                          className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs"
                         >
-                          {q.source}
-                        </Badge>
+                          <Trash2 className="size-3.5" />
+                          <span>ডিলিট</span>
+                        </Button>
                       </div>
-                      <Badge className="capitalize text-[10px]">
-                        {q.standard}
-                      </Badge>
-                    </div>
+                    }
+                  />
+                ))}
+              </div>
 
-                    <p className="text-sm font-semibold text-foreground leading-relaxed">
-                      {q.question_text}
-                    </p>
+              {totalPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          text="পূর্ববর্তী"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (safeCurrentPage > 1) {
+                              setCurrentPage(safeCurrentPage - 1);
+                            }
+                          }}
+                          className={
+                            safeCurrentPage <= 1
+                              ? "pointer-events-none opacity-50 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
 
-                    {q.type === "mcq" && (q.mcq_options?.length ?? 0) > 0 && (
-                      <div className="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-border/50">
-                        {q.mcq_options?.map((opt: MCQOption, idx: number) => (
-                          <div
-                            key={opt.id || idx}
-                            className={`p-2 rounded-xl text-xs flex items-center gap-2 ${
-                              opt.is_correct
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold border border-emerald-500/20"
-                                : "bg-muted/50 text-muted-foreground"
-                            }`}
-                          >
-                            <span className="font-bold">{idx + 1}.</span>
-                            <span className="truncate">{opt.option_text}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                      {getPageNumbers().map((item) => {
+                        if (typeof item === "object") {
+                          return (
+                            <PaginationItem key={item.key}>
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
 
-                  <div className="flex items-center justify-end pt-4 mt-4 border-t border-border/40">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteMutation.mutate(q.id)}
-                      className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs"
-                    >
-                      <Trash2 className="size-3.5" />
-                      <span>ডিলিট</span>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                        const page = item;
+                        const isActive = page === safeCurrentPage;
+
+                        return (
+                          <PaginationItem key={`page-${page}`}>
+                            <PaginationLink
+                              isActive={isActive}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setCurrentPage(page);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          text="পরবর্তী"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (safeCurrentPage < totalPages) {
+                              setCurrentPage(safeCurrentPage + 1);
+                            }
+                          }}
+                          className={
+                            safeCurrentPage >= totalPages
+                              ? "pointer-events-none opacity-50 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -240,30 +351,45 @@ export function AdminQbManager() {
 
                 <Field>
                   <FieldLabel>উৎস (Source)</FieldLabel>
-                  <Select
+                  <Input
+                    placeholder="যেমন: কুমিল্লা বোর্ড ২০২৩, ঢাকা বোর্ড ২০২২..."
                     value={source}
-                    onValueChange={(v: string) =>
-                      setSource(
-                        v as
-                          | "frostfoe"
-                          | "varsity"
-                          | "engineering"
-                          | "board"
-                          | "custom_csv_json",
-                      )
-                    }
+                    onChange={(e) => setSource(e.target.value)}
+                    list="qb-source-suggestions"
+                    className="rounded-xl"
+                  />
+                  <datalist id="qb-source-suggestions">
+                    <option value="ঢাকা বোর্ড ২০২৩" />
+                    <option value="কুমিল্লা বোর্ড ২০২৩" />
+                    <option value="চট্টগ্রাম বোর্ড ২০২৩" />
+                    <option value="রাজশাহী বোর্ড ২০২৩" />
+                    <option value="যশোর বোর্ড ২০২৩" />
+                    <option value="সিলেট বোর্ড ২০২৩" />
+                    <option value="বরিশাল বোর্ড ২০২৩" />
+                    <option value="দিনাজপুর বোর্ড ২০২৩" />
+                    <option value="ময়মনসিংহ বোর্ড ২০২৩" />
+                    <option value="Board" />
+                    <option value="Varsity" />
+                    <option value="Engineering" />
+                    <option value="Medical" />
+                    <option value="Custom" />
+                  </datalist>
+                </Field>
+
+                <Field>
+                  <FieldLabel>মান / স্তর (Standard)</FieldLabel>
+                  <Select
+                    value={standard}
+                    onValueChange={(v: string) => setStandard(v || "HSC")}
                   >
                     <SelectTrigger className="rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="frostfoe">FrostFoe Special</SelectItem>
-                      <SelectItem value="varsity">Varsity</SelectItem>
-                      <SelectItem value="engineering">Engineering</SelectItem>
-                      <SelectItem value="board">Board</SelectItem>
-                      <SelectItem value="custom_csv_json">
-                        Custom CSV/JSON
-                      </SelectItem>
+                      <SelectItem value="HSC">HSC</SelectItem>
+                      <SelectItem value="Varsity">Varsity</SelectItem>
+                      <SelectItem value="Engineering">Engineering</SelectItem>
+                      <SelectItem value="Medical">Medical</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -335,6 +461,25 @@ export function AdminQbManager() {
           </CardContent>
         </Card>
       )}
+
+      {/* Edit Question Dialog */}
+      <ResponsiveDialog
+        open={Boolean(editingQuestion)}
+        onOpenChange={(open) => {
+          if (!open) setEditingQuestion(null);
+        }}
+        title="প্রশ্ন এডিট করুন"
+        description="প্রশ্নের ধরন, বিবরণ, অপশন বা উত্তর সংশোধন করুন।"
+        className="sm:max-w-2xl"
+      >
+        {editingQuestion && (
+          <EditQuestionForm
+            question={editingQuestion}
+            onSuccess={() => setEditingQuestion(null)}
+            onCancel={() => setEditingQuestion(null)}
+          />
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }

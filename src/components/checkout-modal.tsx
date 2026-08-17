@@ -37,7 +37,25 @@ export function CheckoutModal({
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text.split(" ")[0]);
+    const target = text.split(" ")[0];
+    if (typeof window !== "undefined") {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(target).catch(() => {});
+        return;
+      }
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = target;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch {}
+    }
   };
 
   const handleOpenChange = (newOpen: boolean) => {

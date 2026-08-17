@@ -28,6 +28,8 @@ export interface UniversalQuestionCardProps {
   readonly onSelectOption?: (questionId: string, optionId: string) => void;
   readonly onToggleSolution?: (questionId: string) => void;
   readonly hideHeaderBadge?: boolean;
+  readonly headerActions?: React.ReactNode;
+  readonly footerActions?: React.ReactNode;
 }
 
 export function UniversalQuestionCard({
@@ -38,6 +40,8 @@ export function UniversalQuestionCard({
   onSelectOption,
   onToggleSolution,
   hideHeaderBadge = false,
+  headerActions,
+  footerActions,
 }: UniversalQuestionCardProps): ReactElement {
   const isAnswered = Boolean(selectedOptionId);
   const questionText = question.question_text || question.questionText || "";
@@ -50,9 +54,9 @@ export function UniversalQuestionCard({
         "shadow-xs hover:border-border",
       )}
     >
-      {/* Header: Type, Index, Source */}
+      {/* Header: Type, Index, Source, Standard, and Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 sm:mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {questionIndex !== undefined && (
             <span className="text-xs sm:text-sm font-bold text-muted-foreground">
               প্রশ্ন {questionIndex + 1}
@@ -64,14 +68,25 @@ export function UniversalQuestionCard({
           >
             {type}
           </Badge>
+          {!hideHeaderBadge && question.source && (
+            <Badge
+              variant="outline"
+              className="text-[11px] sm:text-xs text-muted-foreground font-medium rounded-md px-2 py-0.5 border-border/60"
+            >
+              {question.source}
+            </Badge>
+          )}
+          {question.standard && (
+            <Badge
+              variant="secondary"
+              className="text-[11px] sm:text-xs font-medium rounded-md px-2 py-0.5"
+            >
+              {question.standard}
+            </Badge>
+          )}
         </div>
-        {!hideHeaderBadge && question.source && (
-          <Badge
-            variant="outline"
-            className="text-[11px] sm:text-xs text-muted-foreground font-medium rounded-md px-2 py-0.5 border-border/60"
-          >
-            {question.source}
-          </Badge>
+        {headerActions && (
+          <div className="flex items-center gap-2">{headerActions}</div>
         )}
       </div>
 
@@ -163,8 +178,8 @@ export function UniversalQuestionCard({
         >
           {[...((question.cq_parts || question.cqParts) ?? [])]
             .sort(
-              (a: CQPart, _b: CQPart) =>
-                (a.order_no ?? a.orderNo ?? 0) - (a.order_no ?? a.orderNo ?? 0),
+              (a: CQPart, b: CQPart) =>
+                (a.order_no ?? a.orderNo ?? 0) - (b.order_no ?? b.orderNo ?? 0),
             )
             .map((part: CQPart) => {
               const pText = part.question_text || part.questionText || "";
@@ -209,34 +224,42 @@ export function UniversalQuestionCard({
         </Accordion>
       )}
 
-      {/* Explanation / Solution Footer */}
-      {question.explanation && onToggleSolution && (
-        <div className="mt-3 pt-2.5 border-t border-dashed border-border/40">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onToggleSolution(question.id)}
-            className="text-[11px] sm:text-xs font-bold text-primary hover:text-primary hover:bg-primary/10 rounded-lg gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5"
-          >
-            <Lightbulb className="size-3 sm:size-3.5" />
-            {isSolutionOpen ? "ব্যাখ্যা লুকান" : "ব্যাখ্যা / সমাধান দেখুন"}
-          </Button>
-
-          {isSolutionOpen && (
-            <div className="mt-2.5 p-3 sm:p-4 bg-primary/5 rounded-xl sm:rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-top-2">
-              <p className="text-[10px] sm:text-xs font-bold text-primary uppercase mb-1">
-                ব্যাখ্যা / সমাধান
-              </p>
-              <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed [&_p]:m-0">
-                <ReactMarkdown
-                  remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                  rehypePlugins={[rehypeKatex]}
-                >
-                  {question.explanation}
-                </ReactMarkdown>
-              </div>
-            </div>
+      {/* Explanation / Solution / Footer */}
+      {(question.explanation || footerActions) && (
+        <div className="mt-3 pt-2.5 border-t border-dashed border-border/40 flex flex-wrap items-center justify-between gap-2">
+          {question.explanation && onToggleSolution ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleSolution(question.id)}
+              className="text-[11px] sm:text-xs font-bold text-primary hover:text-primary hover:bg-primary/10 rounded-lg gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5"
+            >
+              <Lightbulb className="size-3 sm:size-3.5" />
+              {isSolutionOpen ? "ব্যাখ্যা লুকান" : "ব্যাখ্যা / সমাধান দেখুন"}
+            </Button>
+          ) : (
+            <div />
           )}
+
+          {footerActions && (
+            <div className="flex items-center gap-2">{footerActions}</div>
+          )}
+        </div>
+      )}
+
+      {question.explanation && isSolutionOpen && (
+        <div className="mt-2.5 p-3 sm:p-4 bg-primary/5 rounded-xl sm:rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-top-2">
+          <p className="text-[10px] sm:text-xs font-bold text-primary uppercase mb-1">
+            ব্যাখ্যা / সমাধান
+          </p>
+          <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed [&_p]:m-0">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
+              rehypePlugins={[rehypeKatex]}
+            >
+              {question.explanation}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
     </div>

@@ -12,6 +12,7 @@ import {
   subitems,
   topics,
 } from "@/db/schema";
+import type { CreateQuestionPayload, ImportQuestionItem } from "@/types";
 
 export async function createContainerAction(
   title: string,
@@ -168,8 +169,6 @@ export async function deleteTopicAction(
   }
 }
 
-import type { CreateQuestionPayload } from "@/types";
-
 export async function createQuestionAction(payload: CreateQuestionPayload) {
   try {
     const [question] = await db
@@ -177,8 +176,10 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
       .values({
         subitemId: payload.chapterId,
         type: payload.type,
-        source: payload.source,
-        standard: payload.standard || "board",
+        source: payload.source || "custom",
+        standard:
+          (payload.standard as "HSC" | "Varsity" | "Engineering" | "Medical") ||
+          "HSC",
         questionText: payload.questionText,
         explanation: payload.explanation || null,
       })
@@ -218,6 +219,61 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
   }
 }
 
+export async function updateQuestionAction(
+  id: string,
+  payload: Partial<CreateQuestionPayload>,
+) {
+  try {
+    const updateData: Record<string, unknown> = {};
+    if (payload.type !== undefined) updateData.type = payload.type;
+    if (payload.source !== undefined)
+      updateData.source = payload.source || "custom";
+    if (payload.standard !== undefined) updateData.standard = payload.standard;
+    if (payload.questionText !== undefined)
+      updateData.questionText = payload.questionText;
+    if (payload.explanation !== undefined)
+      updateData.explanation = payload.explanation || null;
+
+    if (Object.keys(updateData).length > 0) {
+      await db.update(questions).set(updateData).where(eq(questions.id, id));
+    }
+
+    if (payload.type === "mcq" && payload.mcqOptions) {
+      await db.delete(mcqOptions).where(eq(mcqOptions.questionId, id));
+      if (payload.mcqOptions.length > 0) {
+        const optionsToInsert = payload.mcqOptions.map((opt, idx: number) => ({
+          questionId: id,
+          optionText: opt.optionText,
+          isCorrect: opt.isCorrect,
+          orderNo: idx + 1,
+        }));
+        await db.insert(mcqOptions).values(optionsToInsert);
+      }
+    } else if (payload.type === "cq" && payload.cqParts) {
+      await db.delete(cqParts).where(eq(cqParts.questionId, id));
+      if (payload.cqParts.length > 0) {
+        const partsToInsert = payload.cqParts.map((pt, idx: number) => ({
+          questionId: id,
+          partKey: pt.partKey as "a" | "b" | "c" | "d",
+          questionText: pt.questionText,
+          answerText: pt.answerText || null,
+          marks: pt.marks,
+          orderNo: idx + 1,
+        }));
+        await db.insert(cqParts).values(partsToInsert);
+      }
+    }
+
+    revalidatePath("/admin/qb");
+    return { success: true };
+  } catch (error: unknown) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to update question",
+    };
+  }
+}
+
 export async function deleteQuestionAction(questionId: string) {
   try {
     await db.delete(questions).where(eq(questions.id, questionId));
@@ -227,6 +283,74 @@ export async function deleteQuestionAction(questionId: string) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete question",
+    };
+  }
+}
+
+export async function importQuestionsAction(
+  chapterId: string,
+  questionsList: readonly ImportQuestionItem[],
+  topicId?: string,
+) {
+  try {
+    if (!questionsList || questionsList.length === 0) {
+      return { error: "কোনো প্রশ্ন প্রদান করা হয়নি।" };
+    }
+
+    let insertedCount = 0;
+
+    for (const item of questionsList) {
+      const qText = item.questionText?.trim();
+      if (!qText) continue;
+
+      const [question] = await db
+        .insert(questions)
+        .values({
+          subitemId: chapterId,
+          topicId: topicId || null,
+          type: item.type === "cq" ? "cq" : "mcq",
+          source: item.source?.trim() || "Custom",
+          standard: item.standard || "HSC",
+          questionText: qText,
+          explanation: item.explanation?.trim() || null,
+        })
+        .returning();
+
+      if (!question) continue;
+      insertedCount++;
+
+      if (item.type === "mcq" && item.mcqOptions?.length) {
+        const optionsToInsert = item.mcqOptions.map((opt, idx: number) => ({
+          questionId: question.id,
+          optionText: opt.optionText?.trim() || "",
+          isCorrect: Boolean(opt.isCorrect),
+          orderNo: idx + 1,
+        }));
+        await db.insert(mcqOptions).values(optionsToInsert);
+      } else if (item.type === "cq" && item.cqParts?.length) {
+        const defaultKeys: Array<"a" | "b" | "c" | "d"> = ["a", "b", "c", "d"];
+        const partsToInsert = item.cqParts.map((pt, idx: number) => ({
+          questionId: question.id,
+          partKey: (pt.partKey || defaultKeys[idx] || "a") as
+            | "a"
+            | "b"
+            | "c"
+            | "d",
+          questionText: pt.questionText?.trim() || "",
+          answerText: pt.answerText?.trim() || null,
+          marks: pt.marks || idx + 1,
+          orderNo: idx + 1,
+        }));
+        await db.insert(cqParts).values(partsToInsert);
+      }
+    }
+
+    revalidatePath("/admin/qb");
+    return { success: true, count: insertedCount };
+  } catch (error: unknown) {
+    return {
+      error:
+        error instanceof Error ? error.message : "প্রশ্ন ইমপোর্ট করতে ব্যর্থ হয়েছে",
     };
   }
 }

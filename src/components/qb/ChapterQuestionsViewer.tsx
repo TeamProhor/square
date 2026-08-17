@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -17,7 +26,7 @@ interface ChapterQuestionsViewerProps {
   readonly questions: Question[];
 }
 
-const _OPTION_KEYS = ["ক", "খ", "গ", "ঘ", "ঙ"];
+const ITEMS_PER_PAGE = 10;
 
 export function ChapterQuestionsViewer({
   topics,
@@ -34,32 +43,7 @@ export function ChapterQuestionsViewer({
   const [revealedSolutions, setRevealedSolutions] = useState<
     Record<string, boolean>
   >({});
-
-  const _availableStandards = Array.from(
-    new Set(
-      questions.map((q) => {
-        const src = q.source?.toLowerCase() || "";
-        const std = q.standard?.toLowerCase() || "";
-        if (
-          src.includes("বোর্ড") ||
-          src.includes("board") ||
-          std.includes("hsc")
-        ) {
-          return "board";
-        }
-        if (
-          src.includes("ভর্তি") ||
-          src.includes("admission") ||
-          src.includes("বুয়েট") ||
-          src.includes("ঢাবি") ||
-          src.includes("মেডিকেল")
-        ) {
-          return "admission";
-        }
-        return "other";
-      }),
-    ),
-  ).filter(Boolean) as string[];
+  const [currentPage, setCurrentPage] = useState(1);
 
   const availableTypes = Array.from(
     new Set(questions.map((q) => q.type)),
@@ -86,6 +70,14 @@ export function ChapterQuestionsViewer({
     return true;
   });
 
+  const totalPages = Math.ceil(filteredQuestions.length / ITEMS_PER_PAGE);
+  const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedQuestions = filteredQuestions.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
+
   const handleSelectOption = (questionId: string, optionId: string) => {
     if (userAnswers[questionId]) return;
     setUserAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -98,6 +90,34 @@ export function ChapterQuestionsViewer({
     }));
   };
 
+  const getPageNumbers = (): (number | { key: string })[] => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (safeCurrentPage <= 3) {
+      return [1, 2, 3, 4, { key: "ellipsis-end" }, totalPages];
+    }
+    if (safeCurrentPage >= totalPages - 2) {
+      return [
+        1,
+        { key: "ellipsis-start" },
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+    return [
+      1,
+      { key: "ellipsis-start" },
+      safeCurrentPage - 1,
+      safeCurrentPage,
+      safeCurrentPage + 1,
+      { key: "ellipsis-end" },
+      totalPages,
+    ];
+  };
+
   return (
     <div className="flex flex-col gap-4 sm:gap-6 w-full">
       <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full">
@@ -105,9 +125,10 @@ export function ChapterQuestionsViewer({
           <div className="col-span-2 sm:col-auto sm:flex-1 sm:min-w-[200px]">
             <Select
               value={selectedTopicId ?? "all"}
-              onValueChange={(val) =>
-                setSelectedTopicId(val === "all" ? null : val)
-              }
+              onValueChange={(val) => {
+                setSelectedTopicId(val === "all" ? null : val);
+                setCurrentPage(1);
+              }}
             >
               <SelectTrigger className="h-8 sm:h-9 w-full rounded-xl bg-card border-border/70 text-xs sm:text-sm font-medium">
                 <SelectValue placeholder="সকল টপিক" />
@@ -137,9 +158,10 @@ export function ChapterQuestionsViewer({
           <div className="flex-1 min-w-0">
             <Select
               value={selectedType ?? "all"}
-              onValueChange={(val) =>
-                setSelectedType(val === "all" ? null : val)
-              }
+              onValueChange={(val) => {
+                setSelectedType(val === "all" ? null : val);
+                setCurrentPage(1);
+              }}
             >
               <SelectTrigger className="h-8 sm:h-9 w-full rounded-xl bg-card border-border/70 text-xs sm:text-sm font-medium uppercase">
                 <SelectValue placeholder="সকল ধরন" />
@@ -161,9 +183,10 @@ export function ChapterQuestionsViewer({
         <div className="flex-1 min-w-0">
           <Select
             value={selectedStandard ?? "all"}
-            onValueChange={(val) =>
-              setSelectedStandard(val === "all" ? null : val)
-            }
+            onValueChange={(val) => {
+              setSelectedStandard(val === "all" ? null : val);
+              setCurrentPage(1);
+            }}
           >
             <SelectTrigger className="h-8 sm:h-9 w-full rounded-xl bg-card border-border/70 text-xs sm:text-sm font-medium">
               <SelectValue placeholder="সকল ক্যাটাগরি" />
@@ -187,17 +210,89 @@ export function ChapterQuestionsViewer({
             </p>
           </div>
         ) : (
-          filteredQuestions.map((q: Question, idx: number) => (
-            <UniversalQuestionCard
-              key={q.id}
-              question={q}
-              questionIndex={idx}
-              selectedOptionId={userAnswers[q.id]}
-              isSolutionOpen={Boolean(revealedSolutions[q.id])}
-              onSelectOption={handleSelectOption}
-              onToggleSolution={toggleSolution}
-            />
-          ))
+          <div className="flex flex-col gap-4">
+            {paginatedQuestions.map((q: Question, idx: number) => (
+              <UniversalQuestionCard
+                key={q.id}
+                question={q}
+                questionIndex={startIndex + idx}
+                selectedOptionId={userAnswers[q.id]}
+                isSolutionOpen={Boolean(revealedSolutions[q.id])}
+                onSelectOption={handleSelectOption}
+                onToggleSolution={toggleSolution}
+              />
+            ))}
+
+            {totalPages > 1 && (
+              <div className="mt-4 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        text="পূর্ববর্তী"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (safeCurrentPage > 1) {
+                            setCurrentPage(safeCurrentPage - 1);
+                          }
+                        }}
+                        className={
+                          safeCurrentPage <= 1
+                            ? "pointer-events-none opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((item) => {
+                      if (typeof item === "object") {
+                        return (
+                          <PaginationItem key={item.key}>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        );
+                      }
+
+                      const page = item;
+                      const isActive = page === safeCurrentPage;
+
+                      return (
+                        <PaginationItem key={`page-${page}`}>
+                          <PaginationLink
+                            isActive={isActive}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        text="পরবর্তী"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (safeCurrentPage < totalPages) {
+                            setCurrentPage(safeCurrentPage + 1);
+                          }
+                        }}
+                        className={
+                          safeCurrentPage >= totalPages
+                            ? "pointer-events-none opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
