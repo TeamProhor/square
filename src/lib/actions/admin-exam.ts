@@ -13,7 +13,6 @@ export async function createExamAction(data: {
   type: "practice" | "chapter_test" | "weekly" | "model_test" | "live_contest";
   durationMinutes: number;
   totalMarks: number;
-  passMarks?: number;
   negativeMarking: string;
   showResultImmediately: boolean;
   isPublished: boolean;

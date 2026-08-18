@@ -19,8 +19,8 @@ export default async function ExamsBrowserPage() {
   const practiceExams = publishedExamsRes.data || [];
 
   return (
-    <div className="flex flex-col w-full max-w-5xl mx-auto pb-16 sm:pb-24 pt-2 sm:pt-4 md:py-12 gap-6 sm:gap-10 md:gap-12 px-3 sm:px-6">
-      <div className="space-y-1.5 sm:space-y-2">
+    <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 sm:pb-16 pt-0 sm:pt-2 md:pt-4 gap-4 sm:gap-6 px-3 sm:px-6">
+      <div className="space-y-1">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
           পরীক্ষাসমূহ
         </h1>
@@ -29,23 +29,23 @@ export default async function ExamsBrowserPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="batch" className="w-full space-y-6 sm:space-y-10">
-        <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex h-auto sm:h-14 md:h-16 p-1 sm:p-2 bg-muted/60 rounded-xl sm:rounded-2xl border gap-1 sm:gap-2">
+      <Tabs defaultValue="batch" className="w-full space-y-4 sm:space-y-6">
+        <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex h-11 sm:h-12 items-center p-1 bg-muted/60 rounded-xl border border-border/50 gap-1 shadow-2xs">
           <TabsTrigger
             value="batch"
-            className="h-full rounded-lg sm:rounded-xl px-2.5 sm:px-6 md:px-8 py-2.5 sm:py-3 font-semibold text-xs sm:text-sm md:text-base flex items-center justify-center gap-1.5 sm:gap-2.5 transition-all leading-tight text-center"
+            className="group/tab inline-flex items-center justify-center gap-2 h-full rounded-lg px-3 sm:px-5 py-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=active]:shadow-xs"
           >
             <span>আমার ব্যাচ</span>
-            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold shrink-0">
+            <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-bold rounded-full leading-none shrink-0 transition-colors bg-muted-foreground/15 text-muted-foreground group-data-[state=active]/tab:bg-primary/15 group-data-[state=active]/tab:text-primary">
               {batchExams.length}
             </span>
           </TabsTrigger>
           <TabsTrigger
             value="practice"
-            className="h-full rounded-lg sm:rounded-xl px-2.5 sm:px-6 md:px-8 py-2.5 sm:py-3 font-semibold text-xs sm:text-sm md:text-base flex items-center justify-center gap-1.5 sm:gap-2.5 transition-all leading-tight text-center"
+            className="group/tab inline-flex items-center justify-center gap-2 h-full rounded-lg px-3 sm:px-5 py-1.5 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=active]:shadow-xs"
           >
             <span>প্র্যাকটিস টেস্ট</span>
-            <span className="text-[10px] sm:text-xs px-1.5 sm:px-2.5 py-0.5 rounded-full bg-muted-foreground/15 text-muted-foreground font-bold shrink-0">
+            <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-bold rounded-full leading-none shrink-0 transition-colors bg-muted-foreground/15 text-muted-foreground group-data-[state=active]/tab:bg-primary/15 group-data-[state=active]/tab:text-primary">
               {practiceExams.length}
             </span>
           </TabsTrigger>

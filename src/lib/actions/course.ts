@@ -99,3 +99,98 @@ export async function checkEnrollmentStatus(userId: string, courseId: string) {
 
   return { status: "none" };
 }
+
+export async function getUserEnrolledCourses(userId: string) {
+  try {
+    const enrollments = await db.query.courseEnrollments.findMany({
+      where: and(
+        eq(courseEnrollments.userId, userId),
+        eq(courseEnrollments.status, "active"),
+      ),
+      orderBy: [desc(courseEnrollments.enrolledAt)],
+      with: {
+        course: {
+          with: {
+            details: true,
+            batches: true,
+          },
+        },
+      },
+    });
+
+    const activeList = enrollments
+      .filter((e) => e.course !== null && e.course !== undefined)
+      .map((e) => ({
+        enrollmentId: e.id,
+        enrolledAt: e.enrolledAt,
+        status: e.status,
+        ...e.course,
+        details: e.course?.details,
+        features: e.course?.details?.features || [],
+        modules: e.course?.details?.modules || [],
+        batches: e.course?.batches || [],
+      }));
+
+    return { success: true, data: activeList };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch enrolled courses",
+      data: [],
+    };
+  }
+}
+
+export async function getUserCourseById(userId: string, courseId: string) {
+  try {
+    const enrollment = await db.query.courseEnrollments.findFirst({
+      where: and(
+        eq(courseEnrollments.userId, userId),
+        eq(courseEnrollments.courseId, courseId),
+        eq(courseEnrollments.status, "active"),
+      ),
+      with: {
+        course: {
+          with: {
+            details: true,
+            batches: {
+              with: {
+                batchExams: {
+                  with: {
+                    exam: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!enrollment || !enrollment.course) {
+      return { success: false, data: null };
+    }
+
+    return {
+      success: true,
+      data: {
+        enrollmentId: enrollment.id,
+        enrolledAt: enrollment.enrolledAt,
+        status: enrollment.status,
+        ...enrollment.course,
+        details: enrollment.course.details,
+        features: enrollment.course.details?.features || [],
+        modules: enrollment.course.details?.modules || [],
+        instructors: enrollment.course.details?.instructors || [],
+        faqs: enrollment.course.details?.faqs || [],
+        batches: enrollment.course.batches || [],
+      },
+    };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch course details",
+      data: null,
+    };
+  }
+}

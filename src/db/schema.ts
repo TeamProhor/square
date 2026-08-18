@@ -328,7 +328,6 @@ export const exams = pgTable("exams", {
     .notNull(),
   durationMinutes: integer("duration_minutes").default(30).notNull(),
   totalMarks: integer("total_marks").default(25).notNull(),
-  passMarks: integer("pass_marks"),
   // Stored as string for exact precision; parse with parseFloat()
   negativeMarking: text("negative_marking").default("0.25").notNull(),
   isPublished: boolean("is_published").default(false).notNull(),

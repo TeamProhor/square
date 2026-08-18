@@ -52,9 +52,7 @@ export default async function AdminExamsPage() {
             <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground mt-2 bg-muted/50 p-3 rounded-lg">
               <div className="flex flex-col gap-1">
                 <span className="font-medium text-foreground">মার্কস</span>
-                <span>
-                  {exam.totalMarks} (Pass: {exam.passMarks || 0})
-                </span>
+                <span>{exam.totalMarks}</span>
               </div>
               <div className="flex flex-col gap-1">
                 <span className="font-medium text-foreground">সময়</span>

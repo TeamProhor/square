@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getCourses } from "@/lib/actions/course";
-import { COURSES } from "@/lib/courses";
 
 type CourseItem = {
+  readonly id: string;
   readonly slug: string;
   readonly title: string;
   readonly price: number;
@@ -23,21 +23,18 @@ export function CoursesPricingSection() {
     "HSC 26" | "HSC 27" | "Admission"
   >("HSC 26");
   const [coursesList, setCoursesList] = useState<readonly CourseItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadCourses() {
+      setIsLoading(true);
       try {
         const courses = await getCourses(selectedBatch);
-        if (courses && courses.length > 0) {
-          setCoursesList(courses);
-        } else {
-          // Fallback to static courses for selected batch
-          const fallback = COURSES.filter((c) => c.hscBatch === selectedBatch);
-          setCoursesList(fallback);
-        }
+        setCoursesList(courses || []);
       } catch {
-        const fallback = COURSES.filter((c) => c.hscBatch === selectedBatch);
-        setCoursesList(fallback);
+        setCoursesList([]);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadCourses();

@@ -45,7 +45,7 @@ export default function ExamLobbyClient({
         )}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center">
           <TaskSquare className="size-6 text-primary mb-2" />
           <div className="text-2xl font-bold">{exam.totalMarks}</div>
@@ -67,15 +67,6 @@ export default function ExamLobbyClient({
           </div>
           <div className="text-xs text-muted-foreground font-medium">
             নেগেটিভ মার্কিং
-          </div>
-        </div>
-        <div className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center">
-          <TaskSquare className="size-6 text-emerald-500 mb-2" />
-          <div className="text-2xl font-bold text-emerald-500">
-            {exam.passMarks || 0}
-          </div>
-          <div className="text-xs text-muted-foreground font-medium">
-            পাস মার্কস
           </div>
         </div>
       </div>

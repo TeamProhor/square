@@ -19,6 +19,7 @@ import DocumentDownload from "reicon-react/icons/DocumentDownload";
 import Download from "reicon-react/icons/Download";
 import Edit from "reicon-react/icons/Edit";
 import Export from "reicon-react/icons/Export";
+import Eye from "reicon-react/icons/Eye";
 import FileDown from "reicon-react/icons/FileDown";
 import FileText from "reicon-react/icons/FileText";
 import Filter from "reicon-react/icons/Filter";
@@ -68,6 +69,7 @@ export {
   Download,
   Edit,
   Export,
+  Eye,
   FileDown,
   FileText,
   Filter,

@@ -24,6 +24,7 @@ export default function Shell({ children, dict, lang }: ShellProps) {
   const isQbChapterQuestionsPage = segments[0] === "qb" && segments.length >= 4;
   const isPollTakingPage =
     pathname.startsWith("/poll/take") || pathname.startsWith("/poll/solve");
+  const isExamSubPage = pathname.startsWith("/exams/");
   const isExamTakePage =
     pathname.startsWith("/exams/") && pathname.endsWith("/take");
 
@@ -31,7 +32,7 @@ export default function Shell({ children, dict, lang }: ShellProps) {
     !isLoginPage &&
     !isQbChapterQuestionsPage &&
     !isPollTakingPage &&
-    !isExamTakePage;
+    !isExamSubPage;
   const shouldHideTopNav = isExamTakePage;
 
   return (

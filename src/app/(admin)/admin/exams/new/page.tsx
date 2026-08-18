@@ -34,7 +34,6 @@ export default function NewExamPage() {
       10,
     );
     const totalMarks = parseInt(formData.get("totalMarks") as string, 10);
-    const passMarks = parseInt(formData.get("passMarks") as string, 10) || 0;
     const negativeMarking = formData.get("negativeMarking") as string;
     const showResultImmediately =
       formData.get("showResultImmediately") === "true";
@@ -49,7 +48,6 @@ export default function NewExamPage() {
       type,
       durationMinutes,
       totalMarks,
-      passMarks,
       negativeMarking,
       showResultImmediately,
       isPublished,
@@ -151,18 +149,6 @@ export default function NewExamPage() {
               className="rounded-xl"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">পাস মার্কস</label>
-            <Input
-              name="passMarks"
-              type="number"
-              placeholder="e.g. 10"
-              className="rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">নেগেটিভ মার্কিং</label>
             <Input

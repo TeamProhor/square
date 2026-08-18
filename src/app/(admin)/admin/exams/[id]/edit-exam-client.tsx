@@ -30,7 +30,6 @@ export default function EditExamClient({ exam }: { exam: any }) {
         | "live_contest",
       durationMinutes: parseInt(formData.get("durationMinutes") as string, 10),
       totalMarks: parseInt(formData.get("totalMarks") as string, 10),
-      passMarks: parseInt(formData.get("passMarks") as string, 10) || 0,
       negativeMarking: formData.get("negativeMarking") as string,
       showResultImmediately: formData.get("showResultImmediately") === "true",
       isPublished: formData.get("isPublished") === "true",
@@ -157,18 +156,6 @@ export default function EditExamClient({ exam }: { exam: any }) {
               className="rounded-xl"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">পাস মার্কস</label>
-            <Input
-              name="passMarks"
-              type="number"
-              defaultValue={exam.passMarks || 0}
-              className="rounded-xl"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">নেগেটিভ মার্কিং</label>
             <Input

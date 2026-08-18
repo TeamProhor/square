@@ -11,6 +11,7 @@ import type { Dictionary, NavItem, SidebarAnnouncement } from "@/types";
 
 export const USER_NAV_ITEMS: readonly NavItem[] = [
   { name: "ড্যাশবোর্ড", path: "/dashboard", exact: true, icon: Home },
+  { name: "আমার কোর্স", path: "/my-courses", exact: false, icon: BookOpen },
   { name: "প্রশ্নব্যাংক", path: "/qb", exact: false, icon: TaskSquare },
   { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
   { name: "পিডিএফ", path: "/pdf", exact: false, icon: DocumentDownload },
@@ -56,6 +57,7 @@ export function getNavItems(
     const d = dict.sidebar;
     return [
       { name: d.dashboard, path: "/dashboard", exact: true, icon: Home },
+      { name: "আমার কোর্স", path: "/my-courses", exact: false, icon: BookOpen },
       { name: d.qb, path: "/qb", exact: false, icon: TaskSquare },
       { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
       { name: d.pdf, path: "/pdf", exact: false, icon: DocumentDownload },

@@ -25,16 +25,11 @@ import {
   getCourseWithDetailsBySlug,
 } from "@/lib/actions/course";
 import { auth } from "@/lib/auth";
-import { COURSES } from "@/lib/courses";
+
+export const dynamic = "force-dynamic";
 
 interface CourseDetailPageProps {
   readonly params: Promise<{ readonly slug: string }>;
-}
-
-export async function generateStaticParams() {
-  return COURSES.map((course) => ({
-    slug: course.slug,
-  }));
 }
 
 export default async function CourseDetailPage({
@@ -44,40 +39,27 @@ export default async function CourseDetailPage({
   const session = await auth.api.getSession({ headers: await headers() });
   const courseWithDetails = await getCourseWithDetailsBySlug(slug);
 
-  // Fallback to COURSES static data if database entry not seeded yet
-  const staticCourse = COURSES.find((c) => c.slug === slug);
-
-  if (!courseWithDetails?.details && !staticCourse) {
+  if (!courseWithDetails) {
     notFound();
   }
 
   const course = {
-    id: courseWithDetails?.id || staticCourse?.slug || "",
-    slug: courseWithDetails?.slug || staticCourse?.slug || slug,
-    title: courseWithDetails?.title || staticCourse?.title || "",
-    subtitle: courseWithDetails?.subtitle || staticCourse?.subtitle || "",
-    description:
-      courseWithDetails?.description || staticCourse?.description || "",
-    hscBatch: courseWithDetails?.hscBatch || staticCourse?.hscBatch || "HSC 26",
-    price: courseWithDetails?.price || staticCourse?.price || 0,
-    originalPrice:
-      courseWithDetails?.originalPrice || staticCourse?.originalPrice,
-    image:
-      courseWithDetails?.image ||
-      staticCourse?.image ||
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=1200",
-    badge: courseWithDetails?.badge || staticCourse?.badge || "স্পেশাল ব্যাচ",
-    routinePdfUrl: courseWithDetails?.details?.routinePdfUrl,
-    telegramGroupUrl:
-      courseWithDetails?.details?.telegramGroupUrl || "https://t.me/shu_yaib",
-    features:
-      courseWithDetails?.details?.features || staticCourse?.features || [],
-    instructors:
-      courseWithDetails?.details?.instructors ||
-      staticCourse?.instructors ||
-      [],
-    modules: courseWithDetails?.details?.modules || staticCourse?.modules || [],
-    faqs: courseWithDetails?.details?.faqs || staticCourse?.faqs || [],
+    id: courseWithDetails.id,
+    slug: courseWithDetails.slug,
+    title: courseWithDetails.title,
+    subtitle: courseWithDetails.subtitle || "",
+    description: courseWithDetails.description,
+    hscBatch: courseWithDetails.hscBatch,
+    price: courseWithDetails.price,
+    originalPrice: courseWithDetails.originalPrice,
+    image: courseWithDetails.image,
+    badge: courseWithDetails.badge || "স্পেশাল ব্যাচ",
+    routinePdfUrl: courseWithDetails.details?.routinePdfUrl,
+    telegramGroupUrl: courseWithDetails.details?.telegramGroupUrl || "https://t.me/shu_yaib",
+    features: courseWithDetails.details?.features || [],
+    instructors: courseWithDetails.details?.instructors || [],
+    modules: courseWithDetails.details?.modules || [],
+    faqs: courseWithDetails.details?.faqs || [],
   };
 
   let enrollmentStatus = "none";
@@ -264,7 +246,7 @@ export default async function CourseDetailPage({
                   asChild
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 h-auto rounded-xl text-sm shadow-md"
                 >
-                  <Link href={`/dashboard/courses/${course.id}`}>
+                  <Link href={`/my-courses/${course.id}`}>
                     ইতিমধ্যে যুক্ত আছো &rarr;
                   </Link>
                 </Button>

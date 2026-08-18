@@ -308,7 +308,6 @@ export interface ExamDetail {
     | "live_contest";
   readonly durationMinutes: number;
   readonly totalMarks: number;
-  readonly passMarks?: number | null;
   readonly negativeMarking: string;
   readonly isPublished: boolean;
   readonly showResultImmediately: boolean;

@@ -25,11 +25,15 @@ export interface UniversalQuestionCardProps {
   readonly questionIndex?: number;
   readonly selectedOptionId?: string;
   readonly isSolutionOpen?: boolean;
+  readonly showCorrectAnswer?: boolean;
+  readonly disableOptionChange?: boolean;
+  readonly minimal?: boolean;
   readonly onSelectOption?: (questionId: string, optionId: string) => void;
   readonly onToggleSolution?: (questionId: string) => void;
   readonly hideHeaderBadge?: boolean;
   readonly headerActions?: React.ReactNode;
   readonly footerActions?: React.ReactNode;
+  readonly children?: React.ReactNode;
 }
 
 export function UniversalQuestionCard({
@@ -37,12 +41,25 @@ export function UniversalQuestionCard({
   questionIndex,
   selectedOptionId,
   isSolutionOpen = false,
+  showCorrectAnswer,
+  disableOptionChange = false,
+  minimal = false,
   onSelectOption,
   onToggleSolution,
   hideHeaderBadge = false,
   headerActions,
   footerActions,
+  children,
 }: UniversalQuestionCardProps): ReactElement {
+  // If showCorrectAnswer is not explicitly provided, infer: show evaluation if selectedOptionId is provided AND option has is_correct info
+  const hasEvaluationInfo = Boolean(
+    (question.mcq_options || question.mcqOptions)?.some(
+      (o: MCQOption) => o.is_correct !== undefined || o.isCorrect !== undefined,
+    ),
+  );
+  const shouldEvaluate =
+    showCorrectAnswer ?? (Boolean(selectedOptionId) && hasEvaluationInfo);
+
   const isAnswered = Boolean(selectedOptionId);
   const questionText = question.question_text || question.questionText || "";
   const type = question.type;
@@ -54,35 +71,39 @@ export function UniversalQuestionCard({
         "shadow-xs hover:border-border",
       )}
     >
-      {/* Header: Type, Index, Source, Standard, and Header Actions */}
+      {/* Header: Index, Badges, and Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 sm:mb-4">
         <div className="flex flex-wrap items-center gap-2">
           {questionIndex !== undefined && (
-            <span className="text-xs sm:text-sm font-bold text-muted-foreground">
+            <span className="text-xs sm:text-sm font-bold text-foreground/80">
               প্রশ্ন {questionIndex + 1}
             </span>
           )}
-          <Badge
-            variant={type === "mcq" ? "default" : "secondary"}
-            className="text-[11px] sm:text-xs uppercase font-bold px-2 py-0.5 rounded-md"
-          >
-            {type}
-          </Badge>
-          {!hideHeaderBadge && question.source && (
-            <Badge
-              variant="outline"
-              className="text-[11px] sm:text-xs text-muted-foreground font-medium rounded-md px-2 py-0.5 border-border/60"
-            >
-              {question.source}
-            </Badge>
-          )}
-          {question.standard && (
-            <Badge
-              variant="secondary"
-              className="text-[11px] sm:text-xs font-medium rounded-md px-2 py-0.5"
-            >
-              {question.standard}
-            </Badge>
+          {!minimal && (
+            <>
+              <Badge
+                variant={type === "mcq" ? "default" : "secondary"}
+                className="text-[11px] sm:text-xs uppercase font-bold px-2 py-0.5 rounded-md"
+              >
+                {type}
+              </Badge>
+              {!hideHeaderBadge && question.source && (
+                <Badge
+                  variant="outline"
+                  className="text-[11px] sm:text-xs text-muted-foreground font-medium rounded-md px-2 py-0.5 border-border/60"
+                >
+                  {question.source}
+                </Badge>
+              )}
+              {question.standard && (
+                <Badge
+                  variant="secondary"
+                  className="text-[11px] sm:text-xs font-medium rounded-md px-2 py-0.5"
+                >
+                  {question.standard}
+                </Badge>
+              )}
+            </>
           )}
         </div>
         {headerActions && (
@@ -113,11 +134,53 @@ export function UniversalQuestionCard({
               const isCorrect = opt.is_correct ?? opt.isCorrect ?? false;
               const optText = opt.option_text || opt.optionText || "";
 
+              // Live Exam Mode (no answer evaluation, lock after single selection)
+              if (!shouldEvaluate) {
+                return (
+                  <button
+                    type="button"
+                    key={opt.id}
+                    disabled={isAnswered || disableOptionChange}
+                    onClick={() => onSelectOption?.(question.id, opt.id)}
+                    className={cn(
+                      "p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm flex items-center gap-2.5 sm:gap-3 border text-left w-full transition-all",
+                      isSelected
+                        ? "bg-primary/10 border-primary text-primary font-semibold ring-1 ring-primary shadow-xs cursor-default"
+                        : isAnswered
+                          ? "bg-muted/20 text-muted-foreground/60 border-border/30 opacity-60 cursor-not-allowed"
+                          : "bg-muted/30 hover:bg-muted/70 hover:border-primary/40 text-foreground border-border/50 cursor-pointer active:scale-[0.99]",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "size-6 sm:size-7 rounded-full flex items-center justify-center font-bold text-[11px] sm:text-xs shrink-0 border transition-colors",
+                        isSelected
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : isAnswered
+                            ? "bg-muted/50 text-muted-foreground/60 border-border/40"
+                            : "bg-background text-foreground border-border",
+                      )}
+                    >
+                      {OPTION_KEYS[idx] || idx + 1}
+                    </span>
+                    <div className="flex-1 [&_p]:m-0 font-medium">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
+                        rehypePlugins={[rehypeKatex]}
+                      >
+                        {optText}
+                      </ReactMarkdown>
+                    </div>
+                  </button>
+                );
+              }
+
+              // Evaluated Mode (shows correct/incorrect)
               return (
                 <button
                   type="button"
                   key={opt.id}
-                  disabled={isAnswered}
+                  disabled={isAnswered || disableOptionChange}
                   onClick={() => onSelectOption?.(question.id, opt.id)}
                   className={cn(
                     "p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm flex items-center gap-2 sm:gap-2.5 border text-left w-full transition-all active:scale-[0.99]",
@@ -169,6 +232,8 @@ export function UniversalQuestionCard({
             })}
         </div>
       )}
+
+      {children}
 
       {/* CQ Parts */}
       {type === "cq" && (question.cq_parts || question.cqParts) && (
