@@ -7,7 +7,7 @@ import { NewSubjectForm } from "@/components/admin/forms/new-subject-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteItemAction as deleteSubjectAction } from "@/lib/actions/question";
 import type { Container, Item } from "@/types";
@@ -23,15 +23,6 @@ export function AdminItemsManager({
 }: AdminItemsManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const handleDelete = async (e: React.MouseEvent, subjectId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (confirm("এই বিষয়টি স্থায়ীভাবে ডিলিট করতে চান?")) {
-      await deleteSubjectAction(subjectId, qb.slug);
-      router.refresh();
-    }
-  };
 
   const items: QuickListItem[] = initialSubjects.map((sub: Item) => ({
     href: `/admin/qb/${qb.slug}/${sub.slug}`,
@@ -51,21 +42,29 @@ export function AdminItemsManager({
     icon: BookOpen,
     text: "text-primary",
     iconBg: "bg-primary/10",
-    extra: (
-      <Badge variant="outline" className="text-xs font-semibold">
-        আইডি: {sub.id}
-      </Badge>
-    ),
     rightElement: (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => handleDelete(e, sub.id)}
-        className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs"
-      >
-        <Trash2 className="size-3.5" />
-        <span>ডিলিট</span>
-      </Button>
+      <DeleteConfirmDialog
+        title="বিষয় ডিলিট নিশ্চিতকরণ"
+        description={`আপনি কি নিশ্চিতভাবে "${sub.name}" বিষয়টি ডিলিট করতে চান? এর ভিতরের সব অধ্যায় ও প্রশ্ন মুছে যাবে!`}
+        onConfirm={async () => {
+          await deleteSubjectAction(sub.id, qb.slug);
+          router.refresh();
+        }}
+        trigger={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+          >
+            <Trash2 className="size-3.5" />
+            <span>ডিলিট</span>
+          </Button>
+        }
+      />
     ),
   }));
 

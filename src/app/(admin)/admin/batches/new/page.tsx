@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { createBatchAction } from "@/lib/actions/batch";
 
@@ -99,7 +100,13 @@ export default function NewBatchPage() {
             বাতিল
           </Button>
           <Button type="submit" className="rounded-xl" disabled={loading}>
-            {loading ? "তৈরি হচ্ছে..." : "ব্যাচ তৈরি করুন"}
+            {loading ? (
+              <>
+                <Spinner className="size-4 mr-2" /> তৈরি হচ্ছে...
+              </>
+            ) : (
+              "ব্যাচ তৈরি করুন"
+            )}
           </Button>
         </div>
       </form>

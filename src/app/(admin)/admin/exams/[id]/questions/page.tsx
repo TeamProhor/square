@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getExamWithQuestionsAdmin } from "@/lib/actions/admin-exam";
 import { getQuestionsAdminAction } from "@/lib/actions/question";
-import QuestionBuilderClient from "./question-builder-client";
+import { ExamQuestionBuilder } from "@/components/admin/exam-question-builder";
 
 export default async function ExamQuestionsPage({
   params,
@@ -18,5 +18,5 @@ export default async function ExamQuestionsPage({
   // Fetch some questions for the bank (simplified for now)
   const questions = await getQuestionsAdminAction();
 
-  return <QuestionBuilderClient exam={exam} questions={questions || []} />;
+  return <ExamQuestionBuilder exam={exam} questions={questions || []} />;
 }

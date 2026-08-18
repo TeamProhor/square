@@ -2,39 +2,36 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   addQuestionToExamAction,
   removeQuestionFromExamAction,
   reorderExamQuestionsAction,
 } from "@/lib/actions/admin-exam";
 
-export default function QuestionBuilderClient({
-  exam,
-  questions,
-}: {
+interface ExamQuestionBuilderProps {
   exam: any;
   questions: any[];
-}) {
+}
+
+export function ExamQuestionBuilder({
+  exam,
+  questions,
+}: ExamQuestionBuilderProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleAddQuestion(questionId: string) {
     setLoading(true);
-    // Simple logic: add to the end
     const nextOrderNo = exam.examQuestions.length + 1;
     await addQuestionToExamAction(exam.id, questionId, nextOrderNo, 1);
     setLoading(false);
     router.refresh();
   }
 
-  async function handleRemoveQuestion(examQuestionId: string) {
-    if (!confirm("Remove this question?")) return;
-    setLoading(true);
-    await removeQuestionFromExamAction(examQuestionId, exam.id);
-    setLoading(false);
-    router.refresh();
-  }
+
 
   async function handleMove(index: number, direction: "up" | "down") {
     if (direction === "up" && index === 0) return;
@@ -43,7 +40,6 @@ export default function QuestionBuilderClient({
     const newArr = [...exam.examQuestions];
     const swapIdx = direction === "up" ? index - 1 : index + 1;
 
-    // Swap
     const temp = newArr[index];
     newArr[index] = newArr[swapIdx];
     newArr[swapIdx] = temp;
@@ -89,13 +85,13 @@ export default function QuestionBuilderClient({
                 disabled={loading}
                 variant="secondary"
               >
-                Add
+                যোগ করুন
               </Button>
             </div>
           ))}
           {availableQuestions.length === 0 && (
             <div className="text-center text-muted-foreground p-8">
-              No more questions available
+              আর কোনো প্রশ্ন অবশিষ্ট নেই
             </div>
           )}
         </div>
@@ -143,17 +139,29 @@ export default function QuestionBuilderClient({
                   {eq.question?.questionText}
                 </span>
                 <div className="text-xs text-muted-foreground mt-1">
-                  Marks: {eq.marks}
+                  নম্বর: {eq.marks}
                 </div>
               </div>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => handleRemoveQuestion(eq.id)}
-                disabled={loading}
-              >
-                Remove
-              </Button>
+              <DeleteConfirmDialog
+                title="প্রশ্ন ডিলিট নিশ্চিতকরণ"
+                description={`আপনি কি নিশ্চিত এই পরীক্ষা থেকে "${eq.question?.questionText?.slice(0, 30)}..." প্রশ্নটি সরাতে চান?`}
+                onConfirm={async () => {
+                  setLoading(true);
+                  await removeQuestionFromExamAction(eq.id, exam.id);
+                  setLoading(false);
+                  router.refresh();
+                }}
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={loading}
+                    className="cursor-pointer font-bold rounded-lg"
+                  >
+                    ডিলিট
+                  </Button>
+                }
+              />
             </div>
           ))}
           {exam.examQuestions.length === 0 && (

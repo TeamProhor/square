@@ -4,10 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { SquareLogo } from "@/components/icons";
+import { Category, SquareLogo } from "@/components/icons";
 import { LanguageToggler } from "@/components/language-toggler";
 import { ThemeToggler } from "@/components/theme-toggler";
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { useLogout, useUser } from "@/hooks/use-auth";
 import { getNavItems, sidebarAnnouncement } from "@/lib/navigation";
 import type { Dictionary, SidebarProps } from "@/types";
@@ -205,13 +212,21 @@ interface MobileBottomNavProps {
 
 export function MobileBottomNav({ dict }: MobileBottomNavProps) {
   const pathname = usePathname();
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const isAdmin = pathname.startsWith("/admin");
-  const navItems = getNavItems(dict, isAdmin);
+  const allNavItems = getNavItems(dict, isAdmin);
+
+  const primaryNavItems = allNavItems.slice(0, 4);
+  const moreNavItems = allNavItems.slice(4);
+
+  const isMoreActive = moreNavItems.some((item) =>
+    item.exact ? pathname === item.path : pathname.startsWith(item.path),
+  );
 
   return (
-    <div className="lg:hidden absolute bottom-[12px] left-[16px] right-[16px] z-20 flex justify-center pointer-events-none">
-      <div className="flex items-center justify-between bg-muted/80 backdrop-blur-xl border-[0.5px] border-border rounded-[24px] p-[8px] shadow-lg pointer-events-auto w-full max-w-[400px]">
-        {navItems.map((item) => {
+    <div className="lg:hidden fixed bottom-[12px] left-[12px] right-[12px] sm:left-[16px] sm:right-[16px] z-30 flex justify-center pointer-events-none">
+      <div className="flex items-center justify-between bg-background/90 backdrop-blur-xl border border-border/80 rounded-[24px] p-[5px] shadow-xl pointer-events-auto w-full max-w-[430px]">
+        {primaryNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
             ? pathname === item.path
@@ -221,19 +236,86 @@ export function MobileBottomNav({ dict }: MobileBottomNavProps) {
             <Link
               key={item.name}
               href={item.path}
-              className={`flex flex-1 flex-col items-center justify-center py-[8px] px-[4px] rounded-[16px] transition-all duration-300 ${
+              className={`flex flex-1 flex-col items-center justify-center py-[7px] px-[2px] rounded-[18px] transition-all duration-200 ${
                 isActive
-                  ? "bg-foreground text-background shadow-sm"
+                  ? "bg-foreground text-background shadow-xs font-bold"
                   : "text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
-              <Icon size={24} className="mb-[4px]" />
-              <span className="text-[11px] font-[600] tracking-tight whitespace-nowrap">
+              <Icon size={22} className="mb-[3px]" />
+              <span className="text-[11px] tracking-tight whitespace-nowrap">
                 {item.name}
               </span>
             </Link>
           );
         })}
+
+        {/* 5th Tab: 'আরো' (More) Drawer Trigger */}
+        {moreNavItems.length > 0 && (
+          <Drawer open={isMoreOpen} onOpenChange={setIsMoreOpen}>
+            <DrawerTrigger asChild>
+              <button
+                type="button"
+                className={`flex flex-1 flex-col items-center justify-center py-[7px] px-[2px] rounded-[18px] transition-all duration-200 outline-none cursor-pointer ${
+                  isMoreActive || isMoreOpen
+                    ? "bg-foreground text-background shadow-xs font-bold"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
+              >
+                <Category size={22} className="mb-[3px]" />
+                <span className="text-[11px] tracking-tight whitespace-nowrap">
+                  আরো
+                </span>
+              </button>
+            </DrawerTrigger>
+
+            <DrawerContent className="px-5 pb-8 pt-3 bg-card border-t border-border rounded-t-[28px] max-w-lg mx-auto">
+              <DrawerHeader className="px-0 pt-1 pb-3 text-left">
+                <DrawerTitle className="text-base font-extrabold text-foreground flex items-center gap-2">
+                  <Category className="size-5 text-primary" />
+                  অন্যান্য মেনু ও ফিচার
+                </DrawerTitle>
+              </DrawerHeader>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+                {moreNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = item.exact
+                    ? pathname === item.path
+                    : pathname.startsWith(item.path);
+
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.path}
+                      onClick={() => setIsMoreOpen(false)}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+                        isActive
+                          ? "bg-primary/10 border-primary text-primary font-bold shadow-2xs"
+                          : "bg-muted/40 border-border/70 text-foreground hover:bg-accent"
+                      }`}
+                    >
+                      <div
+                        className={`p-2 rounded-xl shrink-0 ${
+                          isActive
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background text-muted-foreground shadow-2xs"
+                        }`}
+                      >
+                        <Icon size={20} />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold truncate">
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </DrawerContent>
+          </Drawer>
+        )}
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import {
   Trash2,
 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -285,16 +285,13 @@ export default function AdminPdfPage() {
                       <h4 className="font-bold text-base text-foreground">
                         {item.title}
                       </h4>
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] font-semibold"
-                      >
-                        {item.subject} ({item.paper})
-                      </Badge>
+                      <span className="text-xs font-bold text-primary">
+                        • {item.subject} ({item.paper})
+                      </span>
                       {item.chapter && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {item.chapter}
-                        </Badge>
+                        <span className="text-xs text-muted-foreground font-medium">
+                          • {item.chapter}
+                        </span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground font-mono truncate max-w-md">
@@ -318,21 +315,22 @@ export default function AdminPdfPage() {
                       </a>
                     </Button>
 
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        if (
-                          confirm("আপনি কি নিশ্চিত এই পিডিএফটি ডিলিট করতে চান?")
-                        ) {
-                          deleteMutation.mutate(item.id);
-                        }
+                    <DeleteConfirmDialog
+                      title="পিডিএফ ডিলিট নিশ্চিতকরণ"
+                      description={`আপনি কি নিশ্চিত এই পিডিএফটি ("${item.title}") ডিলিট করতে চান?`}
+                      onConfirm={async () => {
+                        await deleteMutation.mutateAsync(item.id);
                       }}
-                      disabled={deleteMutation.isPending}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          disabled={deleteMutation.isPending}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      }
+                    />
                   </div>
                 </div>
               );

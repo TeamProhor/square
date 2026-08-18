@@ -14,7 +14,9 @@ import {
 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Pagination,
   PaginationContent,
@@ -69,11 +71,7 @@ export function AdminQuestionsManager({
   const paginatedQuestions =
     questions?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
 
-  const handleDelete = (questionId: string) => {
-    if (confirm("এই প্রশ্নটি স্থায়ীভাবে ডিলিট করতে চান?")) {
-      deleteMutation.mutate(questionId);
-    }
-  };
+
 
   const handleSelectOption = (questionId: string, optionId: string) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -193,8 +191,9 @@ export function AdminQuestionsManager({
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center text-muted-foreground bg-card border rounded-2xl">
-            প্রশ্ন লোড হচ্ছে...
+          <div className="p-12 flex flex-col items-center justify-center gap-3 text-muted-foreground bg-card border rounded-2xl">
+            <Spinner className="size-6 text-primary" />
+            <span>প্রশ্ন লোড হচ্ছে...</span>
           </div>
         ) : totalQuestions === 0 ? (
           <div className="p-12 text-center text-muted-foreground bg-card border rounded-2xl">
@@ -223,15 +222,21 @@ export function AdminQuestionsManager({
                         <Edit className="size-3.5" />
                         <span>এডিট</span>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(q.id)}
-                        className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs"
-                      >
-                        <Trash2 className="size-3.5" />
-                        <span>ডিলিট</span>
-                      </Button>
+                      <DeleteConfirmDialog
+                        title="প্রশ্ন ডিলিট নিশ্চিতকরণ"
+                        description="আপনি কি নিশ্চিতভাবে এই প্রশ্নটি ডিলিট করতে চান? এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়।"
+                        onConfirm={() => deleteMutation.mutate(q.id)}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs cursor-pointer"
+                          >
+                            <Trash2 className="size-3.5" />
+                            <span>ডিলিট</span>
+                          </Button>
+                        }
+                      />
                     </div>
                   }
                 />

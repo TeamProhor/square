@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CloseCircle, TickCircle } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { approveRequest, rejectRequest } from "@/lib/actions/admin-enrollments";
 
 interface EnrollmentRequestRow {
@@ -94,17 +94,21 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
           <div className="grid grid-cols-3 border-b pb-2">
             <span className="text-muted-foreground">স্ট্যাটাস:</span>
             <span className="col-span-2">
-              <Badge
-                variant={
+              <span
+                className={`text-xs font-bold px-2 py-0.5 rounded-md ${
                   row.request.status === "approved"
-                    ? "default"
+                    ? "text-emerald-600 bg-emerald-500/10"
                     : row.request.status === "rejected"
-                      ? "destructive"
-                      : "secondary"
-                }
+                      ? "text-destructive bg-destructive/10"
+                      : "text-amber-600 bg-amber-500/10"
+                }`}
               >
-                {row.request.status}
-              </Badge>
+                {row.request.status === "approved"
+                  ? "অনুমোদিত"
+                  : row.request.status === "rejected"
+                    ? "বাতিল"
+                    : "পেন্ডিং"}
+              </span>
             </span>
           </div>
           <div className="grid grid-cols-3 border-b pb-2">
@@ -127,8 +131,10 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
           </div>
         </div>
 
-        {row.request.status === "pending" && (
-          <div className="flex flex-col gap-4 mt-6">
+        {/* Action Panel */}
+        <div className="flex flex-col gap-4 mt-6">
+          {/* Render Approve Form if pending or rejected */}
+          {(row.request.status === "pending" || row.request.status === "rejected") && (
             <form onSubmit={handleApprove} className="w-full">
               <input type="hidden" name="requestId" value={row.request.id} />
               <input
@@ -139,13 +145,24 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
               <input type="hidden" name="userId" value={row.request.userId} />
               <Button
                 type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 gap-2"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 gap-2 cursor-pointer"
                 disabled={loading}
               >
-                <TickCircle className="size-4" /> এপ্রুভ করুন
+                {loading ? (
+                  <>
+                    <Spinner className="size-4" /> প্রসেসিং...
+                  </>
+                ) : (
+                  <>
+                    <TickCircle className="size-4" /> এপ্রুভ করুন
+                  </>
+                )}
               </Button>
             </form>
+          )}
 
+          {/* Render Reject Form if pending or approved */}
+          {(row.request.status === "pending" || row.request.status === "approved") && (
             <form onSubmit={handleReject} className="w-full space-y-3">
               <input type="hidden" name="requestId" value={row.request.id} />
               <div className="space-y-1">
@@ -165,14 +182,22 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
               <Button
                 type="submit"
                 variant="destructive"
-                className="w-full gap-2"
+                className="w-full gap-2 cursor-pointer"
                 disabled={loading}
               >
-                <CloseCircle className="size-4" /> রিজেক্ট করুন
+                {loading ? (
+                  <>
+                    <Spinner className="size-4" /> প্রসেসিং...
+                  </>
+                ) : (
+                  <>
+                    <CloseCircle className="size-4" /> রিজেক্ট করুন
+                  </>
+                )}
               </Button>
             </form>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </ResponsiveDialog>
   );

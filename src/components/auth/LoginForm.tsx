@@ -3,12 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Lock, Send, SquareLogo } from "@/components/icons";
-import { MadeWithFooter } from "@/components/shared/made-with-footer";
+import { Lock, Login, Send, SquareLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 import type { LoginFormProps } from "@/types";
 
@@ -140,16 +140,23 @@ export default function LoginForm({ dict }: LoginFormProps) {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {usePasswordMode ? (
-                    <Lock className="size-4" />
+                  {isLoading ? (
+                    <>
+                      <Spinner className="size-4" />
+                      <span>অপেক্ষা করুন...</span>
+                    </>
                   ) : (
-                    <Send className="size-4" />
+                    <>
+                      {usePasswordMode ? (
+                        <Login className="size-4" />
+                      ) : (
+                        <Send className="size-4" />
+                      )}
+                      <span>
+                        {usePasswordMode ? "লগইন করুন" : l.sendMagicLink}
+                      </span>
+                    </>
                   )}
-                  {isLoading
-                    ? "অপেক্ষা করুন..."
-                    : usePasswordMode
-                      ? "লগইন করুন"
-                      : l.sendMagicLink}
                 </Button>
                 <Button
                   type="button"
@@ -194,14 +201,18 @@ export default function LoginForm({ dict }: LoginFormProps) {
                   }
                 }}
               >
-                <Image
-                  src="/google.svg"
-                  alt="Google"
-                  width={18}
-                  height={18}
-                  className="size-4.5"
-                />
-                গুগল দিয়ে লগইন করুন
+                {isLoading ? (
+                  <Spinner className="size-4" />
+                ) : (
+                  <Image
+                    src="/google.svg"
+                    alt="Google"
+                    width={18}
+                    height={18}
+                    className="size-4.5"
+                  />
+                )}
+                <span>গুগল দিয়ে লগইন করুন</span>
               </Button>
             </form>
           )}
@@ -219,12 +230,6 @@ export default function LoginForm({ dict }: LoginFormProps) {
           </p>
         </div>
       </div>
-
-      <MadeWithFooter
-        madeWithText={dict.submit.madeWith}
-        andText={dict.submit.and}
-        className="gap-[12px] mt-auto lg:hidden pt-[48px] pb-[32px]"
-      />
     </div>
   );
 }

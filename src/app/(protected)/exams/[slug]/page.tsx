@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { checkExamAccess, getExamBySlug } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
-import ExamLobbyClient from "./exam-lobby-client";
+import { ExamLobbyView } from "@/components/exams/exam-lobby-view";
 
 export default async function ExamLobbyPage({
   params,
@@ -25,6 +25,6 @@ export default async function ExamLobbyPage({
   const access = await checkExamAccess(session.user.id, exam.id);
 
   return (
-    <ExamLobbyClient exam={exam} access={access} userId={session.user.id} />
+    <ExamLobbyView exam={exam} access={access} userId={session.user.id} />
   );
 }

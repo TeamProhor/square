@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getExamWithQuestionsAdmin } from "@/lib/actions/admin-exam";
-import EditExamClient from "./edit-exam-client";
+import { EditExamForm } from "@/components/admin/edit-exam-form";
 
 export default async function EditExamPage({
   params,
@@ -14,5 +14,5 @@ export default async function EditExamPage({
     return notFound();
   }
 
-  return <EditExamClient exam={data} />;
+  return <EditExamForm exam={data} />;
 }

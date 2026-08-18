@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { Trophy } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
 import { getExamBySlug, getExamLeaderboard } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
 
@@ -113,9 +112,9 @@ export default async function ExamLeaderboardPage({
                               {entry.userName}
                             </span>
                             {isMe && (
-                              <Badge className="text-[10px] px-1.5 py-0.2 rounded-md bg-primary text-primary-foreground shrink-0">
-                                You
-                              </Badge>
+                              <span className="text-[10px] font-bold text-primary shrink-0">
+                                (আপনি)
+                              </span>
                             )}
                           </div>
                         </div>

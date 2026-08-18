@@ -8,6 +8,7 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateQuestion } from "@/hooks/use-admin-qb";
 import { cn } from "@/lib/utils";
@@ -201,7 +202,13 @@ export function NewQuestionForm({
           বাতিল
         </Button>
         <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+          {createMutation.isPending ? (
+            <>
+              <Spinner className="size-4 mr-2" /> সংরক্ষণ হচ্ছে...
+            </>
+          ) : (
+            "সংরক্ষণ করুন"
+          )}
         </Button>
       </div>
     </form>

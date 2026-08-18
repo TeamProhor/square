@@ -3,17 +3,16 @@
 import { useRouter } from "next/navigation";
 import { Clock, Information, TaskSquare } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useStartExam } from "@/hooks/use-exam";
 
-export default function ExamLobbyClient({
-  exam,
-  access,
-  userId,
-}: {
+interface ExamLobbyViewProps {
   exam: any;
   access: any;
   userId: string;
-}) {
+}
+
+export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
   const router = useRouter();
   const startExamMutation = useStartExam();
 
@@ -30,7 +29,7 @@ export default function ExamLobbyClient({
     if (res.success && res.submission?.id) {
       router.push(`/exams/${exam.slug}/take?sid=${res.submission.id}`);
     } else {
-      alert(`Failed to start exam: ${res.error}`);
+      alert(`পরীক্ষা শুরু করতে সমস্যা হয়েছে: ${res.error}`);
     }
   };
 
@@ -92,11 +91,17 @@ export default function ExamLobbyClient({
         ) : (
           <Button
             size="lg"
-            className="w-full md:w-auto px-12 rounded-full h-14 text-lg"
+            className="w-full md:w-auto px-12 rounded-full h-14 text-lg font-bold shadow-lg"
             onClick={handleStart}
             disabled={startExamMutation.isPending}
           >
-            {startExamMutation.isPending ? "শুরু হচ্ছে..." : "পরীক্ষা শুরু করুন"}
+            {startExamMutation.isPending ? (
+              <>
+                <Spinner className="size-5 mr-2" /> শুরু হচ্ছে...
+              </>
+            ) : (
+              "পরীক্ষা শুরু করুন"
+            )}
           </Button>
         )}
       </div>

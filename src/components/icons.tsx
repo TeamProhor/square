@@ -8,6 +8,7 @@ import BookOpen from "reicon-react/icons/BookOpen";
 import Calendar from "reicon-react/icons/Calendar";
 import CalendarTick from "reicon-react/icons/CalendarTick";
 import Camera from "reicon-react/icons/Camera";
+import Category from "reicon-react/icons/Category";
 import Chart from "reicon-react/icons/Chart";
 import Clipboard from "reicon-react/icons/Clipboard";
 import Clock from "reicon-react/icons/Clock";
@@ -31,6 +32,7 @@ import Information from "reicon-react/icons/Information";
 import Language from "reicon-react/icons/Language";
 import Lightbulb from "reicon-react/icons/Lightbulb";
 import Lock from "reicon-react/icons/Lock";
+import Login from "reicon-react/icons/Login";
 import Logout from "reicon-react/icons/Logout";
 import Moon from "reicon-react/icons/Moon";
 import Notification from "reicon-react/icons/Notification";
@@ -58,6 +60,7 @@ export {
   Calendar,
   CalendarTick,
   Camera,
+  Category,
   Chart,
   Clipboard,
   Clock,
@@ -81,6 +84,7 @@ export {
   Language,
   Lightbulb,
   Lock,
+  Login,
   Logout,
   Moon,
   Notification,

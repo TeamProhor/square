@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { getSubmissionResult } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
-import ResultClient from "./result-client";
+import { ExamResultView } from "@/components/exams/exam-result-view";
 
 export default async function ExamResultPage({
   params,
@@ -31,5 +31,5 @@ export default async function ExamResultPage({
     return redirect(`/exams/${slug}/take?sid=${sid}`);
   }
 
-  return <ResultClient submission={submission} slug={slug} />;
+  return <ExamResultView submission={submission} slug={slug} />;
 }

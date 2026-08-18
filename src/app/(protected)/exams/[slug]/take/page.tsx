@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { examSubmissions } from "@/db/schema";
 import { getExamBySlug } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
-import LiveExamClient from "./live-exam-client";
+import { LiveExamView } from "@/components/exams/live-exam-view";
 
 export default async function TakeExamPage({
   params,
@@ -53,7 +53,7 @@ export default async function TakeExamPage({
   // If time is up, client component will handle auto-submit on mount
 
   return (
-    <LiveExamClient
+    <LiveExamView
       exam={exam}
       submissionId={sid}
       initialTimeLeft={initialTimeLeft}

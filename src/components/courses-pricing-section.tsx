@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Calendar, Flame, Information, Star } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { getCourses } from "@/lib/actions/course";
 
 type CourseItem = {
@@ -28,14 +28,9 @@ export function CoursesPricingSection() {
   useEffect(() => {
     async function loadCourses() {
       setIsLoading(true);
-      try {
-        const courses = await getCourses(selectedBatch);
-        setCoursesList(courses || []);
-      } catch {
-        setCoursesList([]);
-      } finally {
-        setIsLoading(false);
-      }
+      const data = await getCourses(selectedBatch);
+      setCoursesList(data);
+      setIsLoading(false);
     }
     loadCourses();
   }, [selectedBatch]);
@@ -47,12 +42,6 @@ export function CoursesPricingSection() {
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
-          <Badge
-            variant="secondary"
-            className="mb-2 px-3 py-1 text-[11px] font-bold uppercase tracking-widest"
-          >
-            ভর্তি সহায়িকা প্যানেল
-          </Badge>
           <h2 className="text-3xl md:text-4xl font-extrabold text-foreground mb-2">
             আমাদের এক্সক্লুসিভ কোর্সসমূহ
           </h2>
@@ -95,7 +84,12 @@ export function CoursesPricingSection() {
           </div>
         </div>
 
-        {selectedBatch === "HSC 26" ? (
+        {isLoading ? (
+          <div className="py-20 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+            <Spinner className="size-8 text-primary" />
+            <span className="text-sm font-medium">কোর্সসমূহ লোড হচ্ছে...</span>
+          </div>
+        ) : selectedBatch === "HSC 26" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {coursesList.map((course) => (
               <Card
@@ -111,11 +105,6 @@ export function CoursesPricingSection() {
                     height={338}
                     unoptimized
                   />
-                  {course.badge && (
-                    <Badge className="absolute top-3 left-3 bg-black/80 text-white backdrop-blur-md border-white/20 text-xs">
-                      {course.badge}
-                    </Badge>
-                  )}
                 </div>
 
                 <div className="p-6 md:p-8 flex-1 flex flex-col justify-between">

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CalendarTick, Clock, Flash, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -274,16 +274,13 @@ export default function AdminExamsPage() {
                       <h4 className="font-bold text-base text-foreground">
                         {routine.title}
                       </h4>
-                      <Badge
-                        variant="secondary"
-                        className="text-[10px] font-semibold"
-                      >
-                        {routine.subject}
-                      </Badge>
-                      <Badge variant="outline" className="text-[10px]">
-                        {routine.durationMinutes} মিনিট | {routine.totalMarks}{" "}
-                        নম্বর
-                      </Badge>
+                      <span className="text-xs font-bold text-primary">
+                        • {routine.subject}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        ({routine.durationMinutes} মিনিট | {routine.totalMarks}{" "}
+                        নম্বর)
+                      </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       📅 তারিখ ও সময়:{" "}
@@ -299,21 +296,22 @@ export default function AdminExamsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => {
-                        if (
-                          confirm("আপনি কি নিশ্চিত এই রুটিনটি ডিলিট করতে চান?")
-                        ) {
-                          deleteMutation.mutate(routine.id);
-                        }
+                    <DeleteConfirmDialog
+                      title="রুটিন ডিলিট নিশ্চিতকরণ"
+                      description={`আপনি কি নিশ্চিত এই রুটিনটি ("${routine.title}") ডিলিট করতে চান?`}
+                      onConfirm={async () => {
+                        await deleteMutation.mutateAsync(routine.id);
                       }}
-                      disabled={deleteMutation.isPending}
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          disabled={deleteMutation.isPending}
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg cursor-pointer"
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      }
+                    />
                   </div>
                 </div>
               );

@@ -11,8 +11,8 @@ import {
   Flash,
   Lock,
 } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -148,8 +148,9 @@ export function PdfSuggestionView() {
               </span>
 
               {isFetchingPdfs ? (
-                <div className="p-4 text-center text-xs text-muted-foreground">
-                  লোড হচ্ছে...
+                <div className="p-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <Spinner className="size-3.5" />
+                  <span>লোড হচ্ছে...</span>
                 </div>
               ) : filteredList.length === 0 ? (
                 <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border/60">
@@ -175,13 +176,10 @@ export function PdfSuggestionView() {
                       >
                         <span className="line-clamp-2">{pdf.title}</span>
                         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                          <Badge
-                            variant="outline"
-                            className="text-[9px] px-1 py-0 h-4"
-                          >
+                          <span className="font-semibold text-primary">
                             {pdf.paper}
-                          </Badge>
-                          {pdf.chapter && <span>{pdf.chapter}</span>}
+                          </span>
+                          {pdf.chapter && <span>• {pdf.chapter}</span>}
                         </div>
                       </button>
                     );
@@ -211,41 +209,40 @@ export function PdfSuggestionView() {
       <div className="flex-1 flex flex-col">
         <div className="bg-card rounded-2xl border shadow-sm overflow-hidden flex flex-col h-[550px] lg:h-[calc(100vh-160px)] lg:min-h-[650px]">
           {/* Viewer Header */}
-          <div className="h-14 bg-muted/30 border-b px-4 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <Badge
-                variant="outline"
-                className="font-medium text-xs truncate max-w-xs sm:max-w-md bg-background/50"
-              >
-                {selectedPdf?.title || "কোনো ফাইল সিলেক্ট করা নেই"}
-              </Badge>
+          <div className="p-3 sm:p-4 border-b bg-muted/30 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <FileText className="size-4 text-primary shrink-0" />
+              <h2 className="font-bold text-sm sm:text-base truncate">
+                {selectedPdf?.title || "কোনো ফাইল নির্বাচিত নেই"}
+              </h2>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+
+            <div className="flex items-center gap-1.5 shrink-0">
               <Button
-                size="sm"
                 variant="outline"
-                disabled={!selectedPdf}
-                className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-xs"
+                size="sm"
+                className="h-8 gap-1.5 text-xs font-semibold"
                 asChild={Boolean(selectedPdf)}
+                disabled={!selectedPdf}
               >
                 {selectedPdf ? (
                   <a
-                    href={selectedPdf.fileUrl}
+                    href={previewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <Export className="size-3.5" />{" "}
-                    <span className="hidden sm:inline">ওপেন ড্রাইভ</span>
+                    <span className="hidden sm:inline">ট্যাবে খুলুন</span>
                   </a>
                 ) : (
-                  <span>ওপেন</span>
+                  <span>ট্যাবে খুলুন</span>
                 )}
               </Button>
               <Button
                 size="sm"
-                disabled={!selectedPdf}
-                className="h-8 gap-1.5 rounded-full text-xs font-medium shadow-xs"
+                className="h-8 gap-1.5 text-xs font-bold"
                 asChild={Boolean(selectedPdf)}
+                disabled={!selectedPdf}
               >
                 {selectedPdf ? (
                   <a
@@ -267,7 +264,7 @@ export function PdfSuggestionView() {
           <div className="flex-1 relative bg-muted/10 flex flex-col">
             {isLoading && selectedPdf && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-xs">
-                <div className="size-8 border-[3px] border-muted border-t-primary rounded-full animate-spin mb-2" />
+                <Spinner className="size-8 text-primary mb-2" />
                 <p className="text-xs font-semibold text-foreground">
                   গুগল ড্রাইভ থেকে লোড হচ্ছে...
                 </p>

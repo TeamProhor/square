@@ -7,6 +7,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { createCourse } from "@/lib/actions/admin-course";
 
 export function AddCourseModal() {
@@ -101,7 +102,13 @@ export function AddCourseModal() {
         </div>
 
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "তৈরি হচ্ছে..." : "কোর্স তৈরি করুন"}
+          {loading ? (
+            <>
+              <Spinner className="size-4 mr-2" /> তৈরি হচ্ছে...
+            </>
+          ) : (
+            "কোর্স তৈরি করুন"
+          )}
         </Button>
       </form>
     </ResponsiveDialog>

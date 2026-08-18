@@ -2,12 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { deleteExamAction, updateExamAction } from "@/lib/actions/admin-exam";
 
-export default function EditExamClient({ exam }: { exam: any }) {
+export function EditExamForm({ exam }: { exam: any }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,24 +42,7 @@ export default function EditExamClient({ exam }: { exam: any }) {
     if (res.success) {
       router.push(`/admin/exams/${exam.id}/questions`);
     } else {
-      setError(res.error || "Failed to update exam");
-      setLoading(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (
-      !confirm(
-        "Are you sure you want to delete this exam? This cannot be undone.",
-      )
-    )
-      return;
-    setLoading(true);
-    const res = await deleteExamAction(exam.id);
-    if (res.success) {
-      router.push("/admin/exams");
-    } else {
-      setError(res.error || "Failed to delete exam");
+      setError(res.error || "পরীক্ষা আপডেট করতে ব্যর্থ হয়েছে");
       setLoading(false);
     }
   }
@@ -66,14 +51,29 @@ export default function EditExamClient({ exam }: { exam: any }) {
     <div className="flex flex-col w-full max-w-2xl mx-auto pb-12 pt-2 md:py-8 gap-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-extrabold tracking-tight">এডিট পরীক্ষা</h1>
-        <Button
-          variant="outline"
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl"
-          onClick={handleDelete}
-          disabled={loading}
-        >
-          Delete Exam
-        </Button>
+        <DeleteConfirmDialog
+          title="পরীক্ষা ডিলিট নিশ্চিতকরণ"
+          description="আপনি কি নিশ্চিতভাবে এই পরীক্ষাটি ডিলিট করতে চান? এই পরীক্ষাটি ও এর সকল প্রশ্ন স্থায়ীভাবে মুছে যাবে।"
+          onConfirm={async () => {
+            setLoading(true);
+            const res = await deleteExamAction(exam.id);
+            if (res.success) {
+              router.push("/admin/exams");
+            } else {
+              setError(res.error || "পরীক্ষা ডিলিট করতে ব্যর্থ হয়েছে");
+              setLoading(false);
+            }
+          }}
+          trigger={
+            <Button
+              variant="outline"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl cursor-pointer"
+              disabled={loading}
+            >
+              পরীক্ষা ডিলিট করুন
+            </Button>
+          }
+        />
       </div>
 
       <form
@@ -87,7 +87,7 @@ export default function EditExamClient({ exam }: { exam: any }) {
         )}
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">পরীক্ষার শিরোনাম</label>
+          <label className="text-sm font-medium">পরীক্ষার শিরোনাম (Title)</label>
           <Input
             name="title"
             required
@@ -107,7 +107,7 @@ export default function EditExamClient({ exam }: { exam: any }) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">বর্ণনা</label>
+          <label className="text-sm font-medium">বর্ণনা (Description)</label>
           <Textarea
             name="description"
             defaultValue={exam.description || ""}
@@ -115,59 +115,55 @@ export default function EditExamClient({ exam }: { exam: any }) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">ধরন</label>
+            <label className="text-sm font-medium">পরীক্ষার ধরন (Type)</label>
             <select
               name="type"
-              required
               defaultValue={exam.type}
-              className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background"
             >
-              <option value="practice">Practice (Public)</option>
+              <option value="practice">Practice Exam</option>
               <option value="chapter_test">Chapter Test</option>
-              <option value="weekly">Weekly</option>
+              <option value="weekly">Weekly Exam</option>
               <option value="model_test">Model Test</option>
               <option value="live_contest">Live Contest</option>
             </select>
           </div>
+
           <div className="space-y-2">
-            <label className="text-sm font-medium">সময় (মিনিট)</label>
+            <label className="text-sm font-medium">সময় (মিনিট)</label>
             <Input
               name="durationMinutes"
               type="number"
               required
-              min="1"
               defaultValue={exam.durationMinutes}
               className="rounded-xl"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">মোট মার্কস</label>
+            <label className="text-sm font-medium">মোট নম্বর (Total Marks)</label>
             <Input
               name="totalMarks"
               type="number"
               required
-              min="1"
               defaultValue={exam.totalMarks}
               className="rounded-xl"
             />
           </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium">নেগেটিভ মার্কিং</label>
             <Input
               name="negativeMarking"
-              required
               defaultValue={exam.negativeMarking}
               className="rounded-xl"
             />
           </div>
         </div>
 
-        <div className="flex gap-4 p-4 border rounded-xl bg-muted/50 mt-2">
+        <div className="flex flex-col gap-3 pt-2">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -176,7 +172,9 @@ export default function EditExamClient({ exam }: { exam: any }) {
               defaultChecked={exam.showResultImmediately}
               className="size-4"
             />
-            <span className="text-sm font-medium">সাথেই রেজাল্ট দেখান</span>
+            <span className="text-sm font-medium">
+              পরীক্ষা শেষ হওয়ার সাথে সাথে রেজাল্ট দেখাবে
+            </span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -200,7 +198,13 @@ export default function EditExamClient({ exam }: { exam: any }) {
             বাতিল
           </Button>
           <Button type="submit" className="rounded-xl" disabled={loading}>
-            {loading ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+            {loading ? (
+              <>
+                <Spinner className="size-4 mr-2" /> সংরক্ষণ হচ্ছে...
+              </>
+            ) : (
+              "সংরক্ষণ করুন"
+            )}
           </Button>
         </div>
       </form>

@@ -2,13 +2,11 @@ import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { AddCourseModal } from "@/components/admin/add-course-modal";
 import { EditCourseModal } from "@/components/admin/edit-course-modal";
-import { BookOpen, Trash2 } from "@/components/icons";
+import { DeleteCourseButton } from "@/components/admin/delete-course-button";
+import { BookOpen } from "@/components/icons";
 import { QuickList } from "@/components/quick-list";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import { courses } from "@/db/schema";
-import { deleteCourse } from "@/lib/actions/admin-course";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +21,6 @@ async function togglePublish(formData: FormData) {
     .where(eq(courses.id, courseId));
 
   revalidatePath("/admin/courses");
-}
-
-async function handleDelete(formData: FormData) {
-  "use server";
-  const courseId = formData.get("courseId") as string;
-  await deleteCourse(courseId);
 }
 
 export default async function AdminCoursesPage() {
@@ -53,27 +45,19 @@ export default async function AdminCoursesPage() {
             name="currentStatus"
             value={course.isPublished ? "true" : "false"}
           />
-          <Badge
-            variant={course.isPublished ? "default" : "secondary"}
-            className="cursor-pointer"
+          <button
+            type="submit"
+            className={`text-xs font-bold px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+              course.isPublished
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
           >
-            <button type="submit" className="outline-none">
-              {course.isPublished ? "পাবলিশড" : "ড্রাফট"}
-            </button>
-          </Badge>
+            {course.isPublished ? "পাবলিশড" : "ড্রাফট"}
+          </button>
         </form>
         <EditCourseModal course={course} />
-        <form action={handleDelete}>
-          <input type="hidden" name="courseId" value={course.id} />
-          <Button
-            type="submit"
-            size="icon"
-            variant="ghost"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-          >
-            <Trash2 className="size-4" />
-          </Button>
-        </form>
+        <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
       </div>
     ),
     hideCaret: true,

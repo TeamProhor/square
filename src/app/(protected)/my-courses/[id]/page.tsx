@@ -10,10 +10,8 @@ import {
   FileDown,
   Information,
   Send,
-  TaskSquare,
   TickCircle,
 } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getUserCourseById } from "@/lib/actions/course";
 import { auth } from "@/lib/auth";

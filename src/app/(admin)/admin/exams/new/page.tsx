@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/use-auth";
 import { createExamAction } from "@/lib/actions/admin-exam";
@@ -193,7 +194,13 @@ export default function NewExamPage() {
             বাতিল
           </Button>
           <Button type="submit" className="rounded-xl" disabled={loading}>
-            {loading ? "তৈরি হচ্ছে..." : "পরবর্তী ধাপ (প্রশ্ন যোগ করুন)"}
+            {loading ? (
+              <>
+                <Spinner className="size-4 mr-2" /> তৈরি হচ্ছে...
+              </>
+            ) : (
+              "পরবর্তী ধাপ (প্রশ্ন যোগ করুন)"
+            )}
           </Button>
         </div>
       </form>

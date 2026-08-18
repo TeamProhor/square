@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getBatchDetailAction } from "@/lib/actions/batch";
-import BatchDetailClient from "./batch-detail-client";
+import { BatchDetailView } from "@/components/admin/batch-detail-view";
 
 export default async function BatchDetailPage({
   params,
@@ -14,5 +14,5 @@ export default async function BatchDetailPage({
     return notFound();
   }
 
-  return <BatchDetailClient batch={data} />;
+  return <BatchDetailView batch={data} />;
 }

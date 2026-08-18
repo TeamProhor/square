@@ -34,10 +34,18 @@ export async function rejectRequest(formData: FormData) {
   const requestId = formData.get("requestId") as string;
   const adminNote = (formData.get("adminNote") as string) || "Payment mismatch";
 
-  await db
-    .update(courseEnrollmentRequests)
-    .set({ status: "rejected", reviewedAt: new Date(), adminNote })
-    .where(eq(courseEnrollmentRequests.id, requestId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(courseEnrollmentRequests)
+      .set({ status: "rejected", reviewedAt: new Date(), adminNote })
+      .where(eq(courseEnrollmentRequests.id, requestId));
+
+    // Remove the enrollment to revoke course access
+    await tx
+      .delete(courseEnrollments)
+      .where(eq(courseEnrollments.requestId, requestId));
+  });
 
   revalidatePath("/admin/enrollments");
+  revalidatePath("/my-courses");
 }

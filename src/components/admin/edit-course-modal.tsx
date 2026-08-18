@@ -7,6 +7,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { updateCourse } from "@/lib/actions/admin-course";
 
 interface Course {
@@ -113,7 +114,13 @@ export function EditCourseModal({ course }: { course: Course }) {
         </div>
 
         <Button type="submit" className="w-full font-bold" disabled={loading}>
-          {loading ? "আপডেট হচ্ছে..." : "সেভ করুন"}
+          {loading ? (
+            <>
+              <Spinner className="size-4 mr-2" /> আপডেট হচ্ছে...
+            </>
+          ) : (
+            "সেভ করুন"
+          )}
         </Button>
       </form>
     </ResponsiveDialog>

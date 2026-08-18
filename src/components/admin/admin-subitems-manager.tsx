@@ -7,7 +7,7 @@ import { NewChapterForm } from "@/components/admin/forms/new-chapter-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { Badge } from "@/components/ui/badge";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteSubitemAction as deleteChapterAction } from "@/lib/actions/question";
 import type { Container, Item, Subitem } from "@/types";
@@ -25,15 +25,6 @@ export function AdminSubitemsManager({
 }: AdminSubitemsManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const handleDelete = async (e: React.MouseEvent, chapterId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (confirm("এই অধ্যায়টি স্থায়ীভাবে ডিলিট করতে চান?")) {
-      await deleteChapterAction(chapterId, qb.slug, subject.slug);
-      router.refresh();
-    }
-  };
 
   const items: QuickListItem[] = initialChapters.map((ch: Subitem) => ({
     href: `/admin/qb/${qb.slug}/${subject.slug}/${ch.slug}`,
@@ -53,20 +44,33 @@ export function AdminSubitemsManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     extra: ch.paper ? (
-      <Badge variant="secondary" className="text-[10px] uppercase font-bold">
+      <span className="text-[10px] uppercase font-bold text-muted-foreground">
         {ch.paper} Paper
-      </Badge>
+      </span>
     ) : undefined,
     rightElement: (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => handleDelete(e, ch.id)}
-        className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs"
-      >
-        <Trash2 className="size-3.5" />
-        <span>ডিলিট</span>
-      </Button>
+      <DeleteConfirmDialog
+        title="অধ্যায় ডিলিট নিশ্চিতকরণ"
+        description={`আপনি কি নিশ্চিতভাবে "${ch.name}" অধ্যায়টি ডিলিট করতে চান? এর ভিতরের সব টপিক ও প্রশ্ন মুছে যাবে!`}
+        onConfirm={async () => {
+          await deleteChapterAction(ch.id, qb.slug, subject.slug);
+          router.refresh();
+        }}
+        trigger={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+          >
+            <Trash2 className="size-3.5" />
+            <span>ডিলিট</span>
+          </Button>
+        }
+      />
     ),
   }));
 

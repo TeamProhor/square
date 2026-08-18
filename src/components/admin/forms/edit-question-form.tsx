@@ -8,6 +8,7 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useUpdateQuestion } from "@/hooks/use-admin-qb";
 import { cn } from "@/lib/utils";
@@ -303,7 +304,13 @@ export function EditQuestionForm({
           বাতিল
         </Button>
         <Button type="submit" disabled={updateMutation.isPending}>
-          {updateMutation.isPending ? "আপডেট হচ্ছে..." : "আপডেট করুন"}
+          {updateMutation.isPending ? (
+            <>
+              <Spinner className="size-4 mr-2" /> আপডেট হচ্ছে...
+            </>
+          ) : (
+            "আপডেট করুন"
+          )}
         </Button>
       </div>
     </form>

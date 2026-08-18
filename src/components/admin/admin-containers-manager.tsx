@@ -6,6 +6,7 @@ import { NewQuestionBankForm } from "@/components/admin/forms/new-qb-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { BookOpen, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteContainerAction } from "@/lib/actions/question";
 import type { Container } from "@/types";
@@ -20,19 +21,6 @@ export function AdminContainersManager({
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const handleDelete = async (e: React.MouseEvent, qbId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (
-      confirm(
-        "আপনি কি নিশ্চিত যে এই প্রশ্নব্যাংকটি ডিলিট করতে চান? এর ভিতরের সব ডাটা মুছে যাবে!",
-      )
-    ) {
-      await deleteContainerAction(qbId);
-      router.refresh();
-    }
-  };
-
   const items: QuickListItem[] = initialQbs.map((qb: Container) => ({
     href: `/admin/qb/${qb.slug}`,
     title: qb.title,
@@ -45,15 +33,28 @@ export function AdminContainersManager({
       </span>
     ),
     rightElement: (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => handleDelete(e, qb.id)}
-        className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs"
-      >
-        <Trash2 className="size-3.5" />
-        <span>ডিলিট</span>
-      </Button>
+      <DeleteConfirmDialog
+        title="প্রশ্নব্যাংক ডিলিট নিশ্চিতকরণ"
+        description="আপনি কি নিশ্চিত যে এই প্রশ্নব্যাংকটি ডিলিট করতে চান? এর ভিতরের সব বিষয়, অধ্যায় এবং প্রশ্ন মুছে যাবে!"
+        onConfirm={async () => {
+          await deleteContainerAction(qb.id);
+          router.refresh();
+        }}
+        trigger={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+          >
+            <Trash2 className="size-3.5" />
+            <span>ডিলিট</span>
+          </Button>
+        }
+      />
     ),
   }));
 

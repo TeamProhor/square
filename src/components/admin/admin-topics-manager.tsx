@@ -7,6 +7,7 @@ import { NewTopicForm } from "@/components/admin/forms/new-topic-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
 import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteTopicAction } from "@/lib/actions/question";
 import type { Container, Item, Subitem, Topic } from "@/types";
@@ -27,15 +28,6 @@ export function AdminTopicsManager({
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const handleDelete = async (e: React.MouseEvent, topicId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (confirm("এই টপিকটি স্থায়ীভাবে ডিলিট করতে চান?")) {
-      await deleteTopicAction(topicId, qb.slug, subject.slug, chapter.slug);
-      router.refresh();
-    }
-  };
-
   const items: QuickListItem[] = initialTopics.map((top: Topic) => ({
     href: `/admin/qb/${qb.slug}/${subject.slug}/${chapter.slug}/${top.slug}`,
     title: top.name,
@@ -49,15 +41,28 @@ export function AdminTopicsManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     rightElement: (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => handleDelete(e, top.id)}
-        className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs"
-      >
-        <Trash2 className="size-3.5" />
-        <span>ডিলিট</span>
-      </Button>
+      <DeleteConfirmDialog
+        title="টপিক ডিলিট নিশ্চিতকরণ"
+        description={`আপনি কি নিশ্চিতভাবে "${top.name}" টপিকটি ডিলিট করতে চান? এর ভিতরের সব প্রশ্ন মুছে যাবে!`}
+        onConfirm={async () => {
+          await deleteTopicAction(top.id, qb.slug, subject.slug, chapter.slug);
+          router.refresh();
+        }}
+        trigger={
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+          >
+            <Trash2 className="size-3.5" />
+            <span>ডিলিট</span>
+          </Button>
+        }
+      />
     ),
   }));
 

@@ -12,7 +12,6 @@ import {
   Warning,
 } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -135,13 +134,10 @@ export default function CalendarPage() {
         </div>
         <CardContent className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-5 gap-6 items-center relative z-10">
           <div className="lg:col-span-2 flex flex-col gap-2 text-center lg:text-left items-center lg:items-start">
-            <Badge
-              variant="outline"
-              className="bg-background/20 text-primary-foreground border-background/30 gap-1 uppercase"
-            >
-              <span className="size-1.5 rounded-full bg-red-500 animate-ping" />{" "}
+            <span className="text-xs uppercase font-bold text-primary-foreground/90 flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-red-400 animate-ping" />{" "}
               লাইভ কাউন্টডাউন
-            </Badge>
+            </span>
             <h2 className="text-lg md:text-xl font-bold leading-tight">
               বোর্ড পরীক্ষা শুরু হতে বাকি:
             </h2>
@@ -311,12 +307,9 @@ export default function CalendarPage() {
               <span className="text-xs text-muted-foreground font-medium">
                 সর্বমোট পরীক্ষা সংখ্যা:
               </span>
-              <Badge
-                variant="outline"
-                className="font-bold bg-background shadow-sm"
-              >
+              <span className="text-xs font-bold text-foreground">
                 {allExams.length} টি
-              </Badge>
+              </span>
             </div>
             <Button
               variant="outline"

@@ -9,8 +9,8 @@ import {
   TickCircle,
   Warning,
 } from "@/components/icons";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useImportQuestions } from "@/hooks/use-admin-qb";
 import type { ImportQuestionItem, QuestionStandard } from "@/types";
@@ -766,13 +766,10 @@ export function ImportQuestionsForm({
               <TickCircle className="size-4 text-emerald-500 shrink-0" />
               ভ্যালিডেশন সম্পন্ন: মোট {validation.summary.total}টি প্রশ্ন প্রস্তুত
             </span>
-            <div className="flex items-center gap-1.5">
-              <Badge variant="outline" className="text-[10px] bg-background">
-                MCQ: {validation.summary.mcqCount}টি
-              </Badge>
-              <Badge variant="outline" className="text-[10px] bg-background">
-                CQ: {validation.summary.cqCount}টি
-              </Badge>
+            <div className="flex items-center gap-2 text-[11px] font-bold">
+              <span>MCQ: {validation.summary.mcqCount}টি</span>
+              <span>•</span>
+              <span>CQ: {validation.summary.cqCount}টি</span>
             </div>
           </div>
 
@@ -792,13 +789,15 @@ export function ImportQuestionsForm({
                   className="p-2 rounded-md bg-muted/30 border border-border/50 text-[11px] flex flex-col gap-1"
                 >
                   <div className="flex items-center gap-2">
-                    <Badge variant="default" className="text-[9px] uppercase">
+                    <span className="text-[10px] uppercase font-bold text-primary">
                       {q.type}
-                    </Badge>
+                    </span>
                     <span className="font-semibold text-xs">{q.source}</span>
-                    <Badge variant="secondary" className="text-[9px]">
-                      {q.standard}
-                    </Badge>
+                    {q.standard && (
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        • {q.standard}
+                      </span>
+                    )}
                   </div>
                   <p className="line-clamp-2 font-medium">{q.questionText}</p>
                 </div>
@@ -819,7 +818,10 @@ export function ImportQuestionsForm({
           className="gap-2 font-bold"
         >
           {importMutation.isPending ? (
-            <span>ইমপোর্ট হচ্ছে...</span>
+            <>
+              <Spinner className="size-4" />
+              <span>ইমপোর্ট হচ্ছে...</span>
+            </>
           ) : (
             <span>
               {validation.summary

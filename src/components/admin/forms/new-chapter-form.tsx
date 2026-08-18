@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { createSubitemAction as createChapterAction } from "@/lib/actions/question";
 
 interface NewChapterFormProps {
@@ -83,7 +84,13 @@ export function NewChapterForm({
           বাতিল
         </Button>
         <Button type="submit" disabled={isPending}>
-          {isPending ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+          {isPending ? (
+            <>
+              <Spinner className="size-4 mr-2" /> সংরক্ষণ হচ্ছে...
+            </>
+          ) : (
+            "সংরক্ষণ করুন"
+          )}
         </Button>
       </div>
     </form>

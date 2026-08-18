@@ -6,6 +6,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { submitEnrollmentRequest } from "@/lib/actions/course";
 
 interface CheckoutModalProps {
@@ -191,7 +192,13 @@ export function CheckoutModal({
             className="w-full font-bold py-6 text-base"
             disabled={loading}
           >
-            {loading ? "সাবমিট হচ্ছে..." : "পেমেন্ট সাবমিট করুন"}
+            {loading ? (
+              <>
+                <Spinner className="size-4 mr-2" /> সাবমিট হচ্ছে...
+              </>
+            ) : (
+              "পেমেন্ট সাবমিট করুন"
+            )}
           </Button>
         </form>
       )}

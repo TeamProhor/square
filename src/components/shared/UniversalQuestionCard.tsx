@@ -13,7 +13,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { CQPart, MCQOption, Question } from "@/types";
@@ -81,27 +80,18 @@ export function UniversalQuestionCard({
           )}
           {!minimal && (
             <>
-              <Badge
-                variant={type === "mcq" ? "default" : "secondary"}
-                className="text-[11px] sm:text-xs uppercase font-bold px-2 py-0.5 rounded-md"
-              >
+              <span className="text-[11px] sm:text-xs uppercase font-bold text-primary">
                 {type}
-              </Badge>
+              </span>
               {!hideHeaderBadge && question.source && (
-                <Badge
-                  variant="outline"
-                  className="text-[11px] sm:text-xs text-muted-foreground font-medium rounded-md px-2 py-0.5 border-border/60"
-                >
-                  {question.source}
-                </Badge>
+                <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
+                  • {question.source}
+                </span>
               )}
               {question.standard && (
-                <Badge
-                  variant="secondary"
-                  className="text-[11px] sm:text-xs font-medium rounded-md px-2 py-0.5"
-                >
-                  {question.standard}
-                </Badge>
+                <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
+                  • {question.standard}
+                </span>
               )}
             </>
           )}
