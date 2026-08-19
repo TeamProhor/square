@@ -199,3 +199,22 @@ export async function getAllExamsAdmin() {
     };
   }
 }
+
+export async function getAllExamsWithBatchesAdmin() {
+  try {
+    const list = await db.query.exams.findMany({
+      orderBy: [desc(exams.createdAt)],
+      with: {
+        batchExams: {
+          with: { batch: true },
+        },
+      },
+    });
+    return { success: true, data: list };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to fetch exams",
+    };
+  }
+}

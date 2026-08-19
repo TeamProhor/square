@@ -1,8 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { AddCourseModal } from "@/components/admin/add-course-modal";
-import { EditCourseModal } from "@/components/admin/edit-course-modal";
 import { DeleteCourseButton } from "@/components/admin/delete-course-button";
+import { EditCourseModal } from "@/components/admin/edit-course-modal";
 import { BookOpen } from "@/components/icons";
 import { QuickList } from "@/components/quick-list";
 import { db } from "@/db";
@@ -65,8 +65,7 @@ export default async function AdminCoursesPage() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold tracking-tight">ম্যানেজ কোর্সেস</h1>
+      <div className="flex justify-end items-center">
         <AddCourseModal />
       </div>
 

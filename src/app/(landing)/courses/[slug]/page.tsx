@@ -55,7 +55,8 @@ export default async function CourseDetailPage({
     image: courseWithDetails.image,
     badge: courseWithDetails.badge || "স্পেশাল ব্যাচ",
     routinePdfUrl: courseWithDetails.details?.routinePdfUrl,
-    telegramGroupUrl: courseWithDetails.details?.telegramGroupUrl || "https://t.me/shu_yaib",
+    telegramGroupUrl:
+      courseWithDetails.details?.telegramGroupUrl || "https://t.me/shu_yaib",
     features: courseWithDetails.details?.features || [],
     instructors: courseWithDetails.details?.instructors || [],
     modules: courseWithDetails.details?.modules || [],

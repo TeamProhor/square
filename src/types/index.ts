@@ -376,7 +376,14 @@ export interface BatchExamDetail {
   readonly id: string;
   readonly batchId: string;
   readonly examId: string;
-  readonly exam?: { readonly title: string; readonly slug: string };
+  readonly exam?: {
+    readonly id: string;
+    readonly title: string;
+    readonly slug: string;
+    readonly type: string;
+    readonly durationMinutes: number;
+    readonly totalMarks: number;
+  } | null;
   readonly startsAt?: string | null;
   readonly endsAt?: string | null;
   readonly isRequired: boolean;

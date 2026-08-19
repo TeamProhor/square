@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Danger, StatusUp, TickCircle } from "@/components/icons";
+import { Clock, Danger, TickCircle } from "@/components/icons";
 
 interface ExamScoreCardProps {
   scoreNum: number;

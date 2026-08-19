@@ -34,7 +34,7 @@ export default async function ExamResultsPage({
             </tr>
           </thead>
           <tbody className="divide-y bg-card">
-            {submissions?.map((sub: any) => (
+            {submissions?.map((sub) => (
               <tr key={sub.id}>
                 <td className="p-3">{sub.user?.name || sub.userId}</td>
                 <td className="p-3 font-bold">

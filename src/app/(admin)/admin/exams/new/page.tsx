@@ -82,8 +82,11 @@ export default function NewExamPage() {
         )}
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">পরীক্ষার শিরোনাম</label>
+          <label htmlFor="title" className="text-sm font-medium">
+            পরীক্ষার শিরোনাম
+          </label>
           <Input
+            id="title"
             name="title"
             required
             placeholder="e.g. Physics Chapter 1 MCQ Test"
@@ -92,8 +95,11 @@ export default function NewExamPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">স্লাগ (Slug)</label>
+          <label htmlFor="slug" className="text-sm font-medium">
+            স্লাগ (Slug)
+          </label>
           <Input
+            id="slug"
             name="slug"
             required
             placeholder="e.g. physics-ch1-mcq"
@@ -102,8 +108,11 @@ export default function NewExamPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">বর্ণনা</label>
+          <label htmlFor="description" className="text-sm font-medium">
+            বর্ণনা
+          </label>
           <Textarea
+            id="description"
             name="description"
             placeholder="Optional description"
             className="rounded-xl min-h-[100px]"
@@ -112,8 +121,11 @@ export default function NewExamPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">ধরন</label>
+            <label htmlFor="type" className="text-sm font-medium">
+              ধরন
+            </label>
             <select
+              id="type"
               name="type"
               required
               className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -126,8 +138,11 @@ export default function NewExamPage() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">সময় (মিনিট)</label>
+            <label htmlFor="durationMinutes" className="text-sm font-medium">
+              সময় (মিনিট)
+            </label>
             <Input
+              id="durationMinutes"
               name="durationMinutes"
               type="number"
               required
@@ -140,8 +155,11 @@ export default function NewExamPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">মোট মার্কস</label>
+            <label htmlFor="totalMarks" className="text-sm font-medium">
+              মোট মার্কস
+            </label>
             <Input
+              id="totalMarks"
               name="totalMarks"
               type="number"
               required
@@ -151,8 +169,11 @@ export default function NewExamPage() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">নেগেটিভ মার্কিং</label>
+            <label htmlFor="negativeMarking" className="text-sm font-medium">
+              নেগেটিভ মার্কিং
+            </label>
             <Input
+              id="negativeMarking"
               name="negativeMarking"
               required
               placeholder="e.g. 0.25"

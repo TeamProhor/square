@@ -1,9 +1,14 @@
 "use server";
 
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { batchExams, batches, batchMembers } from "@/db/schema";
+import {
+  batchExams,
+  batches,
+  batchMembers,
+  courseEnrollmentRequests,
+} from "@/db/schema";
 import type { BatchDetail } from "@/types";
 
 export async function getBatchesAction() {
@@ -23,8 +28,8 @@ export async function getBatchesAction() {
 export async function createBatchAction(
   name: string,
   slug: string,
-  description?: string,
   courseId?: string,
+  description?: string,
 ) {
   try {
     const res = await db
@@ -32,14 +37,16 @@ export async function createBatchAction(
       .values({
         name,
         slug,
-        description,
         courseId,
+        description,
+        isActive: true,
       })
       .returning();
     revalidatePath("/admin/batches");
-    return { success: true, batch: res[0] };
+    return { success: true, data: res[0] };
   } catch (error: unknown) {
     return {
+      success: false,
       error: error instanceof Error ? error.message : "Failed to create batch",
     };
   }
@@ -64,6 +71,7 @@ export async function getBatchDetailAction(id: string) {
     const batch = await db.query.batches.findFirst({
       where: eq(batches.id, id),
       with: {
+        course: true,
         members: {
           with: { user: true },
         },
@@ -73,7 +81,40 @@ export async function getBatchDetailAction(id: string) {
       },
     });
     if (!batch) return { success: false, error: "Batch not found" };
-    return { success: true, data: batch as unknown as BatchDetail };
+
+    const memberUserIds = batch.members.map((m) => m.userId);
+    let enrollmentRequests: (typeof courseEnrollmentRequests.$inferSelect)[] =
+      [];
+    if (memberUserIds.length > 0 && batch.courseId) {
+      enrollmentRequests = await db.query.courseEnrollmentRequests.findMany({
+        where: and(
+          inArray(courseEnrollmentRequests.userId, memberUserIds),
+          eq(courseEnrollmentRequests.courseId, batch.courseId),
+        ),
+      });
+    }
+
+    const membersWithRequests = batch.members.map((m) => {
+      const request = enrollmentRequests.find((r) => r.userId === m.userId);
+      return {
+        ...m,
+        enrollmentRequest: request
+          ? {
+              request,
+              user: m.user,
+              course: batch.course,
+            }
+          : null,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        ...batch,
+        members: membersWithRequests,
+      } as unknown as BatchDetail,
+    };
   } catch (error: unknown) {
     return {
       success: false,
@@ -184,6 +225,38 @@ export async function getBatchMembersAction(batchId: string) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch members",
+    };
+  }
+}
+
+export async function updateBatchExamAction(
+  batchExamId: string,
+  batchId: string,
+  opts: {
+    startsAt?: string | null;
+    endsAt?: string | null;
+    maxAttempts?: number | null;
+    isRequired?: boolean;
+  },
+) {
+  try {
+    const res = await db
+      .update(batchExams)
+      .set({
+        startsAt: opts.startsAt ?? undefined,
+        endsAt: opts.endsAt ?? undefined,
+        maxAttempts: opts.maxAttempts ?? undefined,
+        isRequired: opts.isRequired ?? undefined,
+      })
+      .where(eq(batchExams.id, batchExamId))
+      .returning();
+    revalidatePath(`/admin/batches/${batchId}`);
+    return { success: true, data: res[0] };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to update batch exam",
     };
   }
 }

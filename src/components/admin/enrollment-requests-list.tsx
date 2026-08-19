@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ManageEnrollmentModal } from "@/components/admin/manage-enrollment-modal";
 import { Danger, Search, User } from "@/components/icons";
 import { QuickList } from "@/components/quick-list";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -20,6 +13,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EnrollmentRequestRow {
   request: {
@@ -48,7 +48,9 @@ interface EnrollmentRequestsListProps {
 
 const ITEMS_PER_PAGE = 8;
 
-export function EnrollmentRequestsList({ requests }: EnrollmentRequestsListProps) {
+export function EnrollmentRequestsList({
+  requests,
+}: EnrollmentRequestsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,7 +58,7 @@ export function EnrollmentRequestsList({ requests }: EnrollmentRequestsListProps
   // Reset page when filter or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter]);
+  }, []);
 
   const filteredRequests = useMemo(() => {
     return requests.filter((row) => {
@@ -162,16 +164,28 @@ export function EnrollmentRequestsList({ requests }: EnrollmentRequestsListProps
               <SelectValue placeholder="স্ট্যাটাস সিলেক্ট করুন" />
             </SelectTrigger>
             <SelectContent className="rounded-xl border border-border/80 bg-popover shadow-md">
-              <SelectItem value="all" className="text-xs font-semibold cursor-pointer rounded-lg">
+              <SelectItem
+                value="all"
+                className="text-xs font-semibold cursor-pointer rounded-lg"
+              >
                 সবগুলো
               </SelectItem>
-              <SelectItem value="pending" className="text-xs font-semibold cursor-pointer rounded-lg">
+              <SelectItem
+                value="pending"
+                className="text-xs font-semibold cursor-pointer rounded-lg"
+              >
                 পেন্ডিং
               </SelectItem>
-              <SelectItem value="approved" className="text-xs font-semibold cursor-pointer rounded-lg">
+              <SelectItem
+                value="approved"
+                className="text-xs font-semibold cursor-pointer rounded-lg"
+              >
                 অনুমোদিত
               </SelectItem>
-              <SelectItem value="rejected" className="text-xs font-semibold cursor-pointer rounded-lg">
+              <SelectItem
+                value="rejected"
+                className="text-xs font-semibold cursor-pointer rounded-lg"
+              >
                 বাতিল
               </SelectItem>
             </SelectContent>
@@ -184,7 +198,9 @@ export function EnrollmentRequestsList({ requests }: EnrollmentRequestsListProps
         {paginatedRequests.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground border rounded-2xl bg-card flex flex-col items-center gap-3">
             <Danger className="size-8 opacity-40" />
-            <p className="text-sm font-semibold">কোনো ম্যাচিং রিকোয়েস্ট পাওয়া যায়নি</p>
+            <p className="text-sm font-semibold">
+              কোনো ম্যাচিং রিকোয়েস্ট পাওয়া যায়নি
+            </p>
           </div>
         ) : (
           <>

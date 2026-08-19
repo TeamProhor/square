@@ -53,8 +53,11 @@ export default function NewBatchPage() {
         )}
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">ব্যাচের নাম</label>
+          <label htmlFor="name" className="text-sm font-medium">
+            ব্যাচের নাম
+          </label>
           <Input
+            id="name"
             name="name"
             required
             placeholder="e.g. HSC 2026 Science"
@@ -63,8 +66,11 @@ export default function NewBatchPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">স্লাগ (Slug)</label>
+          <label htmlFor="slug" className="text-sm font-medium">
+            স্লাগ (Slug)
+          </label>
           <Input
+            id="slug"
             name="slug"
             required
             placeholder="e.g. hsc-2026-science"
@@ -73,8 +79,11 @@ export default function NewBatchPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">বর্ণনা (Optional)</label>
+          <label htmlFor="description" className="text-sm font-medium">
+            বর্ণনা (Optional)
+          </label>
           <Textarea
+            id="description"
             name="description"
             placeholder="Short description of this batch"
             className="rounded-xl min-h-[100px]"
@@ -82,8 +91,11 @@ export default function NewBatchPage() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium">Course ID (Optional)</label>
+          <label htmlFor="courseId" className="text-sm font-medium">
+            Course ID (Optional)
+          </label>
           <Input
+            id="courseId"
             name="courseId"
             placeholder="Related Course ID if any"
             className="rounded-xl"

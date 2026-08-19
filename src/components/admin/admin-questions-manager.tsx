@@ -13,10 +13,9 @@ import {
   Trash2,
 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import {
   Pagination,
   PaginationContent,
@@ -26,6 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Spinner } from "@/components/ui/spinner";
 import { useAdminQuestions, useDeleteQuestion } from "@/hooks/use-admin-qb";
 import type { Question } from "@/types";
 
@@ -70,8 +70,6 @@ export function AdminQuestionsManager({
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
   const paginatedQuestions =
     questions?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
-
-
 
   const handleSelectOption = (questionId: string, optionId: string) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: optionId }));

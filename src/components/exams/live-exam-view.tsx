@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Clock, Eye } from "@/components/icons";
 import { ExamOverviewDialog } from "@/components/exams/exam-overview-dialog";
 import { ExamSubmitDialog } from "@/components/exams/exam-submit-dialog";
+import { Eye } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -40,8 +40,7 @@ export function LiveExamView({
 
   const answeredCount = examQuestions.filter((eq) =>
     Boolean(
-      answers[eq.id]?.selectedOptionId ||
-        answers[eq.id]?.cqAnswerText?.trim(),
+      answers[eq.id]?.selectedOptionId || answers[eq.id]?.cqAnswerText?.trim(),
     ),
   ).length;
 
@@ -77,17 +76,23 @@ export function LiveExamView({
     }
   };
 
+  const executeFinalSubmitRef = useRef(executeFinalSubmit);
+
+  useEffect(() => {
+    executeFinalSubmitRef.current = executeFinalSubmit;
+  });
+
   useEffect(() => {
     if (timeLeft <= 0) {
-      if (!isSubmitting) executeFinalSubmit(true);
+      if (!isSubmitting) executeFinalSubmitRef.current(true);
       return;
     }
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          if (!isSubmitting) executeFinalSubmit(true);
+          if (timerRef.current) clearInterval(timerRef.current);
+          if (!isSubmitting) executeFinalSubmitRef.current(true);
           return 0;
         }
         return prev - 1;
@@ -97,7 +102,6 @@ export function LiveExamView({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, isSubmitting]);
 
   const toBanglaDigits = (str: string | number) => {
@@ -155,7 +159,8 @@ export function LiveExamView({
             </h1>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span>
-                উত্তর: {toBanglaDigits(answeredCount)} / {toBanglaDigits(totalQuestionsCount)}
+                উত্তর: {toBanglaDigits(answeredCount)} /{" "}
+                {toBanglaDigits(totalQuestionsCount)}
               </span>
               <span>•</span>
               <span>মোট মার্কস: {toBanglaDigits(exam.totalMarks)}</span>
@@ -194,6 +199,7 @@ export function LiveExamView({
       <main className="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 pt-4 sm:pt-6 flex flex-col gap-6 sm:gap-8">
         <div className="flex flex-col gap-4 sm:gap-6">
           {examQuestions.map((eq, idx) => {
+            if (!eq.question) return null;
             const currentAns = answers[eq.id];
             const isCq = eq.question.type === "cq";
 
@@ -207,7 +213,9 @@ export function LiveExamView({
                   question={eq.question}
                   questionIndex={idx}
                   selectedOptionId={currentAns?.selectedOptionId}
-                  onSelectOption={(_qId, optId) => handleSelectMcq(eq.id, optId)}
+                  onSelectOption={(_qId, optId) =>
+                    handleSelectMcq(eq.id, optId)
+                  }
                   hideExplanation={true}
                   hideControls={true}
                   badgeText={`প্রশ্ন ${toBanglaDigits(idx + 1)} • ${toBanglaDigits(eq.marks)} মার্কস`}
@@ -215,17 +223,23 @@ export function LiveExamView({
 
                 {isCq && (
                   <div className="bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-xs space-y-2">
-                    <label className="text-xs sm:text-sm font-bold text-muted-foreground flex items-center justify-between">
+                    <label
+                      htmlFor={`cq-answer-${eq.id}`}
+                      className="text-xs sm:text-sm font-bold text-muted-foreground flex items-center justify-between"
+                    >
                       <span>আপনার লিখিত উত্তর লিখুন:</span>
                       <span className="text-[11px] font-normal opacity-70">
                         {currentAns?.cqAnswerText?.length || 0} অক্ষর
                       </span>
                     </label>
                     <Textarea
+                      id={`cq-answer-${eq.id}`}
                       rows={5}
                       placeholder="এখানে আপনার বিস্তারিত সমাধান বা উত্তর লিখুন..."
                       value={currentAns?.cqAnswerText || ""}
-                      onChange={(e) => handleCqTextChange(eq.id, e.target.value)}
+                      onChange={(e) =>
+                        handleCqTextChange(eq.id, e.target.value)
+                      }
                       className="rounded-xl resize-y text-xs sm:text-sm leading-relaxed"
                     />
                   </div>
@@ -242,7 +256,8 @@ export function LiveExamView({
               পরীক্ষা সম্পন্ন করতে প্রস্তুত?
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              মোট {toBanglaDigits(totalQuestionsCount)} টির মধ্যে {toBanglaDigits(answeredCount)} টি প্রশ্নের উত্তর দেওয়া হয়েছে।
+              মোট {toBanglaDigits(totalQuestionsCount)} টির মধ্যে{" "}
+              {toBanglaDigits(answeredCount)} টি প্রশ্নের উত্তর দেওয়া হয়েছে।
             </p>
           </div>
           <Button

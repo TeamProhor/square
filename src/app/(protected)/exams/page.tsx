@@ -20,15 +20,6 @@ export default async function ExamsBrowserPage() {
 
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 sm:pb-16 pt-0 sm:pt-2 md:pt-4 gap-4 sm:gap-6 px-3 sm:px-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
-          পরীক্ষাসমূহ
-        </h1>
-        <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
-          আপনার ব্যাচের পরীক্ষা এবং উন্মুক্ত প্র্যাকটিস টেস্ট দিন
-        </p>
-      </div>
-
       <Tabs defaultValue="batch" className="w-full space-y-4 sm:space-y-6">
         <TabsList className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex h-11 sm:h-12 items-center p-1 bg-muted/60 rounded-xl border border-border/50 gap-1 shadow-2xs">
           <TabsTrigger

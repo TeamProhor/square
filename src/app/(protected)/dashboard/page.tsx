@@ -7,11 +7,8 @@ import {
   BookOpen,
   Calendar,
   CalendarTick,
-  Crown,
   DocumentDownload,
-  Flame,
   Flash,
-  Star,
   StatusUp,
   TaskSquare,
   TickCircle,
@@ -43,7 +40,7 @@ export default async function DashboardPage() {
   });
 
   // 2. Fetch User's Enrolled Courses
-  let userEnrolledCourses: any[] = [];
+  let userEnrolledCourses: (typeof courses.$inferSelect)[] = [];
   if (userId) {
     const enrollments = await db
       .select({
@@ -78,7 +75,9 @@ export default async function DashboardPage() {
       .from(examSubmissions)
       .where(eq(examSubmissions.userId, userId));
 
-    examsTakenCount = submissions.filter((s) => s.status === "submitted").length;
+    examsTakenCount = submissions.filter(
+      (s) => s.status === "submitted",
+    ).length;
     if (examsTakenCount > 0) {
       const totalPercentage = submissions
         .filter((s) => s.status === "submitted")
@@ -120,7 +119,8 @@ export default async function DashboardPage() {
       description: "অধ্যায় ও টপিকভিত্তিক হাজারো MCQ এবং সৃজনশীল সমাধান",
       href: "/qb",
       icon: TaskSquare,
-      iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+      iconBg:
+        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
       badge: "জনপ্রিয়",
     },
     {
@@ -128,7 +128,8 @@ export default async function DashboardPage() {
       description: "অনলাইন লাইভ এক্সাম ও সেলফ অ্যাসেসমেন্ট দিয়ে প্রস্তুতি যাচাই",
       href: "/exams",
       icon: CalendarTick,
-      iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+      iconBg:
+        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
       badge: "লাইভ",
     },
     {
@@ -136,7 +137,8 @@ export default async function DashboardPage() {
       description: "বাছাইকৃত হ্যান্ডনোট, ফর্মুলা শিট ও এক্সক্লুসিভ সাজেশনস",
       href: "/pdf",
       icon: DocumentDownload,
-      iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+      iconBg:
+        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
       badge: "ফ্রি নোটস",
     },
     {
@@ -144,7 +146,8 @@ export default async function DashboardPage() {
       description: "বোর্ড ও এডমিশন স্ট্যান্ডার্ড দ্রুত কুইজ সলভিং প্র্যাকটিস",
       href: "/poll",
       icon: StatusUp,
-      iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+      iconBg:
+        "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
       badge: "কুইক সলভ",
     },
   ];
@@ -153,17 +156,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-2 md:py-8 gap-8 px-1 sm:px-2">
       {/* ─── Hero Welcome Banner ──────────────────────────────────────────────── */}
       <div className="relative overflow-hidden rounded-[28px] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-6 sm:p-8 md:p-10 shadow-xs">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-              আসসালামু আলাইকুম, {user?.name || "শিক্ষার্থী"}! 👋
-            </h1>
-            <p className="text-muted-foreground text-xs sm:text-sm md:text-base leading-relaxed">
-              আপনার এইচএসসি ও ভর্তি পরীক্ষার চূড়ান্ত প্রস্তুতির যাবতীয় স্টাডি ম্যাটেরিয়াল,
-              লাইভ পরীক্ষা ও প্রশ্নব্যাংক এখান থেকে সহজে অ্যাক্সেস করুন।
-            </p>
-          </div>
-
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-end gap-6">
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Button
               asChild
@@ -201,7 +194,9 @@ export default async function DashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-foreground">
               {toBanglaDigits(userEnrolledCourses.length)}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">সক্রিয় কোর্সসমূহ</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              সক্রিয় কোর্সসমূহ
+            </p>
           </div>
         </div>
 
@@ -218,7 +213,9 @@ export default async function DashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-foreground">
               {toBanglaDigits(examsTakenCount)}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">অংশগ্রহণকৃত পরীক্ষা</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              অংশগ্রহণকৃত পরীক্ষা
+            </p>
           </div>
         </div>
 
@@ -235,7 +232,9 @@ export default async function DashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-foreground">
               {examsTakenCount > 0 ? `${toBanglaDigits(averageScore)}%` : "--"}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">সামগ্রিক পারফরম্যান্স</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              সামগ্রিক পারফরম্যান্স
+            </p>
           </div>
         </div>
 
@@ -252,7 +251,9 @@ export default async function DashboardPage() {
             <div className="text-2xl sm:text-3xl font-black text-foreground">
               {toBanglaDigits(containers.length)}
             </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">ক্যাটাগরি উপলব্ধ</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              ক্যাটাগরি উপলব্ধ
+            </p>
           </div>
         </div>
       </div>
@@ -309,7 +310,9 @@ export default async function DashboardPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-              <h2 className="text-lg font-bold text-foreground">চলমান পরীক্ষাসমূহ</h2>
+              <h2 className="text-lg font-bold text-foreground">
+                চলমান পরীক্ষাসমূহ
+              </h2>
             </div>
             <Link
               href="/exams"
@@ -392,7 +395,7 @@ export default async function DashboardPage() {
                         {routine.subject}
                       </span>
                       <span className="text-xs text-muted-foreground font-medium">
-                        • {routine.examDate}
+                        • {routine.examDate.toLocaleDateString("bn-BD")}
                       </span>
                     </div>
                     <h3 className="text-sm sm:text-base font-bold text-foreground truncate">

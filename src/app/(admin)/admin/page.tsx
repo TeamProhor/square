@@ -51,15 +51,6 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-          এডমিন ড্যাশবোর্ড ওভারভিউ
-        </h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          আপনার স্কয়ার প্ল্যাটফর্মের প্রশ্নব্যাংক, পরীক্ষা এবং ব্যাচসমূহ ম্যানেজ করুন সহজে।
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {stats.map((stat) => {
           const Icon = stat.icon;

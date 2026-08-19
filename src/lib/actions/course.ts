@@ -135,7 +135,10 @@ export async function getUserEnrolledCourses(userId: string) {
   } catch (error: unknown) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch enrolled courses",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch enrolled courses",
       data: [],
     };
   }
@@ -167,7 +170,7 @@ export async function getUserCourseById(userId: string, courseId: string) {
       },
     });
 
-    if (!enrollment || !enrollment.course) {
+    if (!enrollment?.course) {
       return { success: false, data: null };
     }
 
@@ -189,7 +192,10 @@ export async function getUserCourseById(userId: string, courseId: string) {
   } catch (error: unknown) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch course details",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch course details",
       data: null,
     };
   }

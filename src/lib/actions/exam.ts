@@ -238,8 +238,17 @@ export async function submitExamAction(
     const negativeMark = parseFloat(exam.negativeMarking || "0");
     const totalExamMarks = examQs.reduce((acc, q) => acc + q.marks, 0);
 
+    interface InsertResponse {
+      submissionId: string;
+      examQuestionId: string;
+      selectedOptionId: string | null;
+      cqAnswerText: string | null;
+      isCorrect: boolean;
+      marksObtained: string;
+    }
+
     const insertResponses = responses
-      .map((r) => {
+      .map((r): InsertResponse | null => {
         const eqData = examQs.find((q) => q.id === r.examQuestionId);
         if (!eqData) return null;
 
@@ -275,7 +284,7 @@ export async function submitExamAction(
           marksObtained: marksObtained.toString(),
         };
       })
-      .filter(Boolean) as any[];
+      .filter((r): r is InsertResponse => r !== null);
 
     if (insertResponses.length > 0) {
       await db.insert(examResponses).values(insertResponses);

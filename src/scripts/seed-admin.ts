@@ -9,7 +9,9 @@ async function main() {
   const adminName = "Admin";
 
   console.log("Ensuring issuer column exists in account table...");
-  await db.execute(sql`ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "issuer" text;`);
+  await db.execute(
+    sql`ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "issuer" text;`,
+  );
 
   console.log(`Checking if user ${adminEmail} already exists...`);
 
@@ -18,7 +20,9 @@ async function main() {
   });
 
   if (existingUser) {
-    console.log(`User found (id: ${existingUser.id}). Deleting old records to re-create cleanly...`);
+    console.log(
+      `User found (id: ${existingUser.id}). Deleting old records to re-create cleanly...`,
+    );
     await db.delete(account).where(eq(account.userId, existingUser.id));
     await db.delete(user).where(eq(user.id, existingUser.id));
   }
@@ -32,13 +36,15 @@ async function main() {
     },
   });
 
-  if (!res || !res.user) {
+  if (!res?.user) {
     throw new Error("Failed to create admin user through Better Auth");
   }
 
   console.log(`User created successfully with ID: ${res.user.id}`);
 
-  console.log("Promoting user to role 'admin' and setting emailVerified = true...");
+  console.log(
+    "Promoting user to role 'admin' and setting emailVerified = true...",
+  );
   await db
     .update(user)
     .set({

@@ -1,13 +1,14 @@
 "use client";
 
-import { Danger, Eye, TickCircle } from "@/components/icons";
+import { Danger, TickCircle } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
+import type { ExamQuestion } from "@/types";
 
 interface ExamOverviewDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  examQuestions: any[];
+  examQuestions: readonly ExamQuestion[];
   answers: Record<string, { selectedOptionId?: string; cqAnswerText?: string }>;
   answeredCount: number;
   unansweredCount: number;

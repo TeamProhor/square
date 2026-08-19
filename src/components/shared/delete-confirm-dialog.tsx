@@ -1,10 +1,10 @@
 "use client";
 
-import * as React from "react";
+import type * as React from "react";
 import { useState } from "react";
+import { Danger } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
-import { Danger } from "@/components/icons";
 
 interface DeleteConfirmDialogProps {
   readonly title?: string;

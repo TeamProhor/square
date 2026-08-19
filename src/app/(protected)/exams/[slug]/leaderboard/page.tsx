@@ -18,11 +18,14 @@ export default async function ExamLeaderboardPage({
   if (!eSuccess || !exam) return notFound();
 
   const { success, data: leaderboard } = await getExamLeaderboard(exam.id);
-  if (!success) return notFound();
+  if (!success || !leaderboard) return notFound();
 
   const toBanglaDigits = (str: string | number) => {
     const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-    return String(str).replace(/[0-9]/g, (digit) => bnDigits[Number(digit)] || digit);
+    return String(str).replace(
+      /[0-9]/g,
+      (digit) => bnDigits[Number(digit)] || digit,
+    );
   };
 
   const formatTimeBangla = (seconds: number) => {
@@ -142,7 +145,8 @@ export default async function ExamLeaderboardPage({
             এখনও কোনো ফলাফল জমা পড়েনি
           </p>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            প্রথম অংশগ্রহণকারী হিসেবে পরীক্ষায় অংশ নিয়ে মেধা তালিকায় আপনার স্থান নিশ্চিত করুন।
+            প্রথম অংশগ্রহণকারী হিসেবে পরীক্ষায় অংশ নিয়ে মেধা তালিকায় আপনার স্থান নিশ্চিত
+            করুন।
           </p>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight2, Star, Trophy } from "@/components/icons";
+import { ArrowRight2, Trophy } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
@@ -97,16 +97,6 @@ export default function PollConfigPage() {
 
   return (
     <div className="w-full max-w-4xl mx-auto py-1 sm:py-4">
-      <div className="flex flex-col gap-1.5 sm:gap-2 mb-4 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground flex items-center gap-2 sm:gap-2.5">
-          <Star className="size-5 sm:size-6 text-primary" /> পোল কনফিগারেশন
-        </h1>
-        <p className="text-muted-foreground text-xs sm:text-sm">
-          প্রশ্নব্যাংক থেকে আপনার পছন্দের বিষয়, পত্র ও অধ্যায় নির্বাচন করে লাইভ কুইজ পোল শুরু
-          করুন।
-        </p>
-      </div>
-
       <div className="w-full bg-card border border-border/60 rounded-2xl p-4 sm:p-6 md:p-8 shadow-xs">
         <FieldGroup className="flex flex-col gap-4 sm:gap-6 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">

@@ -28,12 +28,6 @@ export function AdminSidebar() {
       exact: false,
       icon: BookOpen,
     },
-    {
-      name: "এনরোলমেন্টস",
-      path: "/admin/enrollments",
-      exact: false,
-      icon: User,
-    },
     { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
     { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
     {

@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { LiveExamView } from "@/components/exams/live-exam-view";
 import { db } from "@/db";
 import { examSubmissions } from "@/db/schema";
 import { getExamBySlug } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
-import { LiveExamView } from "@/components/exams/live-exam-view";
 
 export default async function TakeExamPage({
   params,

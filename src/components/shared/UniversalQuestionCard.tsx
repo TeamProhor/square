@@ -30,6 +30,9 @@ export interface UniversalQuestionCardProps {
   readonly onSelectOption?: (questionId: string, optionId: string) => void;
   readonly onToggleSolution?: (questionId: string) => void;
   readonly hideHeaderBadge?: boolean;
+  readonly hideExplanation?: boolean;
+  readonly hideControls?: boolean;
+  readonly badgeText?: string;
   readonly headerActions?: React.ReactNode;
   readonly footerActions?: React.ReactNode;
   readonly children?: React.ReactNode;
@@ -46,6 +49,9 @@ export function UniversalQuestionCard({
   onSelectOption,
   onToggleSolution,
   hideHeaderBadge = false,
+  hideExplanation = false,
+  hideControls = false,
+  badgeText,
   headerActions,
   footerActions,
   children,
@@ -73,10 +79,16 @@ export function UniversalQuestionCard({
       {/* Header: Index, Badges, and Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 sm:mb-4">
         <div className="flex flex-wrap items-center gap-2">
-          {questionIndex !== undefined && (
+          {badgeText ? (
             <span className="text-xs sm:text-sm font-bold text-foreground/80">
-              প্রশ্ন {questionIndex + 1}
+              {badgeText}
             </span>
+          ) : (
+            questionIndex !== undefined && (
+              <span className="text-xs sm:text-sm font-bold text-foreground/80">
+                প্রশ্ন {questionIndex + 1}
+              </span>
+            )
           )}
           {!minimal && (
             <>
@@ -280,9 +292,9 @@ export function UniversalQuestionCard({
       )}
 
       {/* Explanation / Solution / Footer */}
-      {(question.explanation || footerActions) && (
+      {!hideControls && (question.explanation || footerActions) && (
         <div className="mt-3 pt-2.5 border-t border-dashed border-border/40 flex flex-wrap items-center justify-between gap-2">
-          {question.explanation && onToggleSolution ? (
+          {!hideExplanation && question.explanation && onToggleSolution ? (
             <Button
               variant="ghost"
               size="sm"
@@ -302,7 +314,7 @@ export function UniversalQuestionCard({
         </div>
       )}
 
-      {question.explanation && isSolutionOpen && (
+      {!hideExplanation && question.explanation && isSolutionOpen && (
         <div className="mt-2.5 p-3 sm:p-4 bg-primary/5 rounded-xl sm:rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-top-2">
           <p className="text-[10px] sm:text-xs font-bold text-primary uppercase mb-1">
             ব্যাখ্যা / সমাধান

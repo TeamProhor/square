@@ -2,18 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { BatchExamEditModal } from "@/components/admin/batch-exam-edit-modal";
+import { QuickList } from "@/components/admin/quick-list";
+import { TaskSquare } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  assignExamToBatchAction,
-  removeExamFromBatchAction,
-} from "@/lib/actions/batch";
+import { assignExamToBatchAction } from "@/lib/actions/batch";
+import type { BatchExamDetail } from "@/types";
 
 interface BatchExamsTabProps {
   batchId: string;
-  batchExams: any[];
+  batchExams: readonly BatchExamDetail[];
 }
 
 export function BatchExamsTab({ batchId, batchExams }: BatchExamsTabProps) {
@@ -34,8 +34,6 @@ export function BatchExamsTab({ batchId, batchExams }: BatchExamsTabProps) {
     }
   }
 
-
-
   return (
     <div className="space-y-6">
       <form
@@ -43,21 +41,18 @@ export function BatchExamsTab({ batchId, batchExams }: BatchExamsTabProps) {
         className="flex gap-3 items-end p-4 border rounded-xl bg-card"
       >
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium">
-            পরীক্ষার আইডি দিয়ে যুক্ত করুন
+          <label htmlFor="examId" className="text-sm font-medium">
+            পরীক্ষার আইডি দিয়ে যুক্ত করুন
           </label>
           <Input
+            id="examId"
             value={examId}
             onChange={(e) => setExamId(e.target.value)}
             placeholder="পরীক্ষার আইডি লিখুন"
             className="rounded-xl"
           />
         </div>
-        <Button
-          type="submit"
-          className="rounded-xl"
-          disabled={isAssigningExam}
-        >
+        <Button type="submit" className="rounded-xl" disabled={isAssigningExam}>
           {isAssigningExam ? (
             <>
               <Spinner className="size-4 mr-2" /> যুক্ত হচ্ছে...
@@ -68,65 +63,32 @@ export function BatchExamsTab({ batchId, batchExams }: BatchExamsTabProps) {
         </Button>
       </form>
 
-      <div className="border rounded-xl overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted">
-            <tr>
-              <th className="p-3 font-medium">পরীক্ষার নাম</th>
-              <th className="p-3 font-medium">পরীক্ষা আইডি</th>
-              <th className="p-3 font-medium">সময়সূচি</th>
-              <th className="p-3 font-medium text-right">অ্যাকশন</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y bg-card">
-            {batchExams?.map((be) => (
-              <tr key={be.id}>
-                <td className="p-3">{be.exam?.title || "অজানা"}</td>
-                <td className="p-3 text-muted-foreground text-xs">
-                  {be.examId}
-                </td>
-                <td className="p-3 text-muted-foreground text-xs">
-                  {be.startsAt
-                    ? new Date(be.startsAt).toLocaleString()
-                    : "যেকোনো সময়"}{" "}
-                  -{" "}
-                  {be.endsAt
-                    ? new Date(be.endsAt).toLocaleString()
-                    : "যেকোনো সময়"}
-                </td>
-                <td className="p-3 text-right">
-                    <DeleteConfirmDialog
-                      title="পরীক্ষা ডিলিট নিশ্চিতকরণ"
-                      description={`আপনি কি নিশ্চিত এই ব্যাচ থেকে "${be.exam?.title || "পরীক্ষা"}" ডিলিট করতে চান?`}
-                      onConfirm={async () => {
-                        await removeExamFromBatchAction(be.id, batchId);
-                        router.refresh();
-                      }}
-                      trigger={
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                        >
-                          ডিলিট
-                        </Button>
-                      }
-                    />
-                </td>
-              </tr>
-            ))}
-            {(!batchExams || batchExams.length === 0) && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="p-8 text-center text-muted-foreground"
-                >
-                  কোনো পরীক্ষা যুক্ত করা হয়নি।
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="mt-4">
+        {!batchExams || batchExams.length === 0 ? (
+          <div className="py-12 text-center border border-dashed rounded-xl text-muted-foreground bg-card">
+            কোনো পরীক্ষা যুক্ত করা হয়নি।
+          </div>
+        ) : (
+          <QuickList
+            items={batchExams.map((be) => ({
+              title: be.exam?.title || "অজানা",
+              description: `সময়সূচি: ${be.startsAt ? new Date(be.startsAt).toLocaleString("bn-BD") : "যেকোনো সময়"} — ${be.endsAt ? new Date(be.endsAt).toLocaleString("bn-BD") : "যেকোনো সময়"}`,
+              icon: TaskSquare,
+              iconBg: "bg-primary/10",
+              text: "text-primary",
+              rightElement: (
+                <BatchExamEditModal
+                  batchExam={{
+                    ...be,
+                    batchId,
+                  }}
+                />
+              ),
+            }))}
+            columns={{ sm: 1, md: 2 }}
+            gap="md"
+          />
+        )}
       </div>
     </div>
   );

@@ -105,18 +105,7 @@ export default function AdminPdfPage() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
-            <BookOpen className="size-7 sm:size-8 text-primary" />
-            পিডিএফ সাজেশন ম্যানেজমেন্ট
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            গুগল ড্রাইভ লিংক যুক্ত করে শিক্ষার্থীদের জন্য চ্যাপ্টার-ভিত্তিক সাজেশন পিডিএফ প্রকাশ
-            করুন।
-          </p>
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         <ResponsiveDialog
           open={isOpen}
           onOpenChange={setIsOpen}

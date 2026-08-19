@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ManageEnrollmentModal } from "@/components/admin/manage-enrollment-modal";
+import { QuickList } from "@/components/admin/quick-list";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +13,21 @@ import {
   removeMemberFromBatchAction,
 } from "@/lib/actions/batch";
 
+interface EnrollmentRequestData {
+  request: {
+    id: string;
+    courseId: string;
+    userId: string;
+    status: string | null;
+    paymentMethod: string;
+    amountPaid: number;
+    transactionId: string | null;
+    senderNumber: string | null;
+  };
+  user: { name: string | null; email: string } | null;
+  course: { title: string; hscBatch: string } | null;
+}
+
 interface BatchMembersTabProps {
   batchId: string;
   members: Array<{
@@ -19,6 +36,7 @@ interface BatchMembersTabProps {
     role: string;
     joinedAt: string;
     user: { name: string; email: string };
+    enrollmentRequest?: EnrollmentRequestData | null;
   }>;
 }
 
@@ -40,8 +58,6 @@ export function BatchMembersTab({ batchId, members }: BatchMembersTabProps) {
     }
   }
 
-
-
   return (
     <div className="space-y-6">
       <form
@@ -49,21 +65,18 @@ export function BatchMembersTab({ batchId, members }: BatchMembersTabProps) {
         className="flex gap-3 items-end p-4 border rounded-xl bg-card"
       >
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium">
+          <label htmlFor="memberUserId" className="text-sm font-medium">
             ইউজার আইডি দিয়ে সদস্য যোগ করুন
           </label>
           <Input
+            id="memberUserId"
             value={memberUserId}
             onChange={(e) => setMemberUserId(e.target.value)}
             placeholder="ইউজার আইডি লিখুন"
             className="rounded-xl"
           />
         </div>
-        <Button
-          type="submit"
-          className="rounded-xl"
-          disabled={isAddingMember}
-        >
+        <Button type="submit" className="rounded-xl" disabled={isAddingMember}>
           {isAddingMember ? (
             <>
               <Spinner className="size-4 mr-2" /> যোগ হচ্ছে...
@@ -74,61 +87,50 @@ export function BatchMembersTab({ batchId, members }: BatchMembersTabProps) {
         </Button>
       </form>
 
-      <div className="border rounded-xl overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-muted">
-            <tr>
-              <th className="p-3 font-medium">নাম</th>
-              <th className="p-3 font-medium">ইউজার আইডি</th>
-              <th className="p-3 font-medium">ভূমিকা</th>
-              <th className="p-3 font-medium">যুক্ত হয়েছেন</th>
-              <th className="p-3 font-medium text-right">অ্যাকশন</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y bg-card">
-            {members?.map((m) => (
-              <tr key={m.id}>
-                <td className="p-3">{m.user?.name || "অজানা"}</td>
-                <td className="p-3 text-muted-foreground text-xs">
-                  {m.userId}
-                </td>
-                <td className="p-3 capitalize">{m.role}</td>
-                <td className="p-3 text-muted-foreground">
-                  {new Date(m.joinedAt).toLocaleDateString()}
-                </td>
-                <td className="p-3 text-right">
-                    <DeleteConfirmDialog
-                      title="সদস্য ডিলিট নিশ্চিতকরণ"
-                      description={`আপনি কি নিশ্চিত এই ব্যাচ থেকে "${m.user?.name || "সদস্য"}" কে ডিলিট করতে চান?`}
-                      onConfirm={async () => {
-                        await removeMemberFromBatchAction(m.id, batchId);
-                        router.refresh();
-                      }}
-                      trigger={
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-                        >
-                          ডিলিট
-                        </Button>
-                      }
-                    />
-                </td>
-              </tr>
-            ))}
-            {(!members || members.length === 0) && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="p-8 text-center text-muted-foreground"
-                >
-                  কোনো সদস্য পাওয়া যায়নি।
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div className="mt-4">
+        {!members || members.length === 0 ? (
+          <div className="py-12 text-center border border-dashed rounded-xl text-muted-foreground bg-card">
+            কোনো সদস্য পাওয়া যায়নি।
+          </div>
+        ) : (
+          <QuickList
+            items={members.map((m) => ({
+              title: m.user?.name || "অজানা",
+              description: `${m.user?.email || ""} • ভূমিকা: ${m.role}`,
+              icon: () => (
+                <div className="flex items-center justify-center size-10 bg-primary/10 rounded-xl text-primary font-bold text-sm">
+                  {m.user?.name?.charAt(0).toUpperCase() || "U"}
+                </div>
+              ),
+              rightElement: (
+                <div className="flex items-center gap-1">
+                  {m.enrollmentRequest && (
+                    <ManageEnrollmentModal row={m.enrollmentRequest} />
+                  )}
+                  <DeleteConfirmDialog
+                    title="সদস্য ডিলিট নিশ্চিতকরণ"
+                    description={`আপনি কি নিশ্চিত এই ব্যাচ থেকে "${m.user?.name || "সদস্য"}" কে ডিলিট করতে চান?`}
+                    onConfirm={async () => {
+                      await removeMemberFromBatchAction(m.id, batchId);
+                      router.refresh();
+                    }}
+                    trigger={
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer rounded-lg text-xs"
+                      >
+                        ডিলিট
+                      </Button>
+                    }
+                  />
+                </div>
+              ),
+            }))}
+            columns={{ sm: 1, md: 2 }}
+            gap="md"
+          />
+        )}
       </div>
     </div>
   );

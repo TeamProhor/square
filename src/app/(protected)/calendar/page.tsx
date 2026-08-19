@@ -114,16 +114,6 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col min-h-screen pb-20 max-w-5xl mx-auto w-full gap-8">
-      <div className="text-center">
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-          এইচএসসি ২০২৬ রুটিন ও দিনপঞ্জি
-        </h1>
-        <p className="text-muted-foreground text-sm mt-2 max-w-xl mx-auto">
-          পরীক্ষার রুটিন দেখে নিন সহজে। সার্চ করে যেকোনো বিষয়ের পরীক্ষার সূচী বের করুন
-          দ্রুত গতিতে।
-        </p>
-      </div>
-
       {/* Live Countdown Card */}
       <Card className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-none shadow-2xl relative overflow-hidden">
         <div className="absolute -top-10 -right-10 opacity-10">

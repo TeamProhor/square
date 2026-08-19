@@ -4,13 +4,12 @@ import { useState } from "react";
 import { EditQuestionForm } from "@/components/admin/forms/edit-question-form";
 import { Edit, Star, TaskSquare, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
-import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
 import {
   Pagination,
   PaginationContent,
@@ -27,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import {
   useAdminQuestions,
   useCreateQuestion,
@@ -225,21 +225,21 @@ export function AdminQbManager() {
                           <Edit className="size-3.5" />
                           <span>এডিট</span>
                         </Button>
-                          <DeleteConfirmDialog
-                            title="প্রশ্ন ডিলিট নিশ্চিতকরণ"
-                            description="আপনি কি নিশ্চিতভাবে এই প্রশ্নটি ডিলিট করতে চান? এই প্রশ্নটি স্থায়ীভাবে মুছে যাবে।"
-                            onConfirm={() => deleteMutation.mutate(q.id)}
-                            trigger={
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs cursor-pointer"
-                              >
-                                <Trash2 className="size-3.5" />
-                                <span>ডিলিট</span>
-                              </Button>
-                            }
-                          />
+                        <DeleteConfirmDialog
+                          title="প্রশ্ন ডিলিট নিশ্চিতকরণ"
+                          description="আপনি কি নিশ্চিতভাবে এই প্রশ্নটি ডিলিট করতে চান? এই প্রশ্নটি স্থায়ীভাবে মুছে যাবে।"
+                          onConfirm={() => deleteMutation.mutate(q.id)}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:bg-destructive/10 gap-1.5 rounded-xl text-xs cursor-pointer"
+                            >
+                              <Trash2 className="size-3.5" />
+                              <span>ডিলিট</span>
+                            </Button>
+                          }
+                        />
                       </div>
                     }
                   />

@@ -5,10 +5,17 @@ import { Clock, Information, TaskSquare } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useStartExam } from "@/hooks/use-exam";
+import type { ExamDetail } from "@/types";
+
+interface ExamAccess {
+  allowed: boolean;
+  error?: string;
+  batchExamId?: string | null;
+}
 
 interface ExamLobbyViewProps {
-  exam: any;
-  access: any;
+  exam: ExamDetail;
+  access: ExamAccess;
   userId: string;
 }
 

@@ -12,7 +12,6 @@ import {
   Lock,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -21,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getPdfSuggestions } from "@/lib/actions/pdf";
 import {

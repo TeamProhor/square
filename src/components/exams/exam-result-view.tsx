@@ -2,18 +2,43 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft2, BookOpen, StatusUp } from "@/components/icons";
 import { ExamScoreCard } from "@/components/exams/exam-score-card";
+import { ArrowLeft2, BookOpen, StatusUp } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
+import type { Question } from "@/types";
+
+interface ExamResultResponse {
+  id: string;
+  isCorrect: boolean;
+  selectedOptionId?: string | null;
+  cqAnswerText?: string | null;
+  examQuestion?: {
+    marks: number;
+    question?: Question | null;
+  } | null;
+}
+
+interface ExamResultSubmission {
+  score: string;
+  totalMarks: number;
+  timeTakenSeconds: number;
+  exam?: {
+    title: string;
+    negativeMarking: string;
+  } | null;
+  responses?: ExamResultResponse[];
+}
 
 interface ExamResultViewProps {
-  submission: any;
+  submission: ExamResultSubmission;
   slug: string;
 }
 
 export function ExamResultView({ submission, slug }: ExamResultViewProps) {
-  const [openSolutions, setOpenSolutions] = useState<Record<string, boolean>>({});
+  const [openSolutions, setOpenSolutions] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const exam = submission.exam;
   const responses = submission.responses || [];
@@ -43,12 +68,12 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
     return `${toBanglaDigits(s)} সেকেন্ড`;
   };
 
-  const correctCount = responses.filter((r: any) => r.isCorrect).length;
+  const correctCount = responses.filter((r) => r.isCorrect).length;
   const incorrectCount = responses.filter(
-    (r: any) => !r.isCorrect && r.selectedOptionId,
+    (r) => !r.isCorrect && r.selectedOptionId,
   ).length;
   const unattemptedCount = responses.filter(
-    (r: any) => !r.selectedOptionId && !r.cqAnswerText?.trim(),
+    (r) => !r.selectedOptionId && !r.cqAnswerText?.trim(),
   ).length;
 
   const toggleSolution = (qId: string) => {
@@ -116,7 +141,7 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
         </div>
 
         <div className="flex flex-col gap-4 sm:gap-6">
-          {responses.map((resp: any, idx: number) => {
+          {responses.map((resp, idx) => {
             const question = resp.examQuestion?.question;
             if (!question) return null;
 
@@ -131,7 +156,7 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
                 <UniversalQuestionCard
                   question={question}
                   questionIndex={idx}
-                  selectedOptionId={resp.selectedOptionId}
+                  selectedOptionId={resp.selectedOptionId ?? undefined}
                   isSolutionOpen={Boolean(openSolutions[question.id])}
                   onToggleSolution={toggleSolution}
                   badgeText={`প্রশ্ন ${toBanglaDigits(idx + 1)}`}
@@ -148,8 +173,8 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
                         </span>
                       ) : (
                         <span className="text-xs text-destructive font-bold">
-                          ✕ ভুল উত্তর (-{toBanglaDigits(exam?.negativeMarking || 0)}
-                          )
+                          ✕ ভুল উত্তর (-
+                          {toBanglaDigits(exam?.negativeMarking || 0)})
                         </span>
                       )}
                     </div>

@@ -24,21 +24,7 @@ export default async function MyCoursesPage() {
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 sm:pb-16 pt-0 sm:pt-2 md:pt-4 gap-6 sm:gap-8 px-3 sm:px-6">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">
-              আমার কোর্সসমূহ
-            </h1>
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-primary/10 text-primary border border-primary/20">
-              {courses.length}
-            </span>
-          </div>
-          <p className="text-muted-foreground text-xs sm:text-sm md:text-base">
-            আপনার এনরোল করা সকল কোর্স, ক্লাস মডিউল ও পরীক্ষার এক্সেস
-          </p>
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 border-b pb-5">
         <Link href="/#courses-section">
           <Button
             variant="outline"
@@ -169,7 +155,8 @@ export default async function MyCoursesPage() {
             আপনার কোনো এনরোল করা কোর্স নেই
           </h2>
           <p className="text-xs sm:text-sm mt-1.5 text-muted-foreground max-w-md">
-            আপনি এখনও কোনো কোর্সে এনরোল করেননি। আমাদের চলমান কোর্সগুলো দেখতে পারেন এবং আপনার পছন্দের ব্যাচে যুক্ত হতে পারেন।
+            আপনি এখনও কোনো কোর্সে এনরোল করেননি। আমাদের চলমান কোর্সগুলো দেখতে পারেন এবং
+            আপনার পছন্দের ব্যাচে যুক্ত হতে পারেন।
           </p>
           <Link href="/#courses-section" className="mt-6">
             <Button className="rounded-xl px-6 h-11 text-sm font-semibold shadow-xs">

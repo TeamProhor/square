@@ -10,6 +10,7 @@ import {
   FileDown,
   Information,
   Send,
+  TaskSquare,
   TickCircle,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -257,7 +258,9 @@ export default async function MyCourseClassroomPage({
                     <span className="size-7 rounded-lg bg-primary/10 text-primary font-bold text-xs flex items-center justify-center shrink-0">
                       {index + 1}
                     </span>
-                    <h3 className="font-bold text-sm sm:text-base">{m.title}</h3>
+                    <h3 className="font-bold text-sm sm:text-base">
+                      {m.title}
+                    </h3>
                   </div>
                   <span className="text-xs text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-md border border-border/40 w-fit">
                     {m.totalClasses} টি ক্লাস
@@ -266,9 +269,9 @@ export default async function MyCourseClassroomPage({
 
                 {m.chapters && m.chapters.length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t border-border/40">
-                    {m.chapters.map((chapter, cIdx) => (
+                    {m.chapters.map((chapter) => (
                       <div
-                        key={cIdx}
+                        key={chapter}
                         className="text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg border border-border/30 flex items-center gap-2"
                       >
                         <span className="size-1.5 rounded-full bg-primary shrink-0" />
@@ -293,9 +296,9 @@ export default async function MyCourseClassroomPage({
             কোর্সের অন্তর্ভুক্ত সুবিধাসমূহ
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {course.features.map((feat, idx) => (
+            {course.features.map((feat) => (
               <div
-                key={idx}
+                key={feat}
                 className="flex items-start gap-2.5 p-3.5 rounded-xl bg-card border border-border/60 text-xs sm:text-sm font-medium"
               >
                 <TickCircle className="size-4 text-emerald-500 shrink-0 mt-0.5" />
@@ -313,9 +316,9 @@ export default async function MyCourseClassroomPage({
             ইন্সট্রাক্টরবৃন্দ
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {instructors.map((ins, idx) => (
+            {instructors.map((ins) => (
               <div
-                key={idx}
+                key={`${ins.name}-${ins.institution}`}
                 className="border border-border/60 rounded-xl p-4 bg-card flex items-center gap-3.5 shadow-2xs"
               >
                 {ins.image ? (
@@ -353,9 +356,9 @@ export default async function MyCourseClassroomPage({
             সাধারণ জিজ্ঞাসাসমূহ (FAQ)
           </h2>
           <div className="space-y-3">
-            {faqs.map((faq, idx) => (
+            {faqs.map((faq) => (
               <div
-                key={idx}
+                key={faq.question}
                 className="p-4 rounded-xl bg-card border border-border/60 space-y-1.5"
               >
                 <h4 className="font-bold text-sm text-foreground">

@@ -10,15 +10,6 @@ export default async function QuestionBankPage(): Promise<ReactElement> {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground">
-          প্রশ্নব্যাংক
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          আপনার প্রয়োজনীয় প্রশ্নব্যাংক নির্বাচন করুন
-        </p>
-      </div>
-
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
         {qbs?.map((qb: Container) => (
           <Link href={`/qb/${qb.slug}`} key={qb.id}>

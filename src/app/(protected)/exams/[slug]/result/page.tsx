@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+import { ExamResultView } from "@/components/exams/exam-result-view";
 import { getSubmissionResult } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
-import { ExamResultView } from "@/components/exams/exam-result-view";
 
 export default async function ExamResultPage({
   params,

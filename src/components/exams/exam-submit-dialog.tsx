@@ -1,6 +1,6 @@
 "use client";
 
-import { Danger, TickCircle } from "@/components/icons";
+import { Danger } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -42,7 +42,8 @@ export function ExamSubmitDialog({
               উত্তর দিয়েছেন
             </span>
             <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-              {toBanglaDigits(answeredCount)} / {toBanglaDigits(totalQuestionsCount)}
+              {toBanglaDigits(answeredCount)} /{" "}
+              {toBanglaDigits(totalQuestionsCount)}
             </span>
           </div>
           <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center">
@@ -59,7 +60,8 @@ export function ExamSubmitDialog({
           <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-start gap-2.5">
             <Danger className="size-4 shrink-0 mt-0.5" />
             <p className="leading-relaxed font-medium">
-              আপনার এখনও {toBanglaDigits(unansweredCount)} টি প্রশ্নের উত্তর বাকি আছে। একবার সাবমিট করার পর আর পরিবর্তন করা যাবে না।
+              আপনার এখনও {toBanglaDigits(unansweredCount)} টি প্রশ্নের উত্তর বাকি
+              আছে। একবার সাবমিট করার পর আর পরিবর্তন করা যাবে না।
             </p>
           </div>
         )}

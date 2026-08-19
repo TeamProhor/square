@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getBatchDetailAction } from "@/lib/actions/batch";
 import { BatchDetailView } from "@/components/admin/batch-detail-view";
+import { getBatchDetailAction } from "@/lib/actions/batch";
 
 export default async function BatchDetailPage({
   params,

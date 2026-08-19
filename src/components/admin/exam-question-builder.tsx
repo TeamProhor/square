@@ -4,16 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import {
   addQuestionToExamAction,
   removeQuestionFromExamAction,
   reorderExamQuestionsAction,
 } from "@/lib/actions/admin-exam";
+import type { ExamDetail, ExamQuestion, Question } from "@/types";
+
+interface ExamWithQuestions extends ExamDetail {
+  examQuestions: ExamQuestion[];
+}
 
 interface ExamQuestionBuilderProps {
-  exam: any;
-  questions: any[];
+  exam: ExamWithQuestions;
+  questions: Question[];
 }
 
 export function ExamQuestionBuilder({
@@ -31,8 +35,6 @@ export function ExamQuestionBuilder({
     router.refresh();
   }
 
-
-
   async function handleMove(index: number, direction: "up" | "down") {
     if (direction === "up" && index === 0) return;
     if (direction === "down" && index === exam.examQuestions.length - 1) return;
@@ -47,17 +49,17 @@ export function ExamQuestionBuilder({
     setLoading(true);
     await reorderExamQuestionsAction(
       exam.id,
-      newArr.map((eq: any) => eq.id),
+      newArr.map((eq) => eq.id),
     );
     setLoading(false);
     router.refresh();
   }
 
   const assignedQuestionIds = new Set(
-    exam.examQuestions.map((eq: any) => eq.questionId),
+    exam.examQuestions.map((eq) => eq.questionId),
   );
   const availableQuestions = questions.filter(
-    (q: any) => !assignedQuestionIds.has(q.id),
+    (q) => !assignedQuestionIds.has(q.id),
   );
 
   return (
@@ -68,7 +70,7 @@ export function ExamQuestionBuilder({
           প্রশ্ন ব্যাংক ({availableQuestions.length})
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {availableQuestions.map((q: any) => (
+          {availableQuestions.map((q) => (
             <div
               key={q.id}
               className="p-3 border rounded-lg flex items-center justify-between gap-4"
@@ -103,7 +105,7 @@ export function ExamQuestionBuilder({
           পরীক্ষার প্রশ্নসমূহ ({exam.examQuestions.length})
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {exam.examQuestions.map((eq: any, idx: number) => (
+          {exam.examQuestions.map((eq, idx) => (
             <div
               key={eq.id}
               className="p-3 border rounded-lg flex gap-4 items-center bg-background"

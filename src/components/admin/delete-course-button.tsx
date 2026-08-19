@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "@/components/icons";
-import { Button } from "@/components/ui/button";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { Button } from "@/components/ui/button";
 import { deleteCourse } from "@/lib/actions/admin-course";
 
 interface DeleteCourseButtonProps {

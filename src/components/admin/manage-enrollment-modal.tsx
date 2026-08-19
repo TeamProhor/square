@@ -134,7 +134,8 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
         {/* Action Panel */}
         <div className="flex flex-col gap-4 mt-6">
           {/* Render Approve Form if pending or rejected */}
-          {(row.request.status === "pending" || row.request.status === "rejected") && (
+          {(row.request.status === "pending" ||
+            row.request.status === "rejected") && (
             <form onSubmit={handleApprove} className="w-full">
               <input type="hidden" name="requestId" value={row.request.id} />
               <input
@@ -162,7 +163,8 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
           )}
 
           {/* Render Reject Form if pending or approved */}
-          {(row.request.status === "pending" || row.request.status === "approved") && (
+          {(row.request.status === "pending" ||
+            row.request.status === "approved") && (
             <form onSubmit={handleReject} className="w-full space-y-3">
               <input type="hidden" name="requestId" value={row.request.id} />
               <div className="space-y-1">

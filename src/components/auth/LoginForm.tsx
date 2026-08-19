@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Lock, Login, Send, SquareLogo } from "@/components/icons";
+import { Login, Send, SquareLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";

@@ -31,6 +31,7 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
 
       <div className="flex gap-4 border-b">
         <button
+          type="button"
           className={`pb-2 font-medium px-1 border-b-2 transition-colors ${
             activeTab === "members"
               ? "border-primary text-foreground"
@@ -41,6 +42,7 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
           সদস্যরা ({members.length})
         </button>
         <button
+          type="button"
           className={`pb-2 font-medium px-1 border-b-2 transition-colors ${
             activeTab === "exams"
               ? "border-primary text-foreground"

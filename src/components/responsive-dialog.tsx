@@ -58,16 +58,18 @@ export function ResponsiveDialog({
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
-        <DrawerContent className={cn("px-6 pb-8 pt-4", className)}>
-          {(title || description) && (
-            <DrawerHeader className="text-center px-0 pt-2 pb-4">
-              {title && <DrawerTitle>{title}</DrawerTitle>}
-              {description && (
-                <DrawerDescription>{description}</DrawerDescription>
-              )}
-            </DrawerHeader>
-          )}
-          {children}
+        <DrawerContent className={cn("max-h-[92vh] flex flex-col", className)}>
+          <div className="overflow-y-auto flex flex-col gap-5 px-6 pb-8 pt-4">
+            {(title || description) && (
+              <DrawerHeader className="text-center px-0 pt-2 pb-2">
+                {title && <DrawerTitle>{title}</DrawerTitle>}
+                {description && (
+                  <DrawerDescription>{description}</DrawerDescription>
+                )}
+              </DrawerHeader>
+            )}
+            {children}
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -78,21 +80,24 @@ export function ResponsiveDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         className={cn(
-          "sm:p-8 sm:rounded-2xl flex flex-col gap-6 max-h-[85vh] overflow-y-auto",
+          "sm:rounded-2xl max-h-[90vh] p-0 flex flex-col",
           className,
         )}
       >
-        {(title || description) && (
-          <DialogHeader className="text-center sm:text-center px-0 pb-2">
-            {title && <DialogTitle className="text-xl">{title}</DialogTitle>}
-            {description && (
-              <DialogDescription className="text-center">
-                {description}
-              </DialogDescription>
-            )}
-          </DialogHeader>
-        )}
-        {children}
+        {/* Scrollable inner area */}
+        <div className="overflow-y-auto flex flex-col gap-6 p-6 sm:p-8">
+          {(title || description) && (
+            <DialogHeader className="text-center sm:text-center pb-2">
+              {title && <DialogTitle className="text-xl">{title}</DialogTitle>}
+              {description && (
+                <DialogDescription className="text-center">
+                  {description}
+                </DialogDescription>
+              )}
+            </DialogHeader>
+          )}
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );

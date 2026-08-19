@@ -60,16 +60,7 @@ export function AdminContainersManager({
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            প্রশ্নব্যাংকসমূহ (Question Banks)
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            একটি প্রশ্নব্যাংক নির্বাচন করে তার বিষয়সমূহ দেখুন অথবা নতুন প্রশ্নব্যাংক যোগ করুন।
-          </p>
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
         <Button
           onClick={() => setIsCreateOpen(true)}
           className="rounded-xl gap-2 font-bold"

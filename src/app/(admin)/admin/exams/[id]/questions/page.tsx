@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
+import { ExamQuestionBuilder } from "@/components/admin/exam-question-builder";
 import { getExamWithQuestionsAdmin } from "@/lib/actions/admin-exam";
 import { getQuestionsAdminAction } from "@/lib/actions/question";
-import { ExamQuestionBuilder } from "@/components/admin/exam-question-builder";
 
 export default async function ExamQuestionsPage({
   params,

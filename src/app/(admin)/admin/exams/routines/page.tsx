@@ -104,17 +104,7 @@ export default function AdminExamsPage() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-2.5">
-            <CalendarTick className="size-7 sm:size-8 text-primary" />
-            পরীক্ষার রুটিন ও ক্যালেন্ডার ম্যানেজমেন্ট
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            বোর্ড ও ব্যাচ পরীক্ষার রুটিন তৈরি ও সম্পাদনা করুন।
-          </p>
-        </div>
-
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         <ResponsiveDialog
           open={isOpen}
           onOpenChange={setIsOpen}
