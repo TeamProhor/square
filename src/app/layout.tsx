@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ReactQueryProvider } from "@/components/providers/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { hindSiliguri } from "@/lib/fonts";
+import { anekBangla } from "@/lib/fonts";
 import "@/app/globals.css";
 import "katex/dist/katex.min.css";
 
@@ -80,13 +80,16 @@ export default async function RootLayout({
   return (
     <html
       lang="bn"
-      className={`${hindSiliguri.variable} h-full antialiased`}
+      className={`${anekBangla.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
         <link rel="alternate" type="text/plain" href="/llms.txt" />
         <link rel="apple-touch-icon" href="/icon.svg" />
-        <script type="application/ld+json">{jsonLdString}</script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdString }}
+        />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>

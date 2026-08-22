@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Chart, FileDown, Send, User } from "@/components/icons";
-import { ThemeToggler } from "@/components/theme-toggler";
 import { Button } from "@/components/ui/button";
 
 export function LandingHeader() {
@@ -35,11 +34,9 @@ export function LandingHeader() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <ThemeToggler variant="circle" />
-
           <Button
             asChild
-            className="rounded-full px-6 py-2.5 font-bold shadow-md bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-102 text-sm"
+            className="rounded-full px-6 py-2.5 font-bold shadow-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-102 text-sm cursor-pointer"
           >
             <Link href="/login" className="flex items-center gap-2">
               <User data-icon="inline-start" className="size-4" />
@@ -56,14 +53,14 @@ export function LandingFooter() {
   return (
     <footer
       id="main-footer"
-      className="bg-black text-white pt-12 pb-8 border-t border-slate-900 mt-16 transition-colors"
+      className="bg-card text-foreground pt-12 pb-8 border-t border-border mt-16 transition-colors"
     >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           {/* Brand Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-9 bg-white p-1 rounded-xl flex items-center justify-center">
+              <div className="size-9 bg-foreground/10 p-1 rounded-xl flex items-center justify-center">
                 <Image
                   alt="Logo"
                   className="size-full object-contain"
@@ -73,11 +70,11 @@ export function LandingFooter() {
                   unoptimized
                 />
               </div>
-              <span className="text-lg font-black tracking-tight text-white">
+              <span className="text-lg font-black tracking-tight text-foreground">
                 Engr. Platform
               </span>
             </div>
-            <p className="text-slate-400 text-xs leading-loose italic border-l-2 border-slate-700 pl-3">
+            <p className="text-muted-foreground text-xs leading-loose italic border-l-2 border-primary/40 pl-3">
               &quot;শুধু পড়াশোনা নয়, তৈরি করো নিজেকে যুগের সাথে তাল মিলিয়ে। ইঞ্জিনিয়ারিং
               প্রস্তুতি এবার বাড়ির কাছে।&quot;
             </p>
@@ -85,18 +82,18 @@ export function LandingFooter() {
 
           {/* Useful resources */}
           <div>
-            <h4 className="text-xs font-black mb-4 text-slate-300 uppercase tracking-widest">
+            <h4 className="text-xs font-black mb-4 text-foreground uppercase tracking-widest">
               সহায়ক রিসোর্স
             </h4>
-            <ul className="space-y-3 text-slate-400 text-xs font-semibold">
+            <ul className="space-y-3 text-muted-foreground text-xs font-semibold">
               <li>
                 <Link
                   href="/pdf"
-                  className="hover:text-white flex items-center gap-2.5 transition-colors"
+                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
                 >
                   <FileDown
                     data-icon="inline-start"
-                    className="size-3.5 text-red-500"
+                    className="size-3.5 text-primary"
                   />
                   <span>সাজেশন পিডিএফ পোর্টাল</span>
                 </Link>
@@ -104,11 +101,11 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/calendar"
-                  className="hover:text-white flex items-center gap-2.5 transition-colors"
+                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
                 >
                   <Calendar
                     data-icon="inline-start"
-                    className="size-3.5 text-indigo-500"
+                    className="size-3.5 text-primary"
                   />
                   <span>এইচএসসি ২০২৬ পরীক্ষার দিনপঞ্জি</span>
                 </Link>
@@ -116,11 +113,11 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/poll"
-                  className="hover:text-white flex items-center gap-2.5 transition-colors"
+                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
                 >
                   <Chart
                     data-icon="inline-start"
-                    className="size-3.5 text-blue-500"
+                    className="size-3.5 text-primary"
                   />
                   <span>লাইভ পোল ও এমসিকিউ কুইজ</span>
                 </Link>
@@ -130,20 +127,20 @@ export function LandingFooter() {
 
           {/* Social Links */}
           <div>
-            <h4 className="text-xs font-black mb-4 text-slate-300 uppercase tracking-widest">
+            <h4 className="text-xs font-black mb-4 text-foreground uppercase tracking-widest">
               যোগাযোগ ও সোশ্যাল মিডিয়া
             </h4>
-            <ul className="space-y-3 text-slate-400 text-xs font-semibold">
+            <ul className="space-y-3 text-muted-foreground text-xs font-semibold">
               <li>
                 <a
                   href="https://t.me/shu_yaib"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white flex items-center gap-2.5 transition-colors group"
+                  className="hover:text-primary flex items-center gap-2.5 transition-colors group"
                 >
                   <Send
                     data-icon="inline-start"
-                    className="size-3.5 text-sky-400"
+                    className="size-3.5 text-primary"
                   />
                   <span>টেলিগ্রাম গ্রুপে যুক্ত হোন</span>
                 </a>
@@ -153,11 +150,11 @@ export function LandingFooter() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-white flex items-center gap-2.5 transition-colors group"
+                  className="hover:text-primary flex items-center gap-2.5 transition-colors group"
                 >
                   <User
                     data-icon="inline-start"
-                    className="size-3.5 text-blue-500"
+                    className="size-3.5 text-primary"
                   />
                   <span>ফেসবুক সাপোর্ট কমিউনিটি</span>
                 </a>
@@ -166,7 +163,7 @@ export function LandingFooter() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-900 text-center text-slate-500 text-xs">
+        <div className="pt-8 border-t border-border text-center text-muted-foreground text-xs">
           © 2026 Engr. Platform. All rights reserved. Developed with absolute
           craft &amp; precision.
         </div>

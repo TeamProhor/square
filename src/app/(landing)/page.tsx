@@ -5,7 +5,7 @@ import { ServicesGridSection } from "@/components/services-grid-section";
 
 export default function LandingHomePage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-background text-slate-900 dark:text-foreground flex flex-col font-sans selection:bg-black selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-black selection:text-white transition-colors duration-300">
       <LandingHeader />
 
       <main className="flex-1">

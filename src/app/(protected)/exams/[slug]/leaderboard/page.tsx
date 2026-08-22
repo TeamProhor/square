@@ -83,7 +83,7 @@ export default async function ExamLeaderboardPage({
                     );
                   } else if (entry.rank === 2) {
                     rankPill = (
-                      <span className="size-7 rounded-full bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/30 flex items-center justify-center font-black mx-auto text-xs">
+                      <span className="size-7 rounded-full bg-muted text-foreground border border-border flex items-center justify-center font-black mx-auto text-xs">
                         ২
                       </span>
                     );

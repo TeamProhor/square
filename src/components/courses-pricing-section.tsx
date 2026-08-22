@@ -38,7 +38,7 @@ export function CoursesPricingSection() {
   return (
     <section
       id="courses-section"
-      className="bg-slate-100/50 dark:bg-muted/20 pt-12 pb-20 px-4 mt-16 border-t border-border/60 scroll-mt-20 w-full"
+      className="bg-muted/30 pt-12 pb-20 px-4 mt-16 border-t border-border/60 scroll-mt-20 w-full"
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
@@ -127,7 +127,7 @@ export function CoursesPricingSection() {
                   <div className="flex flex-col gap-3">
                     <Button
                       asChild
-                      className="w-full bg-foreground text-background py-3.5 h-auto rounded-xl font-bold text-md hover:bg-foreground/90 transition-all text-center shadow-xs"
+                      className="w-full bg-primary text-primary-foreground py-3.5 h-auto rounded-xl font-bold text-md hover:bg-primary/90 transition-all text-center shadow-md cursor-pointer"
                     >
                       <Link href={`/courses/${course.slug}`}>
                         এনরোলমেন্ট দেখুন

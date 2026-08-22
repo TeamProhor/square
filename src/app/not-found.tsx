@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { SquareLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { hindSiliguri } from "@/lib/fonts";
+import { anekBangla } from "@/lib/fonts";
 import "@/app/globals.css";
 
 export default function NotFound() {
   return (
-    <html lang="en" className={`${hindSiliguri.variable} h-full antialiased`}>
+    <html lang="en" className={`${anekBangla.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <main className="flex flex-grow min-h-screen flex-col items-center justify-center bg-background px-6">
           <div className="flex flex-col items-center gap-6 text-center">

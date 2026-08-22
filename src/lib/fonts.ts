@@ -1,32 +1,9 @@
-import localFont from "next/font/local";
+import { Anek_Bangla } from "next/font/google";
 
-export const hindSiliguri = localFont({
-  src: [
-    {
-      path: "../app/fonts/HindSiliguri-Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../app/fonts/HindSiliguri-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../app/fonts/HindSiliguri-Medium.ttf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../app/fonts/HindSiliguri-SemiBold.ttf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "../app/fonts/HindSiliguri-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-hind-siliguri",
+export const anekBangla = Anek_Bangla({
+  subsets: ["bengali", "latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-anek-bangla",
+  display: "swap",
 });
+
