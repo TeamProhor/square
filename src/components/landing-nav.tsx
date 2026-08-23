@@ -89,11 +89,11 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/pdf"
-                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors"
                 >
                   <FileDown
                     data-icon="inline-start"
-                    className="size-3.5 text-primary"
+                    className="size-3.5 text-rose-500"
                   />
                   <span>সাজেশন পিডিএফ পোর্টাল</span>
                 </Link>
@@ -101,11 +101,11 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/calendar"
-                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors"
                 >
                   <Calendar
                     data-icon="inline-start"
-                    className="size-3.5 text-primary"
+                    className="size-3.5 text-indigo-500"
                   />
                   <span>এইচএসসি ২০২৬ পরীক্ষার দিনপঞ্জি</span>
                 </Link>
@@ -113,11 +113,11 @@ export function LandingFooter() {
               <li>
                 <Link
                   href="/poll"
-                  className="hover:text-primary flex items-center gap-2.5 transition-colors"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors"
                 >
                   <Chart
                     data-icon="inline-start"
-                    className="size-3.5 text-primary"
+                    className="size-3.5 text-blue-500"
                   />
                   <span>লাইভ পোল ও এমসিকিউ কুইজ</span>
                 </Link>
@@ -136,11 +136,11 @@ export function LandingFooter() {
                   href="https://t.me/shu_yaib"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-primary flex items-center gap-2.5 transition-colors group"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors group"
                 >
                   <Send
                     data-icon="inline-start"
-                    className="size-3.5 text-primary"
+                    className="size-3.5 text-sky-500"
                   />
                   <span>টেলিগ্রাম গ্রুপে যুক্ত হোন</span>
                 </a>
@@ -150,11 +150,11 @@ export function LandingFooter() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-primary flex items-center gap-2.5 transition-colors group"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors group"
                 >
                   <User
                     data-icon="inline-start"
-                    className="size-3.5 text-primary"
+                    className="size-3.5 text-blue-600"
                   />
                   <span>ফেসবুক সাপোর্ট কমিউনিটি</span>
                 </a>

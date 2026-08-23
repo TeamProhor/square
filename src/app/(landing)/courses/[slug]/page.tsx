@@ -193,7 +193,8 @@ export default async function CourseDetailPage({
                           {feature}
                         </h3>
                         <p className="text-[11px] text-muted-foreground leading-relaxed">
-                          সম্পূর্ণ এডমিশন ও বোর্ড স্ট্যান্ডার্ড বাছাইকৃত প্রশ্ন ও প্র্যাকটিস গাইডলাইন।
+                          সম্পূর্ণ এডমিশন ও বোর্ড স্ট্যান্ডার্ড বাছাইকৃত প্রশ্ন ও প্র্যাকটিস
+                          গাইডলাইন।
                         </p>
                       </div>
                     </div>
@@ -313,7 +314,8 @@ export default async function CourseDetailPage({
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 bg-muted hover:bg-muted/80 text-foreground font-bold py-2.5 px-4 rounded-xl transition-all text-xs border border-border"
                 >
-                  <FileDown className="size-4 text-primary" /> রুটিন ডাউনলোড করুন (PDF)
+                  <FileDown className="size-4 text-primary" /> রুটিন ডাউনলোড করুন
+                  (PDF)
                 </a>
               ) : null}
 
@@ -345,7 +347,8 @@ export default async function CourseDetailPage({
                   <div className="flex flex-col gap-2">
                     {enrollmentStatus === "rejected" && (
                       <div className="w-full bg-destructive/10 border border-destructive/30 text-destructive text-center font-bold py-2.5 px-3 rounded-xl text-xs shadow-xs leading-snug">
-                        পূর্বের পেমেন্ট রিকোয়েস্ট বাতিল হয়েছে। সঠিক তথ্য দিয়ে পুনরায় চেষ্টা করুন।
+                        পূর্বের পেমেন্ট রিকোয়েস্ট বাতিল হয়েছে। সঠিক তথ্য দিয়ে পুনরায়
+                        চেষ্টা করুন।
                       </div>
                     )}
                     <CheckoutModal

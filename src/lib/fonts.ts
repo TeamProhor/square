@@ -6,4 +6,3 @@ export const anekBangla = Anek_Bangla({
   variable: "--font-anek-bangla",
   display: "swap",
 });
-

@@ -143,7 +143,7 @@ export function CoursesPricingSection() {
                         <Link href={`/courses/${course.slug}`}>
                           <Calendar
                             data-icon="inline-start"
-                            className="size-4"
+                            className="size-4 text-indigo-500"
                           />
                           <span className="text-xs">রুটিন</span>
                         </Link>
@@ -157,7 +157,7 @@ export function CoursesPricingSection() {
                         <Link href={`/courses/${course.slug}`}>
                           <Information
                             data-icon="inline-start"
-                            className="size-3.5"
+                            className="size-3.5 text-blue-500"
                           />
                           <span className="text-xs font-bold">বিস্তারিত</span>
                         </Link>
@@ -170,7 +170,7 @@ export function CoursesPricingSection() {
           </div>
         ) : selectedBatch === "HSC 27" ? (
           <Card className="py-16 text-center flex flex-col items-center justify-center gap-3 bg-card rounded-3xl border-border/60 p-8 shadow-xs">
-            <div className="size-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center">
+            <div className="size-12 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center">
               <Flame className="size-6" />
             </div>
             <h3 className="font-bold text-lg sm:text-xl text-foreground">
@@ -196,8 +196,8 @@ export function CoursesPricingSection() {
           </Card>
         ) : (
           <Card className="py-16 text-center flex flex-col items-center justify-center gap-3 bg-card rounded-3xl border-border/60 p-8 shadow-xs">
-            <div className="size-12 rounded-2xl bg-foreground/10 text-foreground flex items-center justify-center">
-              <Star className="size-6" />
+            <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <Star className="size-6 fill-amber-500" />
             </div>
             <h3 className="font-bold text-lg sm:text-xl text-foreground">
               ইঞ্জিনিয়ারিং ও ভার্সিটি এডমিশন কোর্স
