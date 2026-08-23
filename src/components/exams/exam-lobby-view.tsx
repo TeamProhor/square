@@ -142,9 +142,9 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
           </div>
           <div>
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
-              {exam.passMarks ?? Math.ceil(exam.totalMarks * 0.4)}
+              {Math.ceil(exam.totalMarks * 0.4)}
             </div>
-            <span className="text-[11px] text-muted-foreground">নম্বর</span>
+            <span className="text-[11px] text-muted-foreground">নম্বর (৪০%)</span>
           </div>
         </div>
       </div>

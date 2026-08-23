@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BookOpen,
   CalendarTick,
+  Camera,
   Home,
   Logout,
   StatusUp,
