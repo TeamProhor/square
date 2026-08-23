@@ -4,12 +4,15 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
+  batches,
   batchExams,
   batchMembers,
+  courseEnrollments,
   examQuestions,
   examResponses,
   examSubmissions,
   exams,
+  user,
 } from "@/db/schema";
 import type { ExamDetail, ExamSubmission, LeaderboardEntry } from "@/types";
 
@@ -76,6 +79,7 @@ export async function getExamBySlug(slug: string) {
  */
 export async function getStudentExams(userId: string) {
   try {
+    // 1. Get batch IDs from direct batch memberships
     const userBatchMemberships = await db.query.batchMembers.findMany({
       where: and(
         eq(batchMembers.userId, userId),
@@ -83,12 +87,34 @@ export async function getStudentExams(userId: string) {
       ),
     });
 
-    if (userBatchMemberships.length === 0) return { success: true, data: [] };
+    const memberBatchIds = userBatchMemberships.map((bm) => bm.batchId);
 
-    const batchIds = userBatchMemberships.map((bm) => bm.batchId);
+    // 2. Get batch IDs from active course enrollments
+    const userEnrollments = await db.query.courseEnrollments.findMany({
+      where: and(
+        eq(courseEnrollments.userId, userId),
+        eq(courseEnrollments.status, "active"),
+      ),
+    });
+
+    const enrolledCourseIds = userEnrollments.map((e) => e.courseId);
+
+    let enrolledCourseBatchIds: string[] = [];
+    if (enrolledCourseIds.length > 0) {
+      const courseBatches = await db.query.batches.findMany({
+        where: inArray(batches.courseId, enrolledCourseIds),
+      });
+      enrolledCourseBatchIds = courseBatches.map((b) => b.id);
+    }
+
+    const allBatchIds = Array.from(
+      new Set([...memberBatchIds, ...enrolledCourseBatchIds]),
+    );
+
+    if (allBatchIds.length === 0) return { success: true, data: [] };
 
     const bExams = await db.query.batchExams.findMany({
-      where: inArray(batchExams.batchId, batchIds),
+      where: inArray(batchExams.batchId, allBatchIds),
       with: {
         exam: true,
       },
@@ -113,11 +139,28 @@ export async function getStudentExams(userId: string) {
  */
 export async function checkExamAccess(userId: string, examId: string) {
   try {
-    const exam = await db.query.exams.findFirst({
-      where: eq(exams.id, examId),
-    });
+    const [exam, currentUser] = await Promise.all([
+      db.query.exams.findFirst({
+        where: eq(exams.id, examId),
+      }),
+      db.query.user.findFirst({
+        where: eq(user.id, userId),
+      }),
+    ]);
 
     if (!exam) return { allowed: false, error: "Exam not found" };
+
+    // 1. Admin, moderator, or exam creator always has access to preview/take exams
+    if (
+      currentUser?.role === "admin" ||
+      currentUser?.role === "moderator" ||
+      exam.createdBy === userId
+    ) {
+      const firstBatchExam = await db.query.batchExams.findFirst({
+        where: eq(batchExams.examId, examId),
+      });
+      return { allowed: true, batchExamId: firstBatchExam?.id || null };
+    }
 
     if (exam.type === "practice" && exam.isPublished) {
       return { allowed: true, batchExamId: null };
@@ -132,6 +175,7 @@ export async function checkExamAccess(userId: string, examId: string) {
 
     const batchIds = bExams.map((be) => be.batchId);
 
+    // 2. Direct batch membership check
     const membership = await db.query.batchMembers.findFirst({
       where: and(
         eq(batchMembers.userId, userId),
@@ -145,6 +189,39 @@ export async function checkExamAccess(userId: string, examId: string) {
         (be) => be.batchId === membership.batchId,
       );
       return { allowed: true, batchExamId: relatedBatchExam?.id };
+    }
+
+    // 3. Course enrollment check (if the batch is associated with an enrolled course)
+    const batchesWithCourse = await db.query.batches.findMany({
+      where: inArray(batches.id, batchIds),
+    });
+
+    const courseIds = batchesWithCourse
+      .map((b) => b.courseId)
+      .filter((cid): cid is string => Boolean(cid));
+
+    if (courseIds.length > 0) {
+      const courseEnrollment = await db.query.courseEnrollments.findFirst({
+        where: and(
+          eq(courseEnrollments.userId, userId),
+          inArray(courseEnrollments.courseId, courseIds),
+          eq(courseEnrollments.status, "active"),
+        ),
+      });
+
+      if (courseEnrollment) {
+        // Find the batch corresponding to this enrolled course
+        const matchedBatch = batchesWithCourse.find(
+          (b) => b.courseId === courseEnrollment.courseId,
+        );
+        const relatedBatchExam = bExams.find(
+          (be) => be.batchId === matchedBatch?.id,
+        );
+        return {
+          allowed: true,
+          batchExamId: relatedBatchExam?.id || bExams[0]?.id || null,
+        };
+      }
     }
 
     return { allowed: false, error: "You do not have access to this exam" };
@@ -377,7 +454,9 @@ export async function getExamLeaderboard(examId: string) {
     const leaderboard: LeaderboardEntry[] = sorted.map((s, idx) => ({
       rank: idx + 1,
       userId: s.userId,
-      userName: s.user?.name || "Unknown",
+      userName: s.user?.name || s.user?.email?.split("@")[0] || "Student",
+      userImage: s.user?.image || null,
+      userEmail: s.user?.email || null,
       score: s.score,
       totalMarks: s.totalMarks,
       timeTakenSeconds: s.timeTakenSeconds,

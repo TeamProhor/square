@@ -49,6 +49,12 @@ export function AdminSidebar() {
       exact: false,
       icon: StatusUp,
     },
+    {
+      name: "হিরো স্লাইডার",
+      path: "/admin/sliders",
+      exact: false,
+      icon: Camera,
+    },
   ];
 
   return (

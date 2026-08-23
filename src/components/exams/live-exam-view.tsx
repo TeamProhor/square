@@ -196,8 +196,8 @@ export function LiveExamView({
       </header>
 
       {/* Main Question Scroll Container */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-3 sm:px-6 pt-4 sm:pt-6 flex flex-col gap-6 sm:gap-8">
-        <div className="flex flex-col gap-4 sm:gap-6">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-2 sm:px-6 pt-3 sm:pt-6 flex flex-col gap-4 sm:gap-8">
+        <div className="flex flex-col gap-3 sm:gap-6">
           {examQuestions.map((eq, idx) => {
             if (!eq.question) return null;
             const currentAns = answers[eq.id];
@@ -207,7 +207,7 @@ export function LiveExamView({
               <div
                 key={eq.id}
                 id={`exam-q-${idx}`}
-                className="scroll-mt-24 flex flex-col gap-3"
+                className="scroll-mt-20 flex flex-col gap-2.5 sm:gap-3"
               >
                 <UniversalQuestionCard
                   question={eq.question}

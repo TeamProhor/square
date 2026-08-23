@@ -46,14 +46,14 @@ export function CoursesPricingSection() {
             আমাদের এক্সক্লুসিভ কোর্সসমূহ
           </h2>
           <div className="flex justify-center mt-6">
-            <div className="inline-flex bg-card p-1.5 rounded-2xl shadow-xs border border-border/60 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-muted/60 dark:bg-muted/30 border border-border/50 overflow-x-auto no-scrollbar max-w-full">
               <button
                 type="button"
                 onClick={() => setSelectedBatch("HSC 26")}
-                className={`course-tab px-6 md:px-10 py-3 rounded-xl font-bold transition-all text-md cursor-pointer ${
+                className={`px-4 sm:px-8 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   selectedBatch === "HSC 26"
-                    ? "bg-foreground text-background shadow-md font-extrabold"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
                 HSC 26
@@ -61,10 +61,10 @@ export function CoursesPricingSection() {
               <button
                 type="button"
                 onClick={() => setSelectedBatch("HSC 27")}
-                className={`course-tab px-6 md:px-10 py-3 rounded-xl font-bold transition-all text-md cursor-pointer ${
+                className={`px-4 sm:px-8 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   selectedBatch === "HSC 27"
-                    ? "bg-foreground text-background shadow-md font-extrabold"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
                 HSC 27
@@ -72,10 +72,10 @@ export function CoursesPricingSection() {
               <button
                 type="button"
                 onClick={() => setSelectedBatch("Admission")}
-                className={`course-tab px-6 md:px-10 py-3 rounded-xl font-bold transition-all text-md cursor-pointer ${
+                className={`px-4 sm:px-8 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   selectedBatch === "Admission"
-                    ? "bg-foreground text-background shadow-md font-extrabold"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
                 Admission

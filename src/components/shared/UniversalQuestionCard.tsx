@@ -72,12 +72,12 @@ export function UniversalQuestionCard({
   return (
     <div
       className={cn(
-        "bg-card border border-border/70 rounded-2xl sm:rounded-3xl p-4 sm:p-6 transition-all duration-200",
+        "bg-card border border-border/70 rounded-xl sm:rounded-3xl p-3 sm:p-6 transition-all duration-200",
         "shadow-xs hover:border-border",
       )}
     >
       {/* Header: Index, Badges, and Header Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-3.5 sm:mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 mb-2.5 sm:mb-4">
         <div className="flex flex-wrap items-center gap-2">
           {badgeText ? (
             <span className="text-xs sm:text-sm font-bold text-foreground/80">
@@ -185,7 +185,7 @@ export function UniversalQuestionCard({
                   disabled={isAnswered || disableOptionChange}
                   onClick={() => onSelectOption?.(question.id, opt.id)}
                   className={cn(
-                    "p-2 sm:p-2.5 md:p-3 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm flex items-center gap-2 sm:gap-2.5 border text-left w-full transition-all active:scale-[0.99]",
+                    "p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm flex items-center gap-2.5 sm:gap-3 border text-left w-full transition-all active:scale-[0.99]",
                     !isAnswered &&
                       "bg-muted/30 hover:bg-muted/70 hover:border-primary/40 text-foreground border-border/50 cursor-pointer",
                     isAnswered &&

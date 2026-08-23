@@ -1,7 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Clock, Information, TaskSquare } from "@/components/icons";
+import {
+  ArrowLeft2,
+  CalendarTick,
+  Clock,
+  Danger,
+  Information,
+  ShieldCheck,
+  TaskSquare,
+  TickCircle,
+} from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useStartExam } from "@/hooks/use-exam";
@@ -26,7 +36,6 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
   const handleStart = async () => {
     if (!access.allowed) return;
 
-    // We pass batchExamId if it's assigned via batch. Otherwise it's undefined (for practice exams).
     const res = await startExamMutation.mutateAsync({
       examId: exam.id,
       userId: userId,
@@ -40,78 +49,170 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
     }
   };
 
+  const examTypeLabel =
+    exam.type === "chapter_test"
+      ? "অধ্যায়ভিত্তিক পরীক্ষা"
+      : exam.type === "model_test"
+        ? "মডেল টেস্ট"
+        : exam.type === "weekly"
+          ? "উইকলি টেস্ট"
+          : "প্র্যাকটিস টেস্ট";
+
   return (
-    <div className="flex flex-col w-full max-w-3xl mx-auto pb-12 pt-4 md:py-12 gap-8 px-4">
-      <div className="text-center space-y-4">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+    <div className="flex flex-col w-full max-w-4xl mx-auto pb-16 pt-2 md:py-8 gap-8 px-4 sm:px-6">
+      {/* Top Breadcrumb / Back Button */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/exams"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors p-1 -ml-1 rounded-lg"
+        >
+          <ArrowLeft2 className="size-4" />
+          <span>পরীক্ষাসমূহে ফিরে যান</span>
+        </Link>
+        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+          {examTypeLabel}
+        </span>
+      </div>
+
+      {/* Main Header */}
+      <div className="space-y-3">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-foreground leading-tight">
           {exam.title}
         </h1>
         {exam.description && (
-          <p className="text-muted-foreground">{exam.description}</p>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            {exam.description}
+          </p>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center">
-          <TaskSquare className="size-6 text-primary mb-2" />
-          <div className="text-2xl font-bold">{exam.totalMarks}</div>
-          <div className="text-xs text-muted-foreground font-medium">
-            মোট মার্কস
-          </div>
-        </div>
-        <div className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center">
-          <Clock className="size-6 text-primary mb-2" />
-          <div className="text-2xl font-bold">{exam.durationMinutes}</div>
-          <div className="text-xs text-muted-foreground font-medium">
-            সময় (মিনিট)
-          </div>
-        </div>
-        <div className="bg-card border rounded-xl p-4 flex flex-col items-center justify-center text-center">
-          <Information className="size-6 text-amber-500 mb-2" />
-          <div className="text-2xl font-bold text-amber-500">
-            {exam.negativeMarking}
-          </div>
-          <div className="text-xs text-muted-foreground font-medium">
-            নেগেটিভ মার্কিং
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-muted/50 border rounded-xl p-6 space-y-4">
-        <h3 className="font-bold text-lg border-b pb-2">নির্দেশনা</h3>
-        <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-          <li>পরীক্ষা শুরু করার পর কোনোভাবেই ট্যাব বা ব্রাউজার বন্ধ করা যাবে না।</li>
-          <li>নির্ধারিত সময় শেষ হওয়ার সাথে সাথে পরীক্ষা স্বয়ংক্রিয়ভাবে সাবমিট হয়ে যাবে।</li>
-          <li>প্রতিটি ভুল উত্তরের জন্য {exam.negativeMarking} নম্বর কাটা যাবে।</li>
-          <li>যেকোনো ধরনের অসাধু উপায় অবলম্বন করলে পরীক্ষা বাতিল বলে গণ্য হবে।</li>
-        </ul>
-      </div>
-
-      <div className="flex flex-col items-center pt-4">
-        {!access.allowed ? (
-          <div className="bg-destructive/10 text-destructive p-4 rounded-xl text-center font-medium w-full">
-            দুঃখিত, আপনি এই পরীক্ষায় অংশগ্রহণ করার জন্য অনুমোদিত নন।
-            <div className="text-xs mt-1 font-normal opacity-80">
-              {access.error}
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">মোট মার্কস</span>
+            <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <TaskSquare className="size-4" />
             </div>
           </div>
-        ) : (
-          <Button
-            size="lg"
-            className="w-full md:w-auto px-12 rounded-full h-14 text-lg font-bold shadow-lg"
-            onClick={handleStart}
-            disabled={startExamMutation.isPending}
-          >
-            {startExamMutation.isPending ? (
-              <>
-                <Spinner className="size-5 mr-2" /> শুরু হচ্ছে...
-              </>
-            ) : (
-              "পরীক্ষা শুরু করুন"
+          <div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+              {exam.totalMarks}
+            </div>
+            <span className="text-[11px] text-muted-foreground">নম্বর</span>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">সময়সীমা</span>
+            <div className="size-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <Clock className="size-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+              {exam.durationMinutes}
+            </div>
+            <span className="text-[11px] text-muted-foreground">মিনিট</span>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">নেগেটিভ মার্ক</span>
+            <div className="size-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <Information className="size-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">
+              {exam.negativeMarking}
+            </div>
+            <span className="text-[11px] text-muted-foreground">প্রতি ভুল উত্তরে</span>
+          </div>
+        </div>
+
+        <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-medium">পাস মার্ক</span>
+            <div className="size-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <TickCircle className="size-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
+              {exam.passMarks ?? Math.ceil(exam.totalMarks * 0.4)}
+            </div>
+            <span className="text-[11px] text-muted-foreground">নম্বর</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Guidelines and Rules Section */}
+      <div className="bg-card border border-border/70 rounded-2xl p-5 sm:p-7 space-y-4 shadow-2xs">
+        <h3 className="font-bold text-base sm:text-lg flex items-center gap-2 text-foreground pb-3 border-b">
+          <ShieldCheck className="size-5 text-primary" />
+          পরীক্ষা সংক্রান্ত নিয়মাবলী ও নির্দেশনা
+        </h3>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 text-xs sm:text-sm text-muted-foreground">
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
+            <span className="size-2 rounded-full bg-primary mt-1.5 shrink-0" />
+            <span>পরীক্ষা চলাকালীন কোনোভাবেই ট্যাব সুইচ বা রিফ্রেশ করা যাবে না।</span>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
+            <span className="size-2 rounded-full bg-primary mt-1.5 shrink-0" />
+            <span>সময় শেষ হওয়ার সাথে সাথে আপনার উত্তরপত্র স্বয়ংক্রিয়ভাবে জমা হবে।</span>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
+            <span className="size-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+            <span>প্রতিটি ভুল উত্তরের জন্য <strong>{exam.negativeMarking}</strong> নম্বর কাটা যাবে।</span>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
+            <span className="size-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+            <span>পরীক্ষা সম্পন্ন করার পর সাথে সাথে ফলাফল ও সমাধান দেখতে পাবেন।</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Access Status & Start Exam CTA */}
+      <div className="flex flex-col items-center pt-2">
+        {!access.allowed ? (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive p-5 rounded-2xl text-center space-y-1 w-full max-w-lg">
+            <div className="font-bold text-sm sm:text-base flex items-center justify-center gap-2">
+              <Danger className="size-5 shrink-0" />
+              দুঃখিত, আপনি এই পরীক্ষায় অংশগ্রহণ করার জন্য অনুমোদিত নন।
+            </div>
+            {access.error && (
+              <p className="text-xs opacity-80 pt-1">
+                {access.error}
+              </p>
             )}
-          </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto min-w-[240px] px-8 h-12 rounded-xl text-base font-bold shadow-sm transition-all"
+              onClick={handleStart}
+              disabled={startExamMutation.isPending}
+            >
+              {startExamMutation.isPending ? (
+                <>
+                  <Spinner className="size-5 mr-2" /> পরীক্ষা লোড হচ্ছে...
+                </>
+              ) : (
+                "পরীক্ষা শুরু করুন →"
+              )}
+            </Button>
+          </div>
         )}
       </div>
     </div>
   );
 }
+

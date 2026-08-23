@@ -115,10 +115,10 @@ export default function Shell({ children, dict, lang }: ShellProps) {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 bg-background relative overflow-hidden rounded-[0px] lg:rounded-[24px] border-0 lg:border-[0.5px] lg:border-border ${shouldHideTopNav ? "m-0" : "mt-0 lg:my-[20px] lg:mr-[20px] pt-[56px] lg:pt-0"}`}
+        className={`flex-1 bg-background relative overflow-hidden rounded-[0px] lg:rounded-[24px] border-0 lg:border-[0.5px] lg:border-border ${shouldHideTopNav ? "m-0" : "mt-0 lg:my-[20px] lg:mr-[20px] pt-[50px] lg:pt-0"}`}
       >
         <div
-          className={`w-full h-full overflow-y-auto ${shouldHideTopNav ? "" : "p-4 sm:p-6 md:p-8 lg:p-10"} ${shouldShowBottomNav ? "pb-24 sm:pb-24 lg:pb-10" : "pb-0"}`}
+          className={`w-full h-full overflow-y-auto ${shouldHideTopNav ? "" : "p-2.5 sm:p-6 md:p-8 lg:p-10"} ${shouldShowBottomNav ? "pb-20 sm:pb-24 lg:pb-10" : "pb-0"}`}
         >
           {children}
         </div>

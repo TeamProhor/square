@@ -355,6 +355,8 @@ export interface LeaderboardEntry {
   readonly rank: number;
   readonly userId: string;
   readonly userName: string;
+  readonly userImage?: string | null;
+  readonly userEmail?: string | null;
   readonly score: string;
   readonly totalMarks: number;
   readonly timeTakenSeconds: number;
