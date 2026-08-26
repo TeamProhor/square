@@ -88,6 +88,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icon.svg" />
         <script
           type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data is safely serialized
           dangerouslySetInnerHTML={{ __html: jsonLdString }}
         />
       </head>

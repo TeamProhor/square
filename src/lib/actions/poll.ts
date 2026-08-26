@@ -30,12 +30,64 @@ export async function getPollSubitemsAction(itemId: string, paper?: string) {
         }
         return and(...conditions);
       },
+      with: {
+        questions: {
+          where: (questions, { eq }) => eq(questions.type, "mcq"),
+          columns: { id: true },
+        },
+      },
       orderBy: (subitems, { asc }) => [asc(subitems.orderNo)],
     });
-    return list;
+
+    return list.map((item) => ({
+      id: item.id,
+      itemId: item.itemId,
+      name: item.name,
+      slug: item.slug,
+      paper: item.paper,
+      orderNo: item.orderNo,
+      questionCount: item.questions?.length || 0,
+    }));
   } catch (error: unknown) {
     console.error("Error fetching poll subitems:", error);
     return [];
+  }
+}
+
+export async function getPollQuestionCountAction(params: {
+  itemId: string;
+  subitemId?: string;
+  paper?: string;
+  standard?: string;
+}): Promise<number> {
+  try {
+    const countResult = await db.query.questions.findMany({
+      where: (questions, { and, eq }) => {
+        const conditions = [eq(questions.type, "mcq")];
+        if (
+          params.subitemId &&
+          params.subitemId !== "none" &&
+          params.subitemId !== "all"
+        ) {
+          conditions.push(eq(questions.subitemId, params.subitemId));
+        }
+        if (params.standard) {
+          conditions.push(
+            eq(
+              questions.standard,
+              params.standard as "HSC" | "Varsity" | "Engineering" | "Medical",
+            ),
+          );
+        }
+        return and(...conditions);
+      },
+      columns: { id: true },
+    });
+
+    return countResult.length;
+  } catch (error: unknown) {
+    console.error("Error fetching poll questions count:", error);
+    return 0;
   }
 }
 

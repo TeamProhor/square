@@ -153,14 +153,14 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-2 md:py-8 gap-8 px-1 sm:px-2">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-1 sm:pt-4 md:py-6 gap-6 sm:gap-8 px-2 sm:px-4 md:px-6">
       {/* ─── Hero Welcome Banner ──────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-[28px] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-6 sm:p-8 md:p-10 shadow-xs">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-end gap-6">
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-6 md:p-8 shadow-xs">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-end gap-3 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             <Button
               asChild
-              className="rounded-xl px-5 h-11 text-xs sm:text-sm font-bold shadow-xs"
+              className="rounded-xl px-5 h-10 sm:h-11 text-xs sm:text-sm font-bold shadow-xs flex-1 sm:flex-initial"
             >
               <Link href="/exams">
                 <CalendarTick className="size-4 mr-2" /> পরীক্ষা দিন
@@ -169,7 +169,7 @@ export default async function DashboardPage() {
             <Button
               asChild
               variant="outline"
-              className="rounded-xl px-5 h-11 text-xs sm:text-sm font-bold"
+              className="rounded-xl px-5 h-10 sm:h-11 text-xs sm:text-sm font-bold flex-1 sm:flex-initial"
             >
               <Link href="/qb">
                 <TaskSquare className="size-4 mr-2" /> প্রশ্নব্যাংক

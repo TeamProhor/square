@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { AdminSlidersManager } from "@/components/admin/admin-sliders-manager";
 import { getHeroSliders } from "@/lib/actions/settings";
 import { auth } from "@/lib/auth";

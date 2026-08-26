@@ -216,6 +216,7 @@ export function LiveExamView({
                   onSelectOption={(_qId, optId) =>
                     handleSelectMcq(eq.id, optId)
                   }
+                  showCorrectAnswer={false}
                   hideExplanation={true}
                   hideControls={true}
                   badgeText={`প্রশ্ন ${toBanglaDigits(idx + 1)} • ${toBanglaDigits(eq.marks)} মার্কস`}

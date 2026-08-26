@@ -73,85 +73,146 @@ export default async function ExamLeaderboardPage({
 
       {totalCount > 0 ? (
         <div className="flex flex-col gap-6">
-          {/* Top 3 Podium Highlights (if >= 3 candidates) */}
+          {/* Top 3 Podium Highlights (Avatar-based podium) */}
           {topThree.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
-              {topThree.map((winner) => {
-                const isFirst = winner.rank === 1;
-                const isSecond = winner.rank === 2;
-                const isThird = winner.rank === 3;
-                const initial = winner.userName?.charAt(0).toUpperCase() || "U";
-
-                return (
-                  <div
-                    key={winner.userId}
-                    className={`relative bg-card border rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center gap-3 shadow-2xs transition-all ${
-                      isFirst
-                        ? "border-amber-500/50 bg-gradient-to-b from-amber-500/10 via-card to-card ring-1 ring-amber-500/30 order-first sm:order-2 sm:-translate-y-2"
-                        : isSecond
-                          ? "border-slate-400/40 bg-gradient-to-b from-slate-400/5 via-card to-card order-2 sm:order-1"
-                          : "border-amber-700/40 bg-gradient-to-b from-amber-700/5 via-card to-card order-3"
-                    }`}
-                  >
+            <div className="flex items-end justify-center gap-4 sm:gap-10 pt-4 sm:pt-6 pb-2 sm:pb-4">
+              {/* 2nd Place (Left) */}
+              {topThree[1] && (
+                <div className="flex flex-col items-center text-center gap-2 flex-1 max-w-[130px] sm:max-w-[160px] animate-in fade-in slide-in-from-bottom-2">
+                  <div className="relative">
                     {/* Rank Badge */}
-                    <div
-                      className={`absolute -top-3 px-3 py-0.5 rounded-full text-xs font-black flex items-center gap-1 shadow-xs ${
-                        isFirst
-                          ? "bg-amber-500 text-white"
-                          : isSecond
-                            ? "bg-slate-400 text-white"
-                            : "bg-amber-700 text-white"
-                      }`}
-                    >
-                      <Crown className="size-3" />
-                      <span>স্থান {toBanglaDigits(winner.rank)}</span>
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black flex items-center gap-1 shadow-xs bg-slate-400 text-white whitespace-nowrap">
+                      <span>স্থান {toBanglaDigits(2)}</span>
                     </div>
 
                     {/* Avatar */}
-                    <div className="relative mt-2">
-                      <Avatar
-                        className={`size-14 sm:size-16 border-2 shadow-xs ${
-                          isFirst
-                            ? "border-amber-500"
-                            : isSecond
-                              ? "border-slate-400"
-                              : "border-amber-700"
-                        }`}
-                      >
-                        {winner.userImage ? (
-                          <AvatarImage
-                            src={winner.userImage}
-                            alt={winner.userName}
-                            className="object-cover"
-                          />
-                        ) : null}
-                        <AvatarFallback className="text-base font-bold bg-muted text-foreground">
-                          {initial}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
+                    <Avatar className="size-16 sm:size-20 border-3 border-slate-400 shadow-md ring-4 ring-slate-400/20">
+                      {topThree[1].userImage ? (
+                        <AvatarImage
+                          src={topThree[1].userImage}
+                          alt={topThree[1].userName}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-lg sm:text-xl font-bold bg-muted text-foreground">
+                        {topThree[1].userName?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
 
-                    {/* Name & Marks */}
-                    <div className="space-y-0.5 w-full">
-                      <h3 className="font-bold text-sm sm:text-base text-foreground truncate">
-                        {winner.userName}
-                      </h3>
-                      <div className="text-base sm:text-lg font-black text-primary">
-                        {toBanglaDigits(winner.score)}{" "}
-                        <span className="text-xs text-muted-foreground font-normal">
-                          / {toBanglaDigits(winner.totalMarks)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Time Taken */}
-                    <div className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                      <Clock className="size-3 text-muted-foreground" />
-                      <span>{formatTimeBangla(winner.timeTakenSeconds)}</span>
+                  {/* Name & Marks */}
+                  <div className="space-y-0.5 w-full mt-1">
+                    <h3 className="font-bold text-xs sm:text-sm text-foreground truncate">
+                      {topThree[1].userName}
+                    </h3>
+                    <div className="text-xs sm:text-sm font-black text-primary">
+                      {toBanglaDigits(topThree[1].score)}{" "}
+                      <span className="text-[10px] sm:text-xs text-muted-foreground font-normal">
+                        / {toBanglaDigits(topThree[1].totalMarks)}
+                      </span>
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Time Taken */}
+                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
+                    <Clock className="size-3 text-muted-foreground" />
+                    <span>{formatTimeBangla(topThree[1].timeTakenSeconds)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* 1st Place (Center & Bigger) */}
+              {topThree[0] && (
+                <div className="flex flex-col items-center text-center gap-2 flex-1 max-w-[150px] sm:max-w-[190px] -translate-y-2 sm:-translate-y-3 animate-in fade-in slide-in-from-bottom-3">
+                  <div className="relative">
+                    {/* Crown Icon floating above */}
+                    <Crown className="size-6 sm:size-7 text-amber-500 mx-auto -mb-1 animate-bounce drop-shadow-sm" />
+
+                    {/* Rank Badge */}
+                    <div className="absolute top-5 sm:top-6 left-1/2 -translate-x-1/2 z-10 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black flex items-center gap-1 shadow-md bg-amber-500 text-white whitespace-nowrap">
+                      <span>স্থান {toBanglaDigits(1)}</span>
+                    </div>
+
+                    {/* Avatar (Largest) */}
+                    <Avatar className="size-20 sm:size-28 border-4 border-amber-500 shadow-xl ring-4 sm:ring-6 ring-amber-500/25">
+                      {topThree[0].userImage ? (
+                        <AvatarImage
+                          src={topThree[0].userImage}
+                          alt={topThree[0].userName}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-2xl sm:text-3xl font-extrabold bg-muted text-foreground">
+                        {topThree[0].userName?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+
+                  {/* Name & Marks */}
+                  <div className="space-y-0.5 w-full mt-1.5">
+                    <h3 className="font-extrabold text-sm sm:text-base text-foreground truncate">
+                      {topThree[0].userName}
+                    </h3>
+                    <div className="text-sm sm:text-base font-black text-amber-600 dark:text-amber-400">
+                      {toBanglaDigits(topThree[0].score)}{" "}
+                      <span className="text-xs text-muted-foreground font-normal">
+                        / {toBanglaDigits(topThree[0].totalMarks)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Time Taken */}
+                  <div className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-amber-900 dark:text-amber-200 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
+                    <Clock className="size-3 text-amber-600 dark:text-amber-400" />
+                    <span>{formatTimeBangla(topThree[0].timeTakenSeconds)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* 3rd Place (Right) */}
+              {topThree[2] && (
+                <div className="flex flex-col items-center text-center gap-2 flex-1 max-w-[130px] sm:max-w-[160px] animate-in fade-in slide-in-from-bottom-2">
+                  <div className="relative">
+                    {/* Rank Badge */}
+                    <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-black flex items-center gap-1 shadow-xs bg-amber-700 text-white whitespace-nowrap">
+                      <span>স্থান {toBanglaDigits(3)}</span>
+                    </div>
+
+                    {/* Avatar */}
+                    <Avatar className="size-16 sm:size-20 border-3 border-amber-700 shadow-md ring-4 ring-amber-700/20">
+                      {topThree[2].userImage ? (
+                        <AvatarImage
+                          src={topThree[2].userImage}
+                          alt={topThree[2].userName}
+                          className="object-cover"
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-lg sm:text-xl font-bold bg-muted text-foreground">
+                        {topThree[2].userName?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+
+                  {/* Name & Marks */}
+                  <div className="space-y-0.5 w-full mt-1">
+                    <h3 className="font-bold text-xs sm:text-sm text-foreground truncate">
+                      {topThree[2].userName}
+                    </h3>
+                    <div className="text-xs sm:text-sm font-black text-primary">
+                      {toBanglaDigits(topThree[2].score)}{" "}
+                      <span className="text-[10px] sm:text-xs text-muted-foreground font-normal">
+                        / {toBanglaDigits(topThree[2].totalMarks)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Time Taken */}
+                  <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
+                    <Clock className="size-3 text-muted-foreground" />
+                    <span>{formatTimeBangla(topThree[2].timeTakenSeconds)}</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

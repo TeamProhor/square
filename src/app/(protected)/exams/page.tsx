@@ -24,13 +24,13 @@ export default async function ExamsBrowserPage() {
   const practiceExams = publishedExamsRes.data || [];
 
   return (
-    <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 sm:pb-16 pt-0 sm:pt-2 md:pt-4 gap-3 sm:gap-6 px-1 sm:px-6">
+    <div className="flex flex-col w-full max-w-5xl mx-auto pb-16 sm:pb-24 pt-1 sm:pt-4 gap-4 sm:gap-6 px-2 sm:px-6">
       <Tabs defaultValue="batch" className="w-full space-y-4 sm:space-y-6">
-        <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar">
-          <TabsList className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 bg-transparent p-0 h-auto min-w-max mx-auto">
+        <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar -mx-2 px-2 sm:mx-0 sm:px-0">
+          <TabsList className="flex items-center justify-start sm:justify-center gap-2 bg-transparent p-0 h-auto min-w-max">
             <TabsTrigger
               value="batch"
-              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[8px] font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-semibold transition-colors shrink-0 whitespace-nowrap"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
             >
               <span>আমার ব্যাচ</span>
               <span className="bg-primary/10 text-primary font-bold text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-[6px]">
@@ -39,7 +39,7 @@ export default async function ExamsBrowserPage() {
             </TabsTrigger>
             <TabsTrigger
               value="practice"
-              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[8px] font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-semibold transition-colors shrink-0 whitespace-nowrap"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
             >
               <span>প্র্যাকটিস টেস্ট</span>
               <span className="bg-muted text-muted-foreground font-bold text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-[6px]">
@@ -51,10 +51,10 @@ export default async function ExamsBrowserPage() {
 
         <TabsContent
           value="batch"
-          className="space-y-6 sm:space-y-8 focus-visible:outline-none min-h-[380px] sm:min-h-[520px]"
+          className="space-y-4 sm:space-y-6 focus-visible:outline-none min-h-[350px] sm:min-h-[480px]"
         >
-          <div className="flex items-center justify-between pb-1 border-b">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
+          <div className="flex items-center justify-between pb-2 border-b">
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold">
               আমার ব্যাচের পরীক্ষা
             </h2>
             <span className="text-xs sm:text-sm text-muted-foreground font-medium">

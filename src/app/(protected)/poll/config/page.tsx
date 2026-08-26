@@ -41,10 +41,19 @@ export default function PollConfigPage() {
   } = usePollStore();
 
   const [dbItems, setDbSubjects] = useState<Item[]>([]);
-  const [dbSubitems, setDbChapters] = useState<Subitem[]>([]);
+  const [dbSubitems, setDbChapters] = useState<(Subitem & { questionCount?: number })[]>([]);
   const [loadingItems, setLoadingSubjects] = useState(true);
   const [loadingSubitems, setLoadingChapters] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [_availableCount, _setAvailableCount] = useState<number | null>(null);
+
+  const toBanglaDigits = (str: string | number) => {
+    const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+    return String(str).replace(
+      /[0-9]/g,
+      (digit) => bnDigits[Number(digit)] || digit,
+    );
+  };
 
   // Fetch items from Question Bank DB
   useEffect(() => {
@@ -76,6 +85,18 @@ export default function PollConfigPage() {
     }
     loadChapters();
   }, [item, paper, setSubitem]);
+
+  // Calculate total questions for selected filters
+  const totalSubitemsQuestions = dbSubitems.reduce(
+    (acc, curr) => acc + (curr.questionCount || 0),
+    0,
+  );
+
+  const currentSelectedSubitem = dbSubitems.find((c) => c.id === subitem);
+  const currentChapterQuestions =
+    subitem === "all"
+      ? totalSubitemsQuestions
+      : currentSelectedSubitem?.questionCount ?? 0;
 
   const handleStart = async () => {
     setIsStarting(true);
@@ -147,9 +168,16 @@ export default function PollConfigPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
             {/* Subitem Select */}
             <Field className="w-full">
-              <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
-                ৩. অধ্যায় সিলেক্ট করুন
-              </FieldLabel>
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                  ৩. অধ্যায় সিলেক্ট করুন
+                </FieldLabel>
+                {currentChapterQuestions > 0 && (
+                  <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                    {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন উপলব্ধ
+                  </span>
+                )}
+              </div>
               <Select value={subitem} onValueChange={(v) => v && setSubitem(v)}>
                 <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm">
                   <SelectValue
@@ -160,10 +188,12 @@ export default function PollConfigPage() {
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
-                    <SelectItem value="all">সকল অধ্যায় (All Chapters)</SelectItem>
+                    <SelectItem value="all">
+                      সকল অধ্যায় ({toBanglaDigits(totalSubitemsQuestions)} টি প্রশ্ন)
+                    </SelectItem>
                     {dbSubitems.map((ch) => (
                       <SelectItem key={ch.id} value={ch.id}>
-                        {ch.name}
+                        {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
                       </SelectItem>
                     ))}
                   </SelectGroup>
@@ -198,11 +228,22 @@ export default function PollConfigPage() {
             </Field>
           </div>
 
+          {/* Question availability info card */}
+          <div className="flex items-center justify-between p-3 sm:p-3.5 bg-muted/40 rounded-xl border border-border/60 text-xs sm:text-sm">
+            <span className="text-muted-foreground font-medium">
+              সার্ভারে মোট প্রশ্ন সংখ্যা:
+            </span>
+            <span className="font-extrabold text-foreground flex items-center gap-1.5">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন সংরক্ষিত
+            </span>
+          </div>
+
           <div className="pt-2 sm:pt-4 w-full">
             <Button
               size="lg"
               onClick={handleStart}
-              disabled={isStarting}
+              disabled={isStarting || currentChapterQuestions === 0}
               className="w-full h-11 sm:h-12 text-sm sm:text-base font-bold rounded-xl shadow-xs"
             >
               {isStarting ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
@@ -8,10 +9,7 @@ import {
   Download,
   Filter,
   Search,
-  Star,
-  Warning,
 } from "@/components/icons";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -34,7 +32,7 @@ import { getExamRoutines } from "@/lib/actions/routine";
 import { EXAMS } from "@/lib/routine";
 import type { Exam, ExamRoutine } from "@/types";
 
-const handlePrint = () => {
+const _handlePrint = () => {
   if (typeof window !== "undefined") {
     window.print();
   }
@@ -113,22 +111,22 @@ export default function CalendarPage() {
   }, [firstExamDate]);
 
   return (
-    <div className="flex flex-col min-h-screen pb-20 max-w-5xl mx-auto w-full gap-8">
+    <div className="flex flex-col min-h-screen pb-20 max-w-5xl mx-auto w-full gap-6 sm:gap-8 px-2 sm:px-4 md:px-6">
       {/* Live Countdown Card */}
-      <Card className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-none shadow-2xl relative overflow-hidden">
+      <Card className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-none shadow-xl relative overflow-hidden rounded-2xl sm:rounded-3xl">
         <div className="absolute -top-10 -right-10 opacity-10">
           <Clock
             className="size-64 animate-spin"
             style={{ animationDuration: "60s" }}
           />
         </div>
-        <CardContent className="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-5 gap-6 items-center relative z-10">
-          <div className="lg:col-span-2 flex flex-col gap-2 text-center lg:text-left items-center lg:items-start">
-            <span className="text-xs uppercase font-bold text-primary-foreground/90 flex items-center gap-1.5">
+        <CardContent className="p-4 sm:p-6 md:p-8 grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 items-center relative z-10">
+          <div className="lg:col-span-2 flex flex-col gap-1.5 sm:gap-2 text-center lg:text-left items-center lg:items-start">
+            <span className="text-[11px] sm:text-xs uppercase font-bold text-primary-foreground/90 flex items-center gap-1.5">
               <span className="size-2 rounded-full bg-red-400 animate-ping" />{" "}
               লাইভ কাউন্টডাউন
             </span>
-            <h2 className="text-lg md:text-xl font-bold leading-tight">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold leading-tight">
               বোর্ড পরীক্ষা শুরু হতে বাকি:
             </h2>
             <p className="text-xs text-primary-foreground/80">
@@ -138,36 +136,36 @@ export default function CalendarPage() {
           </div>
           {/* Timer Display Grid */}
           <div className="lg:col-span-3 flex justify-center lg:justify-end">
-            <div className="grid grid-cols-4 gap-3 w-full max-w-sm">
-              <div className="flex flex-col items-center bg-background/20 rounded-xl p-3">
-                <span className="text-2xl md:text-3xl font-bold">
+            <div className="grid grid-cols-4 gap-2 sm:gap-3 w-full max-w-sm">
+              <div className="flex flex-col items-center bg-background/20 rounded-xl p-2 sm:p-3">
+                <span className="text-xl sm:text-2xl md:text-3xl font-bold">
                   {timeLeft.days}
                 </span>
-                <span className="text-[10px] uppercase font-medium mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-medium mt-0.5 sm:mt-1">
                   দিন
                 </span>
               </div>
-              <div className="flex flex-col items-center bg-background/20 rounded-xl p-3">
-                <span className="text-2xl md:text-3xl font-bold">
+              <div className="flex flex-col items-center bg-background/20 rounded-xl p-2 sm:p-3">
+                <span className="text-xl sm:text-2xl md:text-3xl font-bold">
                   {timeLeft.hours}
                 </span>
-                <span className="text-[10px] uppercase font-medium mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-medium mt-0.5 sm:mt-1">
                   ঘণ্টা
                 </span>
               </div>
-              <div className="flex flex-col items-center bg-background/20 rounded-xl p-3">
-                <span className="text-2xl md:text-3xl font-bold">
+              <div className="flex flex-col items-center bg-background/20 rounded-xl p-2 sm:p-3">
+                <span className="text-xl sm:text-2xl md:text-3xl font-bold">
                   {timeLeft.minutes}
                 </span>
-                <span className="text-[10px] uppercase font-medium mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-medium mt-0.5 sm:mt-1">
                   মিনিট
                 </span>
               </div>
-              <div className="flex flex-col items-center bg-background/20 rounded-xl p-3">
-                <span className="text-2xl md:text-3xl font-bold">
+              <div className="flex flex-col items-center bg-background/20 rounded-xl p-2 sm:p-3">
+                <span className="text-xl sm:text-2xl md:text-3xl font-bold">
                   {timeLeft.seconds}
                 </span>
-                <span className="text-[10px] uppercase font-medium mt-1">
+                <span className="text-[9px] sm:text-[10px] uppercase font-medium mt-0.5 sm:mt-1">
                   সেকেন্ড
                 </span>
               </div>
@@ -177,10 +175,10 @@ export default function CalendarPage() {
       </Card>
 
       {/* Main Grid: Interactive Calendar & Full Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* Left Column: Interactive Mini Calendar & Tips */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
+        {/* Left Column: Interactive Mini Calendar */}
         <div className="flex flex-col gap-6">
-          <Card className="shadow-sm border-muted-foreground/10">
+          <Card className="shadow-sm border-muted-foreground/10 rounded-2xl sm:rounded-3xl overflow-hidden">
             <CardHeader className="pb-3 border-b bg-muted/20">
               <CardTitle className="text-base flex items-center gap-2">
                 <CalendarIcon className="size-4 text-primary" /> পরীক্ষার দিনপঞ্জি
@@ -198,34 +196,10 @@ export default function CalendarPage() {
               <span>হাইলাইট করা তারিখগুলো পরীক্ষার দিন নির্দেশ করে</span>
             </div>
           </Card>
-
-          {/* Examination Notices & Tips */}
-          <div className="flex flex-col gap-3">
-            <Alert
-              variant="destructive"
-              className="bg-destructive/5 border-destructive/20 text-destructive shadow-sm"
-            >
-              <Warning className="size-4" />
-              <AlertTitle className="font-bold">জরুরী নোটিশ</AlertTitle>
-              <AlertDescription className="text-xs mt-1.5 leading-relaxed opacity-90">
-                পরীক্ষার কমপক্ষে ৩০ মিনিট পূর্বে অবশ্যই হলে প্রবেশ করতে হবে। এডমিট কার্ড,
-                রেজিস্ট্রেশন কার্ড ও ক্যালকুলেটর আগের রাতেই ব্যাগে গুছিয়ে রাখুন।
-              </AlertDescription>
-            </Alert>
-
-            <Alert className="bg-primary/5 border-primary/20 text-primary shadow-sm">
-              <Star className="size-4" />
-              <AlertTitle className="font-bold">স্মার্ট রিভিশন টিপস</AlertTitle>
-              <AlertDescription className="text-xs mt-1.5 leading-relaxed opacity-90">
-                পরীক্ষার আগের গ্যাপগুলোতে অযথা নতুন টপিক পড়তে যাবেন না। পূর্বে সমাধান করা
-                গাণিতিক নোটস এবং প্র্যাকটিস শিট রিভিশন দিন দ্রুত রিফ্লেক্স পেতে।
-              </AlertDescription>
-            </Alert>
-          </div>
         </div>
 
         {/* Right Column: Routine Filter Table */}
-        <Card className="lg:col-span-2 flex flex-col shadow-sm border-muted-foreground/10">
+        <Card className="lg:col-span-2 flex flex-col shadow-sm border-muted-foreground/10 rounded-2xl sm:rounded-3xl overflow-hidden">
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b bg-muted/20">
             <div>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -244,12 +218,12 @@ export default function CalendarPage() {
                 placeholder="বিষয়ের নাম বা পত্র লিখুন..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 bg-background shadow-sm"
+                className="pl-9 bg-background shadow-sm rounded-xl"
               />
             </div>
           </CardHeader>
 
-          <CardContent className="p-0 flex-1">
+          <CardContent className="p-0 flex-1 overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow>
@@ -301,14 +275,22 @@ export default function CalendarPage() {
                 {allExams.length} টি
               </span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              className="bg-background shadow-sm hover:bg-muted"
+            <Link
+              href={
+                searchTerm
+                  ? `/print/calendar?search=${encodeURIComponent(searchTerm)}&autoprint=true`
+                  : `/print/calendar?autoprint=true`
+              }
+              target="_blank"
             >
-              <Download className="size-3.5 mr-1.5" /> রুটিন প্রিন্ট করুন
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-background shadow-sm hover:bg-muted rounded-xl w-full sm:w-auto"
+              >
+                <Download className="size-3.5 mr-1.5" /> রুটিন প্রিন্ট করুন
+              </Button>
+            </Link>
           </div>
         </Card>
       </div>
