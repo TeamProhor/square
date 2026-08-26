@@ -130,4 +130,3 @@ export function HeroSlider({ slides }: { slides?: SliderItem[] }) {
     </section>
   );
 }
-

@@ -10,16 +10,16 @@ import { Spinner } from "@/components/ui/spinner";
 import { submitEnrollmentRequest } from "@/lib/actions/course";
 
 interface CheckoutModalProps {
-  courseId: string;
-  courseTitle: string;
+  batchId: string;
+  batchTitle: string;
   price: number;
   userId: string;
   children: React.ReactNode;
 }
 
 export function CheckoutModal({
-  courseId,
-  courseTitle,
+  batchId,
+  batchTitle,
   price,
   userId,
   children,
@@ -75,11 +75,11 @@ export function CheckoutModal({
     try {
       await submitEnrollmentRequest({
         userId,
-        courseId,
+        batchId,
         paymentMethod,
         senderNumber,
         transactionId: "N/A", // Passing N/A since TrxID is no longer required
-        amountPaid: price,
+        amount: price,
       });
       setSuccess(true);
     } catch (err) {
@@ -100,7 +100,7 @@ export function CheckoutModal({
           "আপনার পেমেন্ট ভেরিফাই করার পর খুব শীঘ্রই আপনাকে কোর্সে যুক্ত করা হবে। অনুগ্রহ করে অপেক্ষা করুন।"
         ) : (
           <span>
-            {courseTitle} - মোট ফি:{" "}
+            {batchTitle} - মোট ফি:{" "}
             <span className="font-bold text-foreground">৳{price}</span>
           </span>
         )

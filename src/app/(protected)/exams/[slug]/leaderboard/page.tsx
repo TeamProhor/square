@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft2, Clock, Crown, Trophy } from "@/components/icons";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -116,7 +116,9 @@ export default async function ExamLeaderboardPage({
                   {/* Time Taken */}
                   <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
                     <Clock className="size-3 text-muted-foreground" />
-                    <span>{formatTimeBangla(topThree[1].timeTakenSeconds)}</span>
+                    <span>
+                      {formatTimeBangla(topThree[1].timeTakenSeconds)}
+                    </span>
                   </div>
                 </div>
               )}
@@ -164,7 +166,9 @@ export default async function ExamLeaderboardPage({
                   {/* Time Taken */}
                   <div className="flex items-center gap-1 text-[11px] sm:text-xs font-medium text-amber-900 dark:text-amber-200 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full">
                     <Clock className="size-3 text-amber-600 dark:text-amber-400" />
-                    <span>{formatTimeBangla(topThree[0].timeTakenSeconds)}</span>
+                    <span>
+                      {formatTimeBangla(topThree[0].timeTakenSeconds)}
+                    </span>
                   </div>
                 </div>
               )}
@@ -209,7 +213,9 @@ export default async function ExamLeaderboardPage({
                   {/* Time Taken */}
                   <div className="flex items-center gap-1 text-[10px] sm:text-[11px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-full">
                     <Clock className="size-3 text-muted-foreground" />
-                    <span>{formatTimeBangla(topThree[2].timeTakenSeconds)}</span>
+                    <span>
+                      {formatTimeBangla(topThree[2].timeTakenSeconds)}
+                    </span>
                   </div>
                 </div>
               )}
@@ -256,16 +262,21 @@ export default async function ExamLeaderboardPage({
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-muted/50 border-b border-border/60 text-muted-foreground font-semibold">
                   <tr>
-                    <th className="py-2.5 px-3 sm:px-4 w-16 text-center">স্থান</th>
+                    <th className="py-2.5 px-3 sm:px-4 w-16 text-center">
+                      স্থান
+                    </th>
                     <th className="py-2.5 px-3 sm:px-4">পরীক্ষার্থী</th>
-                    <th className="py-2.5 px-3 sm:px-4 text-center">প্রাপ্ত নম্বর</th>
+                    <th className="py-2.5 px-3 sm:px-4 text-center">
+                      প্রাপ্ত নম্বর
+                    </th>
                     <th className="py-2.5 px-3 sm:px-4 text-right">সময়</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {leaderboard.map((entry) => {
                     const isMe = entry.userId === session.user?.id;
-                    const initial = entry.userName?.charAt(0).toUpperCase() || "U";
+                    const initial =
+                      entry.userName?.charAt(0).toUpperCase() || "U";
 
                     let rankBadge = (
                       <span className="font-bold text-muted-foreground text-xs">

@@ -41,7 +41,9 @@ export default function PollConfigPage() {
   } = usePollStore();
 
   const [dbItems, setDbSubjects] = useState<Item[]>([]);
-  const [dbSubitems, setDbChapters] = useState<(Subitem & { questionCount?: number })[]>([]);
+  const [dbSubitems, setDbChapters] = useState<
+    (Subitem & { questionCount?: number })[]
+  >([]);
   const [loadingItems, setLoadingSubjects] = useState(true);
   const [loadingSubitems, setLoadingChapters] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
@@ -96,7 +98,7 @@ export default function PollConfigPage() {
   const currentChapterQuestions =
     subitem === "all"
       ? totalSubitemsQuestions
-      : currentSelectedSubitem?.questionCount ?? 0;
+      : (currentSelectedSubitem?.questionCount ?? 0);
 
   const handleStart = async () => {
     setIsStarting(true);
@@ -189,7 +191,8 @@ export default function PollConfigPage() {
                 <SelectContent position="popper">
                   <SelectGroup>
                     <SelectItem value="all">
-                      সকল অধ্যায় ({toBanglaDigits(totalSubitemsQuestions)} টি প্রশ্ন)
+                      সকল অধ্যায় ({toBanglaDigits(totalSubitemsQuestions)} টি
+                      প্রশ্ন)
                     </SelectItem>
                     {dbSubitems.map((ch) => (
                       <SelectItem key={ch.id} value={ch.id}>

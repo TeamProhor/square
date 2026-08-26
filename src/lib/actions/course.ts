@@ -3,21 +3,23 @@
 import { and, desc, eq, type SQL } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/db";
 import {
-  courseEnrollmentRequests,
-  courseEnrollments,
-  courses,
+  batchEnrollmentRequests,
+  batchEnrollments,
+  batches,
 } from "@/db/schema";
+import { auth } from "@/lib/auth";
 
 export async function getCourses(batch?: string) {
-  let condition: SQL | undefined = eq(courses.isPublished, true);
+  let condition: SQL | undefined = eq(batches.isPublished, true);
 
   if (batch) {
-    condition = and(condition, eq(courses.hscBatch, batch));
+    condition = and(condition, eq(batches.hscBatch, batch));
   }
 
-  const results = await db.query.courses.findMany({
+  const results = await db.query.batches.findMany({
     where: condition,
     with: {
       details: true,
@@ -25,178 +27,159 @@ export async function getCourses(batch?: string) {
   });
 
   return results
-    .map((course) => ({
-      ...course,
-      ...course.details,
-      features: course.details?.features || [],
+    .map((b) => ({
+      ...b,
+      ...(b.details || {}),
+      details: undefined,
     }))
     .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 }
 
-export async function getCourseWithDetailsBySlug(slug: string) {
-  const result = await db.query.courses.findFirst({
-    where: eq(courses.slug, slug),
+export async function getFeaturedCourses() {
+  const results = await db.query.batches.findMany({
+    where: eq(batches.isPublished, true),
+    orderBy: [desc(batches.createdAt)],
+    limit: 6,
     with: {
       details: true,
     },
   });
 
-  return result || null;
+  return results.map((b) => ({
+    ...b,
+    ...(b.details || {}),
+    details: undefined,
+  }));
+}
+
+export async function getUserEnrollments(userId: string) {
+  const enrollments = await db.query.batchEnrollments.findMany({
+    where: eq(batchEnrollments.userId, userId),
+    with: {
+      batch: true,
+    },
+  });
+
+  return enrollments;
+}
+
+export async function hasEnrolled(userId: string, batchId: string) {
+  const enrollments = await getUserEnrollments(userId);
+  return enrollments.some(
+    (e: any) => e.batchId === batchId && e.status === "active",
+  );
+}
+
+export async function checkEnrollmentStatus(userId: string, batchId: string) {
+  const userReqs = await db.query.batchEnrollmentRequests.findMany({
+    where: and(
+      eq(batchEnrollmentRequests.userId, userId),
+      eq(batchEnrollmentRequests.batchId, batchId),
+    ),
+    orderBy: [desc(batchEnrollmentRequests.createdAt)],
+  });
+
+  if (userReqs.length > 0) {
+    return userReqs[0];
+  }
+  return null;
+}
+
+export async function getMyCourses(userId: string) {
+  const enrollments = await db.query.batchEnrollments.findMany({
+    where: eq(batchEnrollments.userId, userId),
+    with: {
+      batch: {
+        with: { details: true },
+      },
+    },
+  });
+
+  return (
+    enrollments
+      .filter((e: any) => e.status === "active")
+      .map((e: any) => ({
+        ...e.batch,
+        ...(e.batch?.details || {}),
+        details: undefined,
+        enrolledAt: e.enrolledAt,
+        accessGrantedBy: e.accessGrantedBy,
+      })) || []
+  );
 }
 
 export async function submitEnrollmentRequest(data: {
-  userId: string;
-  courseId: string;
+  userId?: string;
+  batchId: string;
   paymentMethod: string;
   senderNumber: string;
   transactionId: string;
-  amountPaid: number;
+  amount?: number;
 }) {
-  const id = nanoid();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session?.user) {
+    throw new Error("You must be logged in to enroll");
+  }
 
-  await db.insert(courseEnrollmentRequests).values({
-    id,
-    userId: data.userId,
-    courseId: data.courseId,
-    paymentMethod: data.paymentMethod,
-    senderNumber: data.senderNumber,
-    transactionId: data.transactionId,
-    amountPaid: data.amountPaid,
+  const batchId = data.batchId;
+  const amount = data.amount || 0;
+  const paymentMethod = data.paymentMethod;
+  const transactionId = data.transactionId;
+  const senderNumber = data.senderNumber;
+
+  if (!batchId || !paymentMethod || !senderNumber) {
+    throw new Error("Missing required fields");
+  }
+
+  await db.insert(batchEnrollmentRequests).values({
+    id: nanoid(),
+    userId: session.user.id,
+    batchId,
+    amount,
+    paymentMethod,
+    transactionId: transactionId || "N/A",
+    senderNumber,
     status: "pending",
-    createdAt: new Date(),
   });
 
-  revalidatePath(`/courses/[slug]`, "page");
-  revalidatePath(`/admin/enrollments`, "page");
-
-  return { success: true, id };
+  revalidatePath(`/courses/${batchId}`);
+  revalidatePath("/dashboard");
 }
 
-export async function checkEnrollmentStatus(userId: string, courseId: string) {
-  // Check if active enrollment exists
-  const activeEnrollment = await db.query.courseEnrollments.findFirst({
+export async function getUserCourseById(userId: string, batchId: string) {
+  const enrollment = await db.query.batchEnrollments.findFirst({
     where: and(
-      eq(courseEnrollments.userId, userId),
-      eq(courseEnrollments.courseId, courseId),
-      eq(courseEnrollments.status, "active"),
+      eq(batchEnrollments.userId, userId),
+      eq(batchEnrollments.batchId, batchId),
     ),
+    with: {
+      batch: {
+        with: { details: true, batchExams: { with: { exam: true } } },
+      },
+    },
   });
 
-  if (activeEnrollment)
-    return { status: "active", enrollment: activeEnrollment };
+  if (enrollment?.status !== "active") return null;
 
-  // Check if pending request exists
-  const pendingRequest = await db.query.courseEnrollmentRequests.findFirst({
-    where: and(
-      eq(courseEnrollmentRequests.userId, userId),
-      eq(courseEnrollmentRequests.courseId, courseId),
-    ),
-    orderBy: [desc(courseEnrollmentRequests.createdAt)],
+  return {
+    ...enrollment.batch,
+    ...(enrollment.batch?.details || {}),
+    details: undefined,
+    enrolledAt: enrollment.enrolledAt,
+  };
+}
+
+export async function getCourseWithDetailsBySlug(slug: string) {
+  const b = await db.query.batches.findFirst({
+    where: eq(batches.slug, slug),
+    with: { details: true },
   });
-
-  if (pendingRequest)
-    return { status: pendingRequest.status, request: pendingRequest };
-
-  return { status: "none" };
-}
-
-export async function getUserEnrolledCourses(userId: string) {
-  try {
-    const enrollments = await db.query.courseEnrollments.findMany({
-      where: and(
-        eq(courseEnrollments.userId, userId),
-        eq(courseEnrollments.status, "active"),
-      ),
-      orderBy: [desc(courseEnrollments.enrolledAt)],
-      with: {
-        course: {
-          with: {
-            details: true,
-            batches: true,
-          },
-        },
-      },
-    });
-
-    const activeList = enrollments
-      .filter((e) => e.course !== null && e.course !== undefined)
-      .map((e) => ({
-        enrollmentId: e.id,
-        enrolledAt: e.enrolledAt,
-        status: e.status,
-        ...e.course,
-        details: e.course?.details,
-        features: e.course?.details?.features || [],
-        modules: e.course?.details?.modules || [],
-        batches: e.course?.batches || [],
-      }));
-
-    return { success: true, data: activeList };
-  } catch (error: unknown) {
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch enrolled courses",
-      data: [],
-    };
-  }
-}
-
-export async function getUserCourseById(userId: string, courseId: string) {
-  try {
-    const enrollment = await db.query.courseEnrollments.findFirst({
-      where: and(
-        eq(courseEnrollments.userId, userId),
-        eq(courseEnrollments.courseId, courseId),
-        eq(courseEnrollments.status, "active"),
-      ),
-      with: {
-        course: {
-          with: {
-            details: true,
-            batches: {
-              with: {
-                batchExams: {
-                  with: {
-                    exam: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!enrollment?.course) {
-      return { success: false, data: null };
-    }
-
-    return {
-      success: true,
-      data: {
-        enrollmentId: enrollment.id,
-        enrolledAt: enrollment.enrolledAt,
-        status: enrollment.status,
-        ...enrollment.course,
-        details: enrollment.course.details,
-        features: enrollment.course.details?.features || [],
-        modules: enrollment.course.details?.modules || [],
-        instructors: enrollment.course.details?.instructors || [],
-        faqs: enrollment.course.details?.faqs || [],
-        batches: enrollment.course.batches || [],
-      },
-    };
-  } catch (error: unknown) {
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to fetch course details",
-      data: null,
-    };
-  }
+  if (!b) return null;
+  return {
+    ...b,
+    ...(b.details || {}),
+    details: undefined,
+  };
 }

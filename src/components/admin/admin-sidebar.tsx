@@ -24,12 +24,6 @@ export function AdminSidebar() {
   const adminNavItems = [
     { name: "ওভারভিউ", path: "/admin", exact: true, icon: Home },
     {
-      name: "ম্যানেজ কোর্সেস",
-      path: "/admin/courses",
-      exact: false,
-      icon: BookOpen,
-    },
-    {
       name: "পেমেন্ট ও এনরোলমেন্ট",
       path: "/admin/enrollments",
       exact: false,

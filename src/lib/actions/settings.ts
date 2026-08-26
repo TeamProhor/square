@@ -90,9 +90,7 @@ export async function updateHeroSliders(sliders: SliderItem[]) {
     return {
       success: false,
       error:
-        error instanceof Error
-          ? error.message
-          : "স্লাইডার আপডেট করতে সমস্যা হয়েছে",
+        error instanceof Error ? error.message : "স্লাইডার আপডেট করতে সমস্যা হয়েছে",
     };
   }
 }

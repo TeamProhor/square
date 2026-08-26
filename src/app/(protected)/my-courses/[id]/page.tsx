@@ -20,12 +20,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserCourseById } from "@/lib/actions/course";
 import { auth } from "@/lib/auth";
 
@@ -43,28 +38,26 @@ export default async function MyCourseClassroomPage({
   const userId = session?.user?.id;
 
   if (!userId) {
-    redirect(`/login?callbackUrl=/my-courses/${id}`);
+    redirect(`/login?callbackUrl=/my-batches/${id}`);
   }
 
-  const res = await getUserCourseById(userId, id);
-  const course = res.data;
+  const res = (await getUserCourseById(userId, id)) as any;
+  const batch = res;
 
-  if (!course) {
+  if (!batch) {
     notFound();
   }
 
-  const details = course.details;
-  const modules = course.modules || [];
-  const batches = course.batches || [];
-  const instructors = course.instructors || [];
-  const faqs = course.faqs || [];
+  const details = batch.details;
+  const modules = batch.curriculum || batch.modules || [];
+  const batchExamsList = batch.batchExams || [];
+  const instructors = batch.instructors || [];
+  const faqs = batch.faqs || [];
 
-  const allExams = batches.flatMap((batch) =>
-    (batch.batchExams || []).map((be) => ({
-      ...be,
-      batchName: batch.name,
-    })),
-  );
+  const allExams = (batchExamsList || []).map((be: any) => ({
+    ...be,
+    batchName: batch.name,
+  }));
 
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-16 sm:pb-24 pt-1 sm:pt-4 gap-5 sm:gap-8 px-2 sm:px-6">
@@ -73,29 +66,29 @@ export default async function MyCourseClassroomPage({
         <div className="space-y-1.5 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <Link
-              href="/my-courses"
+              href="/my-batches"
               className="inline-flex items-center justify-center size-8 rounded-xl border border-border/70 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors mr-1 shrink-0"
               title="আমার কোর্সসমূহে ফিরুন"
             >
               <ArrowLeft2 className="size-4" />
             </Link>
             <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight leading-tight">
-              {course.title}
+              {batch.name}
             </h1>
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold bg-primary/10 text-primary border border-primary/20 shrink-0">
-                {course.hscBatch}
+                {batch.hscBatch}
               </span>
-              {course.badge && (
+              {batch.badge && (
                 <span className="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full font-bold bg-muted text-foreground border border-border/60 shrink-0">
-                  {course.badge}
+                  {batch.badge}
                 </span>
               )}
             </div>
           </div>
-          {course.subtitle && (
+          {batch.subtitle && (
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pl-9 sm:pl-0">
-              {course.subtitle}
+              {batch.subtitle}
             </p>
           )}
         </div>
@@ -178,7 +171,10 @@ export default async function MyCourseClassroomPage({
         </div>
 
         {/* Tab 1: Course Exams */}
-        <TabsContent value="exams" className="space-y-4 sm:space-y-5 focus-visible:outline-none">
+        <TabsContent
+          value="exams"
+          className="space-y-4 sm:space-y-5 focus-visible:outline-none"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b gap-2">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
@@ -209,7 +205,7 @@ export default async function MyCourseClassroomPage({
 
           {allExams.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-5">
-              {allExams.map((be) => {
+              {allExams.map((be: any) => {
                 const exam = be.exam;
                 if (!exam) return null;
 
@@ -292,7 +288,10 @@ export default async function MyCourseClassroomPage({
         </TabsContent>
 
         {/* Tab 2: Syllabus & Modules */}
-        <TabsContent value="syllabus" className="space-y-4 focus-visible:outline-none">
+        <TabsContent
+          value="syllabus"
+          className="space-y-4 focus-visible:outline-none"
+        >
           <div className="flex items-center justify-between pb-2 border-b">
             <div className="space-y-0.5">
               <h2 className="text-base sm:text-xl font-bold flex items-center gap-2">
@@ -307,7 +306,7 @@ export default async function MyCourseClassroomPage({
 
           {modules.length > 0 ? (
             <div className="space-y-3">
-              {modules.map((m, index) => (
+              {modules.map((m: any, index: number) => (
                 <div
                   key={m.id || index}
                   className="border border-border/70 rounded-2xl p-4 sm:p-5 bg-card space-y-3 shadow-2xs"
@@ -328,7 +327,7 @@ export default async function MyCourseClassroomPage({
 
                   {m.chapters && m.chapters.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t border-border/40">
-                      {m.chapters.map((chapter) => (
+                      {m.chapters.map((chapter: string) => (
                         <div
                           key={chapter}
                           className="text-xs text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg border border-border/30 flex items-center gap-2"
@@ -355,16 +354,19 @@ export default async function MyCourseClassroomPage({
         </TabsContent>
 
         {/* Tab 3: Course Overview, Instructors & FAQ */}
-        <TabsContent value="overview" className="space-y-8 focus-visible:outline-none">
+        <TabsContent
+          value="overview"
+          className="space-y-8 focus-visible:outline-none"
+        >
           {/* Course Features */}
-          {course.features && course.features.length > 0 && (
+          {batch.features && batch.features.length > 0 && (
             <div className="space-y-4">
               <h2 className="text-lg sm:text-xl font-bold pb-1 border-b flex items-center gap-2">
                 <TickCircle className="size-5 text-emerald-500" />
                 কোর্সের অন্তর্ভুক্ত সুবিধাসমূহ
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {course.features.map((feat) => (
+                {batch.features.map((feat: string) => (
                   <div
                     key={feat}
                     className="flex items-start gap-2.5 p-3.5 rounded-xl bg-card border border-border/60 text-xs sm:text-sm font-medium"
@@ -384,7 +386,7 @@ export default async function MyCourseClassroomPage({
                 ইন্সট্রাক্টরবৃন্দ
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {instructors.map((ins) => (
+                {instructors.map((ins: any) => (
                   <div
                     key={`${ins.name}-${ins.institution}`}
                     className="border border-border/60 rounded-xl p-4 bg-card flex items-center gap-3.5"
@@ -405,7 +407,9 @@ export default async function MyCourseClassroomPage({
                     )}
                     <div className="space-y-0.5 min-w-0">
                       <h4 className="font-bold text-sm truncate">{ins.name}</h4>
-                      <p className="text-xs text-primary font-medium">{ins.role}</p>
+                      <p className="text-xs text-primary font-medium">
+                        {ins.role}
+                      </p>
                       <p className="text-[11px] text-muted-foreground truncate">
                         {ins.institution}
                       </p>
@@ -425,7 +429,7 @@ export default async function MyCourseClassroomPage({
               </h2>
               <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border/60">
                 <Accordion type="single" collapsible className="w-full">
-                  {faqs.map((faq, idx) => (
+                  {faqs.map((faq: any, idx: number) => (
                     <AccordionItem
                       key={faq.question}
                       value={`faq-${idx}`}
@@ -448,4 +452,3 @@ export default async function MyCourseClassroomPage({
     </div>
   );
 }
-

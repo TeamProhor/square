@@ -9,7 +9,7 @@ import {
   TaskSquare,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { getUserEnrolledCourses } from "@/lib/actions/course";
+import { getMyCourses } from "@/lib/actions/course";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +18,14 @@ export default async function MyCoursesPage() {
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session?.user?.id;
 
-  const res = userId ? await getUserEnrolledCourses(userId) : { data: [] };
-  const courses = res.data || [];
+  const res = userId ? await getMyCourses(userId) : [];
+  const batches = Array.isArray(res) ? res : [];
 
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 sm:pb-16 pt-0 sm:pt-2 md:pt-4 gap-6 sm:gap-8 px-3 sm:px-6">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 border-b pb-5">
-        <Link href="/#courses-section">
+        <Link href="/#batches-section">
           <Button
             variant="outline"
             className="w-full sm:w-auto rounded-xl text-xs sm:text-sm font-semibold h-10 gap-2 border-border/70"
@@ -37,37 +37,38 @@ export default async function MyCoursesPage() {
       </div>
 
       {/* Courses Grid */}
-      {courses.length > 0 ? (
+      {batches.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-          {courses.map((course) => {
-            const modulesCount = course.modules?.length || 0;
+          {batches.map((batch: any) => {
+            const modulesCount =
+              batch.modules?.length || batch.curriculum?.length || 0;
             const totalClasses =
-              course.modules?.reduce(
-                (acc, m) => acc + (m.totalClasses || 0),
+              (batch.modules || batch.curriculum || [])?.reduce(
+                (acc: number, m: any) => acc + (m.totalClasses || 0),
                 0,
               ) || 0;
 
             return (
               <div
-                key={course.enrollmentId}
+                key={batch.enrollmentId}
                 className="group border border-border/70 rounded-2xl p-4 sm:p-6 bg-card flex flex-col justify-between gap-5 shadow-xs hover:border-primary/40 hover:shadow-md transition-all duration-200"
               >
                 <div className="space-y-4">
                   {/* Image & Badge Header */}
                   <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-muted border border-border/50">
                     <Image
-                      src={course.image || "/images/image.png"}
-                      alt={course.title}
+                      src={batch.image || "/images/image.png"}
+                      alt={batch.name}
                       fill
                       className="object-cover group-hover:scale-103 transition-transform duration-300"
                     />
                     <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
                       <span className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-black/75 text-white backdrop-blur-md shadow-xs">
-                        {course.hscBatch}
+                        {batch.hscBatch}
                       </span>
-                      {course.badge && (
+                      {batch.badge && (
                         <span className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-primary text-primary-foreground shadow-xs">
-                          {course.badge}
+                          {batch.badge}
                         </span>
                       )}
                     </div>
@@ -76,11 +77,11 @@ export default async function MyCoursesPage() {
                   {/* Title & Description */}
                   <div className="space-y-1.5">
                     <h2 className="font-bold text-lg sm:text-xl leading-snug group-hover:text-primary transition-colors">
-                      {course.title}
+                      {batch.name}
                     </h2>
-                    {course.subtitle && (
+                    {batch.subtitle && (
                       <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {course.subtitle}
+                        {batch.subtitle}
                       </p>
                     )}
                   </div>
@@ -99,7 +100,7 @@ export default async function MyCoursesPage() {
                         {totalClasses}+ টি ক্লাস
                       </span>
                     )}
-                    {course.batches && course.batches.length > 0 && (
+                    {batch.batches && batch.batches.length > 0 && (
                       <span className="flex items-center gap-1.5 bg-muted/60 px-2.5 py-1 rounded-md font-medium border border-border/40">
                         <CalendarTick className="size-3.5 text-primary shrink-0" />
                         পরীক্ষা ব্যাচ যুক্ত
@@ -110,9 +111,9 @@ export default async function MyCoursesPage() {
 
                 {/* Footer Buttons */}
                 <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-border/40">
-                  {course.details?.telegramGroupUrl && (
+                  {batch.details?.telegramGroupUrl && (
                     <a
-                      href={course.details.telegramGroupUrl}
+                      href={batch.details.telegramGroupUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full sm:w-auto flex-1"
@@ -129,7 +130,7 @@ export default async function MyCoursesPage() {
                   )}
 
                   <Link
-                    href={`/my-courses/${course.id}`}
+                    href={`/my-batches/${batch.id}`}
                     className="w-full sm:w-auto flex-1"
                   >
                     <Button
@@ -158,7 +159,7 @@ export default async function MyCoursesPage() {
             আপনি এখনও কোনো কোর্সে এনরোল করেননি। আমাদের চলমান কোর্সগুলো দেখতে পারেন এবং
             আপনার পছন্দের ব্যাচে যুক্ত হতে পারেন।
           </p>
-          <Link href="/#courses-section" className="mt-6">
+          <Link href="/#batches-section" className="mt-6">
             <Button className="rounded-xl px-6 h-11 text-sm font-semibold shadow-xs">
               চলমান কোর্সসমূহ দেখুন
             </Button>

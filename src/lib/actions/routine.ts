@@ -84,6 +84,9 @@ export async function createExamRoutine(
             name: "HSC 2026 ব্যাচ",
             slug: "hsc-2026",
             description: "HSC 2026 মূল ব্যাচ",
+            hscBatch: "HSC 26",
+            price: 0,
+            image: "",
           })
           .returning();
         defaultBatch = newB;

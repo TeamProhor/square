@@ -180,91 +180,54 @@ export const questionTags = pgTable("question_tags", {
 // ─── Courses ──────────────────────────────────────────────────────────────────
 // Declared before batches because batches.courseId references courses.id.
 
-export const courses = pgTable("courses", {
-  id: text("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  title: text("title").notNull(),
-  subtitle: text("subtitle"),
-  description: text("description").notNull(),
-  hscBatch: text("hsc_batch").notNull(), // "HSC 26" | "HSC 27" | "Admission"
-  price: integer("price").notNull(),
-  originalPrice: integer("original_price"),
-  image: text("image").notNull(),
-  badge: text("badge"),
-  isPublished: boolean("is_published").default(true),
-  orderIndex: integer("order_index").default(0),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-});
-
-export const courseDetails = pgTable("course_details", {
-  id: text("id").primaryKey(),
-  courseId: text("course_id")
-    .notNull()
-    .unique()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  routinePdfUrl: text("routine_pdf_url"),
-  telegramGroupUrl: text("telegram_group_url"),
-  features: json("features").$type<string[]>(),
-  modules:
-    json("modules").$type<
-      {
-        id: string;
-        title: string;
-        totalClasses: number;
-        chapters: string[];
-      }[]
-    >(),
-  faqs: json("faqs").$type<
-    {
-      question: string;
-      answer: string;
-    }[]
-  >(),
-  instructors:
-    json("instructors").$type<
-      {
-        name: string;
-        role: string;
-        institution: string;
-        image?: string;
-      }[]
-    >(),
-});
-
-export const courseEnrollmentRequests = pgTable("course_enrollment_requests", {
-  id: text("id").primaryKey(),
+export const batchEnrollmentRequests = pgTable("batch_enrollment_requests", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  courseId: text("course_id")
+  batchId: text("batch_id")
     .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  paymentMethod: text("payment_method").notNull(), // "bkash" | "nagad" | "rocket" | "bank"
-  senderNumber: text("sender_number").notNull(),
+    .references(() => batches.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(),
+  paymentMethod: text("payment_method").notNull(),
   transactionId: text("transaction_id").notNull(),
-  amountPaid: integer("amount_paid").notNull(),
-  status: text("status").default("pending"), // "pending" | "approved" | "rejected"
-  adminNote: text("admin_note"),
-  reviewedBy: text("reviewed_by").references(() => user.id),
+  senderNumber: text("sender_number").notNull(),
+  status: text("status", { enum: ["pending", "approved", "rejected"] })
+    .default("pending")
+    .notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   reviewedAt: timestamp("reviewed_at"),
-  createdAt: timestamp("created_at").notNull(),
+  reviewedBy: text("reviewed_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
+  rejectionReason: text("rejection_reason"),
 });
-
-export const courseEnrollments = pgTable("course_enrollments", {
-  id: text("id").primaryKey(),
+export const batchEnrollments = pgTable("batch_enrollments", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  courseId: text("course_id")
+  batchId: text("batch_id")
     .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  requestId: text("request_id").references(() => courseEnrollmentRequests.id),
-  status: text("status").default("active"), // "active" | "revoked"
-  enrolledAt: timestamp("enrolled_at").notNull(),
-});
-
-// ─── Batches ──────────────────────────────────────────────────────────────────
+    .references(() => batches.id, { onDelete: "cascade" }),
+  requestId: text("request_id").references(() => batchEnrollmentRequests.id, {
+    onDelete: "set null",
+  }),
+  amountPaid: integer("amount_paid").notNull(),
+  enrolledAt: timestamp("enrolled_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at"),
+  status: text("status", { enum: ["active", "expired", "revoked"] })
+    .default("active")
+    .notNull(),
+  accessGrantedBy: text("access_granted_by").references(() => user.id, {
+    onDelete: "set null",
+  }),
+}); // ─── Batches ──────────────────────────────────────────────────────────────────
 // A batch is a cohort of students, optionally tied to a course.
 // hscYear is omitted — courses.hscBatch is the canonical source of truth for
 // the academic year; duplicating it here risks contradictory data.
@@ -275,15 +238,36 @@ export const batches = pgTable("batches", {
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
-  description: text("description"),
-  courseId: text("course_id").references(() => courses.id, {
-    onDelete: "set null",
-  }),
+  subtitle: text("subtitle"),
+  description: text("description").notNull(),
+  hscBatch: text("hsc_batch").notNull(), // "HSC 26" | "HSC 27" | "Admission"
+  price: integer("price").notNull(),
+  originalPrice: integer("original_price"),
+  image: text("image").notNull(),
+  badge: text("badge"),
+  isPublished: boolean("is_published").default(true),
+  orderIndex: integer("order_index").default(0),
   isActive: boolean("is_active").default(true).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const batchDetails = pgTable("batch_details", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  batchId: text("batch_id")
+    .notNull()
+    .references(() => batches.id, { onDelete: "cascade" }),
+  features: json("features").notNull(),
+  curriculum: json("curriculum").notNull(),
+  mentorIds: json("mentor_ids").notNull(),
+  faqs: json("faqs").notNull(),
+  demoVideoUrl: text("demo_video_url"),
+  routineUrl: text("routine_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 // Membership is separate from exam assignment — enables:
 // user → batch_members → batch → batch_exams → exam (authorization chain)
 export const batchMembers = pgTable(
@@ -604,68 +588,60 @@ export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
   votes: many(pollVotes),
 }));
 
-export const coursesRelations = relations(courses, ({ one, many }) => ({
-  details: one(courseDetails, {
-    fields: [courses.id],
-    references: [courseDetails.courseId],
-  }),
-  batches: many(batches),
-  enrollments: many(courseEnrollments),
-  enrollmentRequests: many(courseEnrollmentRequests),
-}));
-
-export const courseDetailsRelations = relations(courseDetails, ({ one }) => ({
-  course: one(courses, {
-    fields: [courseDetails.courseId],
-    references: [courses.id],
-  }),
-}));
-
-export const courseEnrollmentsRelations = relations(
-  courseEnrollments,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [courseEnrollments.userId],
-      references: [user.id],
-    }),
-    course: one(courses, {
-      fields: [courseEnrollments.courseId],
-      references: [courses.id],
-    }),
-    request: one(courseEnrollmentRequests, {
-      fields: [courseEnrollments.requestId],
-      references: [courseEnrollmentRequests.id],
-    }),
-  }),
-);
-
-export const courseEnrollmentRequestsRelations = relations(
-  courseEnrollmentRequests,
-  ({ one }) => ({
-    user: one(user, {
-      fields: [courseEnrollmentRequests.userId],
-      references: [user.id],
-    }),
-    course: one(courses, {
-      fields: [courseEnrollmentRequests.courseId],
-      references: [courses.id],
-    }),
-    reviewer: one(user, {
-      fields: [courseEnrollmentRequests.reviewedBy],
-      references: [user.id],
-    }),
-  }),
-);
-
 export const batchesRelations = relations(batches, ({ one, many }) => ({
-  course: one(courses, {
-    fields: [batches.courseId],
-    references: [courses.id],
+  details: one(batchDetails, {
+    fields: [batches.id],
+    references: [batchDetails.batchId],
   }),
   members: many(batchMembers),
   routines: many(examRoutines),
   batchExams: many(batchExams),
+  enrollments: many(batchEnrollments),
+  enrollmentRequests: many(batchEnrollmentRequests),
 }));
+
+export const batchDetailsRelations = relations(batchDetails, ({ one }) => ({
+  batch: one(batches, {
+    fields: [batchDetails.batchId],
+    references: [batches.id],
+  }),
+}));
+
+export const batchEnrollmentsRelations = relations(
+  batchEnrollments,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [batchEnrollments.userId],
+      references: [user.id],
+    }),
+    batch: one(batches, {
+      fields: [batchEnrollments.batchId],
+      references: [batches.id],
+    }),
+    request: one(batchEnrollmentRequests, {
+      fields: [batchEnrollments.requestId],
+      references: [batchEnrollmentRequests.id],
+    }),
+  }),
+);
+
+export const batchEnrollmentRequestsRelations = relations(
+  batchEnrollmentRequests,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [batchEnrollmentRequests.userId],
+      references: [user.id],
+    }),
+    batch: one(batches, {
+      fields: [batchEnrollmentRequests.batchId],
+      references: [batches.id],
+    }),
+    reviewer: one(user, {
+      fields: [batchEnrollmentRequests.reviewedBy],
+      references: [user.id],
+    }),
+  }),
+);
 
 export const batchMembersRelations = relations(batchMembers, ({ one }) => ({
   batch: one(batches, {

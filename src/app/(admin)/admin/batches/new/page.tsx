@@ -19,12 +19,7 @@ export default function NewBatchPage() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const slug = formData.get("slug") as string;
-    const description = formData.get("description") as string;
-    const courseId = formData.get("courseId") as string;
-
-    const res = await createBatchAction(name, slug, description, courseId);
+    const res = await createBatchAction(formData);
 
     if (res.success) {
       router.push("/admin/batches");
@@ -38,7 +33,7 @@ export default function NewBatchPage() {
     <div className="flex flex-col w-full max-w-2xl mx-auto pb-12 pt-2 md:py-8 gap-8">
       <div>
         <h1 className="text-2xl font-extrabold tracking-tight">
-          নতুন ব্যাচ তৈরি করুন
+          নতুন ব্যাচ তৈরি করুন (New Batch)
         </h1>
       </div>
 
@@ -53,12 +48,12 @@ export default function NewBatchPage() {
         )}
 
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">
+          <label htmlFor="title" className="text-sm font-medium">
             ব্যাচের নাম
           </label>
           <Input
-            id="name"
-            name="name"
+            id="title"
+            name="title"
             required
             placeholder="e.g. HSC 2026 Science"
             className="rounded-xl"
@@ -79,26 +74,69 @@ export default function NewBatchPage() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="description" className="text-sm font-medium">
-            বর্ণনা (Optional)
+          <label htmlFor="hscBatch" className="text-sm font-medium">
+            HSC Batch Tag
           </label>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="Short description of this batch"
-            className="rounded-xl min-h-[100px]"
+          <Input
+            id="hscBatch"
+            name="hscBatch"
+            required
+            placeholder="e.g. HSC 26"
+            className="rounded-xl"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label htmlFor="price" className="text-sm font-medium">
+              বর্তমান মূল্য (Price)
+            </label>
+            <Input
+              id="price"
+              name="price"
+              type="number"
+              required
+              placeholder="1000"
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="originalPrice" className="text-sm font-medium">
+              আগের মূল্য (Original Price)
+            </label>
+            <Input
+              id="originalPrice"
+              name="originalPrice"
+              type="number"
+              placeholder="1500"
+              className="rounded-xl"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="image" className="text-sm font-medium">
+            Image URL
+          </label>
+          <Input
+            id="image"
+            name="image"
+            required
+            placeholder="https://..."
+            className="rounded-xl"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="courseId" className="text-sm font-medium">
-            Course ID (Optional)
+          <label htmlFor="description" className="text-sm font-medium">
+            বর্ণনা
           </label>
-          <Input
-            id="courseId"
-            name="courseId"
-            placeholder="Related Course ID if any"
-            className="rounded-xl"
+          <Textarea
+            id="description"
+            name="description"
+            required
+            placeholder="Short description"
+            className="rounded-xl min-h-[100px]"
           />
         </div>
 

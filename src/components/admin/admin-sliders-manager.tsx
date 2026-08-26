@@ -81,7 +81,8 @@ export function AdminSlidersManager({
             হোমপেজ হিরো পোস্টার ম্যানেজমেন্ট
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            হিরো ব্যানারে কোনো টেক্সট ছাড়া শুধু পোস্টার ইমেজ শো হবে। এখান থেকে টেবিল আকারে পোস্টার লিঙ্ক ও রিডাইরেক্ট লিঙ্ক যোগ/এডিট করুন।
+            হিরো ব্যানারে কোনো টেক্সট ছাড়া শুধু পোস্টার ইমেজ শো হবে। এখান থেকে টেবিল আকারে
+            পোস্টার লিঙ্ক ও রিডাইরেক্ট লিঙ্ক যোগ/এডিট করুন।
           </p>
         </div>
 
@@ -132,10 +133,18 @@ export function AdminSlidersManager({
               <TableRow>
                 <TableHead className="w-16 text-center font-bold">#</TableHead>
                 <TableHead className="w-36 font-bold">প্রিভিউ</TableHead>
-                <TableHead className="min-w-[280px] font-bold">পোস্টার ইমেজ লিঙ্ক (Direct URL)</TableHead>
-                <TableHead className="min-w-[220px] font-bold">ক্লিক করলে যে লিঙ্কে যাবে (Action Link)</TableHead>
-                <TableHead className="min-w-[150px] font-bold">Alt Text (বিবরণ)</TableHead>
-                <TableHead className="w-20 text-center font-bold">অ্যাকশন</TableHead>
+                <TableHead className="min-w-[280px] font-bold">
+                  পোস্টার ইমেজ লিঙ্ক (Direct URL)
+                </TableHead>
+                <TableHead className="min-w-[220px] font-bold">
+                  ক্লিক করলে যে লিঙ্কে যাবে (Action Link)
+                </TableHead>
+                <TableHead className="min-w-[150px] font-bold">
+                  Alt Text (বিবরণ)
+                </TableHead>
+                <TableHead className="w-20 text-center font-bold">
+                  অ্যাকশন
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -145,7 +154,8 @@ export function AdminSlidersManager({
                     colSpan={6}
                     className="h-32 text-center text-muted-foreground font-medium"
                   >
-                    কোনো পোস্টার পাওয়া যায়নি। উপরে &quot;নতুন পোস্টার যোগ করুন&quot; বাটনে ক্লিক করুন।
+                    কোনো পোস্টার পাওয়া যায়নি। উপরে &quot;নতুন পোস্টার যোগ করুন&quot; বাটনে
+                    ক্লিক করুন।
                   </TableCell>
                 </TableRow>
               ) : (

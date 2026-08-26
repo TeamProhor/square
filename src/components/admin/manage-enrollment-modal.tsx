@@ -8,16 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { approveRequest, rejectRequest } from "@/lib/actions/admin-enrollments";
+import {
+  approveEnrollmentRequest,
+  rejectEnrollmentRequest,
+} from "@/lib/actions/admin-enrollments";
 
 interface EnrollmentRequestRow {
   request: {
     id: string;
-    courseId: string;
+    batchId: string;
     userId: string;
     status: string | null;
     paymentMethod: string;
-    amountPaid: number;
+    amount: number;
     transactionId: string | null;
     senderNumber: string | null;
   };
@@ -39,9 +42,8 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
   async function handleApprove(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    const formData = new FormData(e.currentTarget);
     try {
-      await approveRequest(formData);
+      await approveEnrollmentRequest(row.request.id);
       setOpen(false);
       router.refresh();
     } catch (err) {
@@ -55,8 +57,9 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
     e.preventDefault();
     setLoading(true);
     const formData = new FormData(e.currentTarget);
+    const reason = (formData.get("reason") as string) || "Not specified";
     try {
-      await rejectRequest(formData);
+      await rejectEnrollmentRequest(row.request.id, reason);
       setOpen(false);
       router.refresh();
     } catch (err) {
@@ -114,7 +117,7 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
           <div className="grid grid-cols-3 border-b pb-2">
             <span className="text-muted-foreground">মেথড ও অ্যামাউন্ট:</span>
             <span className="col-span-2 font-medium uppercase">
-              {row.request.paymentMethod} - ৳{row.request.amountPaid}
+              {row.request.paymentMethod} - ৳{row.request.amount}
             </span>
           </div>
           <div className="grid grid-cols-3 border-b pb-2">
@@ -138,11 +141,7 @@ export function ManageEnrollmentModal({ row }: { row: EnrollmentRequestRow }) {
             row.request.status === "rejected") && (
             <form onSubmit={handleApprove} className="w-full">
               <input type="hidden" name="requestId" value={row.request.id} />
-              <input
-                type="hidden"
-                name="courseId"
-                value={row.request.courseId}
-              />
+              <input type="hidden" name="batchId" value={row.request.batchId} />
               <input type="hidden" name="userId" value={row.request.userId} />
               <Button
                 type="submit"

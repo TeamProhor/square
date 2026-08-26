@@ -12,7 +12,8 @@ import { getCourses } from "@/lib/actions/course";
 type CourseItem = {
   readonly id: string;
   readonly slug: string;
-  readonly title: string;
+  readonly name?: string;
+  readonly title?: string;
   readonly price: number;
   readonly image: string;
   readonly badge?: string | null;
@@ -98,7 +99,7 @@ export function CoursesPricingSection() {
               >
                 <div className="relative aspect-video overflow-hidden">
                   <Image
-                    alt={course.title}
+                    alt={course.name || course.title || "Course"}
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
                     src={course.image}
                     width={600}
@@ -110,7 +111,7 @@ export function CoursesPricingSection() {
                 <div className="p-6 md:p-8 flex-1 flex flex-col justify-between">
                   <div>
                     <h3 className="text-lg md:text-xl font-extrabold text-foreground mb-3 line-clamp-2 leading-snug">
-                      {course.title}
+                      {course.name || course.title}
                     </h3>
                     <div className="bg-muted/40 border-l-4 border-foreground p-3.5 rounded-r-2xl mb-6 flex items-baseline justify-between shadow-xs">
                       <div className="flex items-baseline gap-2">

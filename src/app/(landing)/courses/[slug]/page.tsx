@@ -37,7 +37,7 @@ export default async function CourseDetailPage({
 }: CourseDetailPageProps): Promise<ReactElement> {
   const { slug } = await params;
   const session = await auth.api.getSession({ headers: await headers() });
-  const courseWithDetails = await getCourseWithDetailsBySlug(slug);
+  const courseWithDetails = (await getCourseWithDetailsBySlug(slug)) as any;
 
   if (!courseWithDetails) {
     notFound();
@@ -46,7 +46,8 @@ export default async function CourseDetailPage({
   const course = {
     id: courseWithDetails.id,
     slug: courseWithDetails.slug,
-    title: courseWithDetails.title,
+    name: courseWithDetails.name || courseWithDetails.title || "",
+    title: courseWithDetails.name || courseWithDetails.title || "",
     subtitle: courseWithDetails.subtitle || "",
     description: courseWithDetails.description,
     hscBatch: courseWithDetails.hscBatch,
@@ -59,7 +60,10 @@ export default async function CourseDetailPage({
       courseWithDetails.details?.telegramGroupUrl || "https://t.me/shu_yaib",
     features: courseWithDetails.details?.features || [],
     instructors: courseWithDetails.details?.instructors || [],
-    modules: courseWithDetails.details?.modules || [],
+    modules:
+      courseWithDetails.details?.modules ||
+      courseWithDetails.details?.curriculum ||
+      [],
     faqs: courseWithDetails.details?.faqs || [],
   };
 
@@ -69,7 +73,7 @@ export default async function CourseDetailPage({
       session.user.id,
       course.id,
     );
-    enrollmentStatus = statusResult.status || "none";
+    enrollmentStatus = statusResult?.status || "none";
   }
 
   return (
@@ -94,7 +98,7 @@ export default async function CourseDetailPage({
         <section className="w-full relative overflow-hidden rounded-2xl md:rounded-3xl border border-border/70 shadow-sm bg-muted aspect-16/7 md:aspect-21/9 max-h-[380px]">
           <Image
             src={course.image}
-            alt={`${course.title} - কোর্স কভার ছবি`}
+            alt={`${course.name} - কোর্স কভার ছবি`}
             fill
             priority
             unoptimized
@@ -119,7 +123,7 @@ export default async function CourseDetailPage({
             <div className="bg-card rounded-2xl md:rounded-3xl p-6 sm:p-8 border border-border/80 shadow-xs space-y-4">
               <div className="border-l-4 border-primary pl-3.5">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-foreground tracking-tight">
-                  {course.title}
+                  {course.name}
                 </h1>
                 {course.subtitle && (
                   <p className="text-xs sm:text-sm font-semibold text-muted-foreground mt-1">
@@ -180,7 +184,7 @@ export default async function CourseDetailPage({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {course.features.map((feature, idx) => (
+                  {course.features.map((feature: any, idx: number) => (
                     <div
                       key={feature}
                       className="flex items-start gap-3.5 bg-card p-4 rounded-2xl border border-border/80 shadow-2xs hover:border-primary/50 transition-all group"
@@ -257,7 +261,7 @@ export default async function CourseDetailPage({
 
                 <div className="bg-card rounded-2xl md:rounded-3xl p-5 sm:p-7 border border-border/80 shadow-xs">
                   <Accordion type="single" collapsible className="w-full">
-                    {course.faqs.map((faq, idx) => (
+                    {course.faqs.map((faq: any, idx: number) => (
                       <AccordionItem
                         key={faq.question}
                         value={`faq-${idx}`}
@@ -285,7 +289,7 @@ export default async function CourseDetailPage({
                   ভর্তি চলছে
                 </span>
                 <h2 className="text-lg font-black text-foreground">
-                  {course.title}
+                  {course.name}
                 </h2>
               </div>
 
@@ -352,8 +356,8 @@ export default async function CourseDetailPage({
                       </div>
                     )}
                     <CheckoutModal
-                      courseId={course.id}
-                      courseTitle={course.title}
+                      batchId={course.id}
+                      batchTitle={course.name}
                       price={course.price}
                       userId={session.user.id}
                     >

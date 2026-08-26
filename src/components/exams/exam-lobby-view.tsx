@@ -89,7 +89,9 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">মোট মার্কস</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              মোট মার্কস
+            </span>
             <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
               <TaskSquare className="size-4" />
             </div>
@@ -104,7 +106,9 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
 
         <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">সময়সীমা</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              সময়সীমা
+            </span>
             <div className="size-8 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
               <Clock className="size-4" />
             </div>
@@ -119,7 +123,9 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
 
         <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">নেগেটিভ মার্ক</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              নেগেটিভ মার্ক
+            </span>
             <div className="size-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center">
               <Information className="size-4" />
             </div>
@@ -128,13 +134,17 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
             <div className="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 tracking-tight">
               {exam.negativeMarking}
             </div>
-            <span className="text-[11px] text-muted-foreground">প্রতি ভুল উত্তরে</span>
+            <span className="text-[11px] text-muted-foreground">
+              প্রতি ভুল উত্তরে
+            </span>
           </div>
         </div>
 
         <div className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">পাস মার্ক</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              পাস মার্ক
+            </span>
             <div className="size-8 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
               <TickCircle className="size-4" />
             </div>
@@ -143,7 +153,9 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
             <div className="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
               {Math.ceil(exam.totalMarks * 0.4)}
             </div>
-            <span className="text-[11px] text-muted-foreground">নম্বর (৪০%)</span>
+            <span className="text-[11px] text-muted-foreground">
+              নম্বর (৪০%)
+            </span>
           </div>
         </div>
       </div>
@@ -154,7 +166,7 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
           <ShieldCheck className="size-5 text-primary" />
           পরীক্ষা সংক্রান্ত নিয়মাবলী ও নির্দেশনা
         </h3>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1 text-xs sm:text-sm text-muted-foreground">
           <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
             <span className="size-2 rounded-full bg-primary mt-1.5 shrink-0" />
@@ -168,7 +180,10 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
 
           <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
             <span className="size-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
-            <span>প্রতিটি ভুল উত্তরের জন্য <strong>{exam.negativeMarking}</strong> নম্বর কাটা যাবে।</span>
+            <span>
+              প্রতিটি ভুল উত্তরের জন্য <strong>{exam.negativeMarking}</strong> নম্বর
+              কাটা যাবে।
+            </span>
           </div>
 
           <div className="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/40">
@@ -187,9 +202,7 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
               দুঃখিত, আপনি এই পরীক্ষায় অংশগ্রহণ করার জন্য অনুমোদিত নন।
             </div>
             {access.error && (
-              <p className="text-xs opacity-80 pt-1">
-                {access.error}
-              </p>
+              <p className="text-xs opacity-80 pt-1">{access.error}</p>
             )}
           </div>
         ) : (
@@ -214,4 +227,3 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
     </div>
   );
 }
-

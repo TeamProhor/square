@@ -62,7 +62,6 @@ export default function Shell({ children, dict, lang }: ShellProps) {
             </div>
 
             <div className="flex flex-row items-center gap-[12px]">
-
               <Link
                 href={user ? "/profile" : "/login"}
                 className="relative size-8 rounded-full overflow-hidden border border-border shadow-xs hover:opacity-85 transition-opacity"

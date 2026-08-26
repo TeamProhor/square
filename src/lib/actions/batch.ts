@@ -1,15 +1,16 @@
 "use server";
 
 import { and, desc, eq, inArray } from "drizzle-orm";
+import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
+  batchDetails,
+  batchEnrollmentRequests,
   batchExams,
   batches,
   batchMembers,
-  courseEnrollmentRequests,
 } from "@/db/schema";
-import type { BatchDetail } from "@/types";
 
 export async function getBatchesAction() {
   try {
@@ -25,30 +26,78 @@ export async function getBatchesAction() {
   }
 }
 
-export async function createBatchAction(
-  name: string,
-  slug: string,
-  description?: string,
-  courseId?: string,
-) {
+export async function createBatchAction(formData: FormData) {
   try {
-    const res = await db
-      .insert(batches)
-      .values({
-        name,
+    const id = nanoid();
+    const slug = formData.get("slug") as string;
+
+    await db.transaction(async (tx) => {
+      await tx.insert(batches).values({
+        id,
+        name: formData.get("title") as string,
         slug,
-        courseId: courseId?.trim() ? courseId.trim() : null,
-        description: description?.trim() ? description.trim() : null,
+        hscBatch: formData.get("hscBatch") as string,
+        price: parseInt(formData.get("price") as string, 10),
+        originalPrice:
+          parseInt(formData.get("originalPrice") as string, 10) || null,
+        description: formData.get("description") as string,
+        image: formData.get("image") as string,
+        isPublished: false,
         isActive: true,
-      })
-      .returning();
+      });
+
+      await tx.insert(batchDetails).values({
+        id: nanoid(),
+        batchId: id,
+        features: [],
+        curriculum: [],
+        mentorIds: [],
+        faqs: [],
+      });
+    });
     revalidatePath("/admin/batches");
-    return { success: true, data: res[0] };
+    return { success: true };
   } catch (error: unknown) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create batch",
     };
+  }
+}
+
+export async function deleteBatchAction(batchId: string) {
+  try {
+    await db.delete(batches).where(eq(batches.id, batchId));
+    revalidatePath("/admin/batches");
+    return { success: true };
+  } catch (_error: unknown) {
+    return { success: false, error: "Failed to delete" };
+  }
+}
+
+export async function updateBatchAction(formData: FormData) {
+  try {
+    const batchId = formData.get("batchId") as string;
+    const originalPriceRaw = formData.get("originalPrice") as string;
+
+    await db
+      .update(batches)
+      .set({
+        name: formData.get("title") as string,
+        slug: formData.get("slug") as string,
+        hscBatch: formData.get("hscBatch") as string,
+        price: parseInt(formData.get("price") as string, 10),
+        originalPrice: originalPriceRaw ? parseInt(originalPriceRaw, 10) : null,
+        description: formData.get("description") as string,
+        image: formData.get("image") as string,
+        updatedAt: new Date(),
+      })
+      .where(eq(batches.id, batchId));
+
+    revalidatePath("/admin/batches");
+    return { success: true };
+  } catch (_error: unknown) {
+    return { success: false, error: "Failed to update" };
   }
 }
 
@@ -71,7 +120,7 @@ export async function getBatchDetailAction(id: string) {
     const batch = await db.query.batches.findFirst({
       where: eq(batches.id, id),
       with: {
-        course: true,
+        details: true,
         members: {
           with: { user: true },
         },
@@ -83,13 +132,13 @@ export async function getBatchDetailAction(id: string) {
     if (!batch) return { success: false, error: "Batch not found" };
 
     const memberUserIds = batch.members.map((m) => m.userId);
-    let enrollmentRequests: (typeof courseEnrollmentRequests.$inferSelect)[] =
+    let enrollmentRequests: (typeof batchEnrollmentRequests.$inferSelect)[] =
       [];
-    if (memberUserIds.length > 0 && batch.courseId) {
-      enrollmentRequests = await db.query.courseEnrollmentRequests.findMany({
+    if (memberUserIds.length > 0) {
+      enrollmentRequests = await db.query.batchEnrollmentRequests.findMany({
         where: and(
-          inArray(courseEnrollmentRequests.userId, memberUserIds),
-          eq(courseEnrollmentRequests.courseId, batch.courseId),
+          inArray(batchEnrollmentRequests.userId, memberUserIds),
+          eq(batchEnrollmentRequests.batchId, batch.id),
         ),
       });
     }
@@ -102,7 +151,7 @@ export async function getBatchDetailAction(id: string) {
           ? {
               request,
               user: m.user,
-              course: batch.course,
+              batch: batch,
             }
           : null,
       };
@@ -113,7 +162,7 @@ export async function getBatchDetailAction(id: string) {
       data: {
         ...batch,
         members: membersWithRequests,
-      } as unknown as BatchDetail,
+      },
     };
   } catch (error: unknown) {
     return {

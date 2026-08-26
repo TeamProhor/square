@@ -1,11 +1,11 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect } from "react";
 import { ArrowLeft2, Download } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
 import { getExamRoutines } from "@/lib/actions/routine";
 import { EXAMS } from "@/lib/routine";
 import type { Exam, ExamRoutine } from "@/types";
@@ -112,9 +112,7 @@ function PrintCalendarContent() {
             <th className="py-2.5 px-4 font-bold border-r border-black/60">
               পরীক্ষার তারিখ
             </th>
-            <th className="py-2.5 px-4 font-bold text-right">
-              সময় / মন্তব্য
-            </th>
+            <th className="py-2.5 px-4 font-bold text-right">সময় / মন্তব্য</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-black/40">

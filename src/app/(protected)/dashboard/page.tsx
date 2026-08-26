@@ -18,8 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/db";
 import {
-  courseEnrollments,
-  courses,
+  batchEnrollments,
+  batches,
   examRoutines,
   examSubmissions,
   exams,
@@ -40,30 +40,30 @@ export default async function DashboardPage() {
   });
 
   // 2. Fetch User's Enrolled Courses
-  let userEnrolledCourses: (typeof courses.$inferSelect)[] = [];
+  let userEnrolledCourses: (typeof batches.$inferSelect)[] = [];
   if (userId) {
     const enrollments = await db
       .select({
-        id: courseEnrollments.id,
-        status: courseEnrollments.status,
-        enrolledAt: courseEnrollments.enrolledAt,
-        course: courses,
+        id: batchEnrollments.id,
+        status: batchEnrollments.status,
+        enrolledAt: batchEnrollments.enrolledAt,
+        course: batches,
       })
-      .from(courseEnrollments)
-      .innerJoin(courses, eq(courseEnrollments.courseId, courses.id))
-      .where(eq(courseEnrollments.userId, userId));
+      .from(batchEnrollments)
+      .innerJoin(batches, eq(batchEnrollments.batchId, batches.id))
+      .where(eq(batchEnrollments.userId, userId));
 
     userEnrolledCourses = enrollments.map((e) => e.course);
   }
 
-  // 3. If user has no enrollments, fetch popular courses to show
+  // 3. If user has no enrollments, fetch popular batches to show
   const featuredCourses =
     userEnrolledCourses.length > 0
       ? userEnrolledCourses.slice(0, 3)
       : await db
           .select()
-          .from(courses)
-          .where(eq(courses.isPublished, true))
+          .from(batches)
+          .where(eq(batches.isPublished, true))
           .limit(3);
 
   // 4. Fetch User's Exam Submissions & Activity Stats
@@ -438,7 +438,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <Link
-            href={userEnrolledCourses.length > 0 ? "/my-courses" : "/#courses"}
+            href={userEnrolledCourses.length > 0 ? "/my-batches" : "/#batches"}
             className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
           >
             সকল কোর্স <ArrowRight2 className="size-3" />
@@ -446,17 +446,17 @@ export default async function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {featuredCourses.map((course) => (
+          {featuredCourses.map((batch) => (
             <Card
-              key={course.id}
+              key={batch.id}
               className="bg-card rounded-[22px] overflow-hidden border border-border/70 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between p-0 group"
             >
-              {course.image && (
+              {batch.image && (
                 <div className="relative aspect-video overflow-hidden bg-muted">
                   <Image
-                    alt={course.title}
+                    alt={batch.name}
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    src={course.image}
+                    src={batch.image}
                     width={500}
                     height={280}
                     unoptimized
@@ -467,16 +467,16 @@ export default async function DashboardPage() {
               <div className="p-5 flex-1 flex flex-col justify-between gap-4">
                 <div>
                   <span className="text-[11px] font-semibold text-primary uppercase tracking-wider block mb-1">
-                    ব্যাচ: {course.hscBatch}
+                    ব্যাচ: {batch.hscBatch}
                   </span>
                   <h3 className="text-sm sm:text-base font-extrabold text-foreground line-clamp-2 leading-snug">
-                    {course.title}
+                    {batch.name}
                   </h3>
                 </div>
 
                 <div className="pt-2 border-t flex items-center justify-between">
                   <span className="text-base font-black text-foreground">
-                    ৳{toBanglaDigits(course.price)}
+                    ৳{toBanglaDigits(batch.price)}
                   </span>
                   <Button
                     asChild
@@ -485,12 +485,12 @@ export default async function DashboardPage() {
                   >
                     <Link
                       href={
-                        userEnrolledCourses.some((c) => c.id === course.id)
-                          ? `/my-courses/${course.id}`
-                          : `/courses/${course.slug}`
+                        userEnrolledCourses.some((c) => c.id === batch.id)
+                          ? `/my-batches/${batch.id}`
+                          : `/batches/${batch.slug}`
                       }
                     >
-                      {userEnrolledCourses.some((c) => c.id === course.id)
+                      {userEnrolledCourses.some((c) => c.id === batch.id)
                         ? "কোর্সে প্রবেশ"
                         : "বিস্তারিত দেখুন"}
                     </Link>

@@ -62,4 +62,3 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
     </div>
   );
 }
-

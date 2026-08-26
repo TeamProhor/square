@@ -178,7 +178,6 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
               : "flex-row items-center gap-[12px] px-[8px]"
           }`}
         >
-
           <LanguageToggler lang={lang} className="text-[14px]" />
         </div>
 

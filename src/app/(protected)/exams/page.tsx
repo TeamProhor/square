@@ -2,12 +2,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { Clock, TaskSquare } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getPublishedExams, getStudentExams } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
 
@@ -87,7 +82,9 @@ export default async function ExamsBrowserPage() {
                   </div>
                   <div className="text-xs bg-muted/30 p-3.5 rounded-xl text-muted-foreground space-y-1.5 border border-border/30">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-foreground/80">শুরু:</span>
+                      <span className="font-medium text-foreground/80">
+                        শুরু:
+                      </span>
                       <span>
                         {be.startsAt
                           ? new Date(be.startsAt).toLocaleString("bn-BD")
@@ -95,7 +92,9 @@ export default async function ExamsBrowserPage() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-foreground/80">শেষ:</span>
+                      <span className="font-medium text-foreground/80">
+                        শেষ:
+                      </span>
                       <span>
                         {be.endsAt
                           ? new Date(be.endsAt).toLocaleString("bn-BD")
@@ -103,10 +102,7 @@ export default async function ExamsBrowserPage() {
                       </span>
                     </div>
                   </div>
-                  <Link
-                    href={`/exams/${exam.slug}`}
-                    className="mt-auto"
-                  >
+                  <Link href={`/exams/${exam.slug}`} className="mt-auto">
                     <Button className="w-full h-10 rounded-xl text-sm font-semibold">
                       বিস্তারিত ও শুরু করুন &rarr;
                     </Button>
@@ -163,10 +159,7 @@ export default async function ExamsBrowserPage() {
                     </span>
                   </div>
                 </div>
-                <Link
-                  href={`/exams/${exam.slug}`}
-                  className="mt-auto"
-                >
+                <Link href={`/exams/${exam.slug}`} className="mt-auto">
                   <Button
                     variant="outline"
                     className="w-full h-10 rounded-xl text-sm font-semibold border-border/70 hover:border-primary/50"

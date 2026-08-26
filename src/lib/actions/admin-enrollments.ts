@@ -1,51 +1,94 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/db";
-import { courseEnrollmentRequests, courseEnrollments } from "@/db/schema";
+import {
+  batchEnrollmentRequests,
+  batchEnrollments,
+  batchMembers,
+} from "@/db/schema";
+import { auth } from "@/lib/auth";
 
-export async function approveRequest(formData: FormData) {
-  const requestId = formData.get("requestId") as string;
-  const courseId = formData.get("courseId") as string;
-  const userId = formData.get("userId") as string;
+export async function getEnrollmentRequests() {
+  const reqs = await db.query.batchEnrollmentRequests.findMany({
+    with: {
+      user: true,
+      batch: true,
+    },
+    orderBy: [desc(batchEnrollmentRequests.createdAt)],
+  });
+  return reqs;
+}
+
+export async function approveEnrollmentRequest(requestId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const adminId = session?.user?.id;
+
+  if (!adminId) {
+    throw new Error("Unauthorized");
+  }
 
   await db.transaction(async (tx) => {
-    await tx
-      .update(courseEnrollmentRequests)
-      .set({ status: "approved", reviewedAt: new Date() })
-      .where(eq(courseEnrollmentRequests.id, requestId));
+    // 1. Mark request as approved
+    const [updatedReq] = await tx
+      .update(batchEnrollmentRequests)
+      .set({
+        status: "approved",
+        reviewedAt: new Date(),
+        reviewedBy: adminId,
+      })
+      .where(eq(batchEnrollmentRequests.id, requestId))
+      .returning();
 
-    await tx.insert(courseEnrollments).values({
-      id: crypto.randomUUID(),
-      userId,
-      courseId,
-      requestId,
-      status: "active",
-      enrolledAt: new Date(),
+    if (!updatedReq) throw new Error("Request not found");
+
+    // 2. Create actual enrollment
+    await tx.insert(batchEnrollments).values({
+      userId: updatedReq.userId,
+      batchId: updatedReq.batchId,
+      requestId: updatedReq.id,
+      amountPaid: updatedReq.amount,
+      accessGrantedBy: adminId,
+    });
+
+    // 3. Add user to batch_members
+    await tx.insert(batchMembers).values({
+      batchId: updatedReq.batchId,
+      userId: updatedReq.userId,
+      role: "student",
     });
   });
 
   revalidatePath("/admin/enrollments");
-  revalidatePath(`/courses`);
+  revalidatePath("/my-courses");
 }
 
-export async function rejectRequest(formData: FormData) {
-  const requestId = formData.get("requestId") as string;
-  const adminNote = (formData.get("adminNote") as string) || "Payment mismatch";
-
-  await db.transaction(async (tx) => {
-    await tx
-      .update(courseEnrollmentRequests)
-      .set({ status: "rejected", reviewedAt: new Date(), adminNote })
-      .where(eq(courseEnrollmentRequests.id, requestId));
-
-    // Remove the enrollment to revoke course access
-    await tx
-      .delete(courseEnrollments)
-      .where(eq(courseEnrollments.requestId, requestId));
+export async function rejectEnrollmentRequest(
+  requestId: string,
+  reason: string,
+) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
+  const adminId = session?.user?.id;
+
+  if (!adminId) {
+    throw new Error("Unauthorized");
+  }
+
+  await db
+    .update(batchEnrollmentRequests)
+    .set({
+      status: "rejected",
+      reviewedAt: new Date(),
+      reviewedBy: adminId,
+      rejectionReason: reason,
+    })
+    .where(eq(batchEnrollmentRequests.id, requestId));
 
   revalidatePath("/admin/enrollments");
-  revalidatePath("/my-courses");
 }

@@ -16,11 +16,11 @@ import {
 interface EnrollmentRequestData {
   request: {
     id: string;
-    courseId: string;
+    batchId: string;
     userId: string;
     status: string | null;
     paymentMethod: string;
-    amountPaid: number;
+    amount: number;
     transactionId: string | null;
     senderNumber: string | null;
   };

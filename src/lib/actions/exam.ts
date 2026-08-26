@@ -4,10 +4,9 @@ import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
-  batches,
+  batchEnrollments,
   batchExams,
   batchMembers,
-  courseEnrollments,
   examQuestions,
   examResponses,
   examSubmissions,
@@ -90,25 +89,17 @@ export async function getStudentExams(userId: string) {
     const memberBatchIds = userBatchMemberships.map((bm) => bm.batchId);
 
     // 2. Get batch IDs from active course enrollments
-    const userEnrollments = await db.query.courseEnrollments.findMany({
+    const userEnrollments = await db.query.batchEnrollments.findMany({
       where: and(
-        eq(courseEnrollments.userId, userId),
-        eq(courseEnrollments.status, "active"),
+        eq(batchEnrollments.userId, userId),
+        eq(batchEnrollments.status, "active"),
       ),
     });
 
-    const enrolledCourseIds = userEnrollments.map((e) => e.courseId);
-
-    let enrolledCourseBatchIds: string[] = [];
-    if (enrolledCourseIds.length > 0) {
-      const courseBatches = await db.query.batches.findMany({
-        where: inArray(batches.courseId, enrolledCourseIds),
-      });
-      enrolledCourseBatchIds = courseBatches.map((b) => b.id);
-    }
+    const enrolledBatchIds = userEnrollments.map((e) => e.batchId);
 
     const allBatchIds = Array.from(
-      new Set([...memberBatchIds, ...enrolledCourseBatchIds]),
+      new Set([...memberBatchIds, ...enrolledBatchIds]),
     );
 
     if (allBatchIds.length === 0) return { success: true, data: [] };
@@ -173,13 +164,13 @@ export async function checkExamAccess(userId: string, examId: string) {
     if (bExams.length === 0)
       return { allowed: false, error: "Not assigned to any batch" };
 
-    const batchIds = bExams.map((be) => be.batchId);
+    const targetBatchIds = bExams.map((be) => be.batchId);
 
     // 2. Direct batch membership check
     const membership = await db.query.batchMembers.findFirst({
       where: and(
         eq(batchMembers.userId, userId),
-        inArray(batchMembers.batchId, batchIds),
+        inArray(batchMembers.batchId, targetBatchIds),
         eq(batchMembers.status, "active"),
       ),
     });
@@ -191,37 +182,23 @@ export async function checkExamAccess(userId: string, examId: string) {
       return { allowed: true, batchExamId: relatedBatchExam?.id };
     }
 
-    // 3. Course enrollment check (if the batch is associated with an enrolled course)
-    const batchesWithCourse = await db.query.batches.findMany({
-      where: inArray(batches.id, batchIds),
+    // 3. Batch enrollment check
+    const enrollment = await db.query.batchEnrollments.findFirst({
+      where: and(
+        eq(batchEnrollments.userId, userId),
+        inArray(batchEnrollments.batchId, targetBatchIds),
+        eq(batchEnrollments.status, "active"),
+      ),
     });
 
-    const courseIds = batchesWithCourse
-      .map((b) => b.courseId)
-      .filter((cid): cid is string => Boolean(cid));
-
-    if (courseIds.length > 0) {
-      const courseEnrollment = await db.query.courseEnrollments.findFirst({
-        where: and(
-          eq(courseEnrollments.userId, userId),
-          inArray(courseEnrollments.courseId, courseIds),
-          eq(courseEnrollments.status, "active"),
-        ),
-      });
-
-      if (courseEnrollment) {
-        // Find the batch corresponding to this enrolled course
-        const matchedBatch = batchesWithCourse.find(
-          (b) => b.courseId === courseEnrollment.courseId,
-        );
-        const relatedBatchExam = bExams.find(
-          (be) => be.batchId === matchedBatch?.id,
-        );
-        return {
-          allowed: true,
-          batchExamId: relatedBatchExam?.id || bExams[0]?.id || null,
-        };
-      }
+    if (enrollment) {
+      const relatedBatchExam = bExams.find(
+        (be) => be.batchId === enrollment.batchId,
+      );
+      return {
+        allowed: true,
+        batchExamId: relatedBatchExam?.id || bExams[0]?.id || null,
+      };
     }
 
     return { allowed: false, error: "You do not have access to this exam" };

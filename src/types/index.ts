@@ -371,7 +371,8 @@ export interface BatchMember {
   readonly email?: string;
   readonly role: string;
   readonly status: string;
-  readonly joinedAt: string;
+  readonly joinedAt: Date;
+  readonly enrollmentRequest?: any;
 }
 
 export interface BatchExamDetail {

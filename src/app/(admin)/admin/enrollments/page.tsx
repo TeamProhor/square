@@ -1,27 +1,27 @@
 import { desc, eq } from "drizzle-orm";
 import { EnrollmentRequestsList } from "@/components/admin/enrollment-requests-list";
 import { db } from "@/db";
-import { courseEnrollmentRequests, courses, user } from "@/db/schema";
+import { batchEnrollmentRequests, batches, user } from "@/db/schema";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminEnrollmentsPage() {
   const requests = await db
     .select({
-      request: courseEnrollmentRequests,
+      request: batchEnrollmentRequests,
       user: {
         name: user.name,
         email: user.email,
       },
       course: {
-        title: courses.title,
-        hscBatch: courses.hscBatch,
+        title: batches.name,
+        hscBatch: batches.hscBatch,
       },
     })
-    .from(courseEnrollmentRequests)
-    .leftJoin(user, eq(courseEnrollmentRequests.userId, user.id))
-    .leftJoin(courses, eq(courseEnrollmentRequests.courseId, courses.id))
-    .orderBy(desc(courseEnrollmentRequests.createdAt));
+    .from(batchEnrollmentRequests)
+    .leftJoin(user, eq(batchEnrollmentRequests.userId, user.id))
+    .leftJoin(batches, eq(batchEnrollmentRequests.batchId, batches.id))
+    .orderBy(desc(batchEnrollmentRequests.createdAt));
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">

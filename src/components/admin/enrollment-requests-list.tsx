@@ -24,11 +24,11 @@ import {
 interface EnrollmentRequestRow {
   request: {
     id: string;
-    courseId: string;
+    batchId: string;
     userId: string;
     status: string | null;
     paymentMethod: string;
-    amountPaid: number;
+    amount: number;
     transactionId: string | null;
     senderNumber: string | null;
   };
@@ -109,7 +109,7 @@ export function EnrollmentRequestsList({
   };
 
   const listItems = paginatedRequests.map((row) => ({
-    title: `${row.user?.name || "অজানা শিক্ষার্থী"} - ৳${row.request.amountPaid}`,
+    title: `${row.user?.name || "অজানা শিক্ষার্থী"} - ৳${row.request.amount}`,
     description: `কোর্স: ${row.course?.title || "অজানা কোর্স"} | মেথড: ${row.request.paymentMethod.toUpperCase()}`,
     icon: <User className="size-5 md:size-6" />,
     iconBg:
