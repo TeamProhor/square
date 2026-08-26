@@ -5,7 +5,11 @@ import Link from "next/link";
 import { Calendar, Chart, FileDown, Send, User } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
+import { useSession } from "@/lib/auth-client";
+
 export function LandingHeader() {
+  const { data: session, isPending } = useSession();
+
   return (
     <nav
       id="main-nav"
@@ -34,15 +38,29 @@ export function LandingHeader() {
 
         {/* Action Controls */}
         <div className="flex items-center gap-3">
-          <Button
-            asChild
-            className="rounded-full px-6 py-2.5 font-bold shadow-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-102 text-sm cursor-pointer"
-          >
-            <Link href="/login" className="flex items-center gap-2">
-              <User data-icon="inline-start" className="size-4" />
-              <span>লগইন</span>
-            </Link>
-          </Button>
+          {isPending ? (
+            <div className="w-24 h-10 rounded-full bg-muted animate-pulse" />
+          ) : session?.user ? (
+            <Button
+              asChild
+              className="rounded-full px-6 py-2.5 font-bold shadow-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-102 text-sm cursor-pointer"
+            >
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <User data-icon="inline-start" className="size-4" />
+                <span>ড্যাশবোর্ড</span>
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              asChild
+              className="rounded-full px-6 py-2.5 font-bold shadow-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-102 text-sm cursor-pointer"
+            >
+              <Link href="/login" className="flex items-center gap-2">
+                <User data-icon="inline-start" className="size-4" />
+                <span>লগইন</span>
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </nav>

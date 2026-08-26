@@ -277,7 +277,7 @@ export function PdfSuggestionView() {
                 title={selectedPdf.title}
                 className="w-full h-full border-none"
                 allow="autoplay"
-                sandbox="allow-scripts allow-same-origin allow-popups"
+                allowFullScreen
                 onLoad={() => setIsLoading(false)}
               />
             ) : (

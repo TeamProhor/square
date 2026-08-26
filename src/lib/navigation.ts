@@ -17,6 +17,7 @@ export const USER_NAV_ITEMS: readonly NavItem[] = [
   { name: "পিডিএফ", path: "/pdf", exact: false, icon: DocumentDownload },
   { name: "ক্যালেন্ডার", path: "/calendar", exact: false, icon: CalendarTick },
   { name: "পোল", path: "/poll", exact: false, icon: StatusUp },
+  { name: "প্রোফাইল", path: "/profile", exact: false, icon: User },
 ];
 
 export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
@@ -26,6 +27,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     path: "/admin/courses",
     exact: false,
     icon: BookOpen,
+  },
+  {
+    name: "এনরোলমেন্ট",
+    path: "/admin/enrollments",
+    exact: false,
+    icon: DocumentDownload,
   },
   { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
   { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
@@ -42,6 +49,12 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     icon: CalendarTick,
   },
   { name: "পিডিএফ সাজেশন", path: "/admin/pdf", exact: false, icon: BookOpen },
+  {
+    name: "হিরো স্লাইডার",
+    path: "/admin/sliders",
+    exact: false,
+    icon: StatusUp,
+  },
 ];
 
 export function getNavItems(

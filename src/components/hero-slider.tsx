@@ -62,21 +62,13 @@ export function HeroSlider({ slides }: { slides?: SliderItem[] }) {
               }`}
             >
               <Image
-                alt={slide.alt || "Slider Image"}
+                alt={slide.alt || "Hero Banner"}
                 className="w-full h-full object-cover"
                 src={slide.url}
                 fill
                 priority={index === 0}
                 unoptimized
               />
-              <div className="absolute inset-0 hero-gradient" />
-              {slide.title && (
-                <div className="absolute bottom-10 left-6 sm:left-12 z-20 max-w-xl text-white space-y-1">
-                  <h2 className="text-xl sm:text-3xl font-extrabold drop-shadow-md">
-                    {slide.title}
-                  </h2>
-                </div>
-              )}
             </div>
           );
 

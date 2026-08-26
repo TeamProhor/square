@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft2, User as UserIcon } from "@/components/icons";
-import { ThemeToggler } from "@/components/theme-toggler";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth-client";
 import type { ShellProps } from "@/types";
@@ -62,7 +62,7 @@ export default function Shell({ children, dict, lang }: ShellProps) {
             </div>
 
             <div className="flex flex-row items-center gap-[12px]">
-              <ThemeToggler variant="circle" />
+
               <Link
                 href={user ? "/profile" : "/login"}
                 className="relative size-8 rounded-full overflow-hidden border border-border shadow-xs hover:opacity-85 transition-opacity"

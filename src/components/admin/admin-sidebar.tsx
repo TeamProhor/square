@@ -12,7 +12,7 @@ import {
   TaskSquare,
   User,
 } from "@/components/icons";
-import { ThemeToggler } from "@/components/theme-toggler";
+
 import { Button } from "@/components/ui/button";
 import { useLogout, useUser } from "@/hooks/use-auth";
 
@@ -28,6 +28,12 @@ export function AdminSidebar() {
       path: "/admin/courses",
       exact: false,
       icon: BookOpen,
+    },
+    {
+      name: "পেমেন্ট ও এনরোলমেন্ট",
+      path: "/admin/enrollments",
+      exact: false,
+      icon: TaskSquare,
     },
     { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
     { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
@@ -70,7 +76,6 @@ export function AdminSidebar() {
               </span>
             </span>
           </Link>
-          <ThemeToggler variant="circle" />
         </div>
 
         <nav className="flex flex-col gap-1">

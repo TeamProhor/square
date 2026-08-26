@@ -28,8 +28,8 @@ export async function getBatchesAction() {
 export async function createBatchAction(
   name: string,
   slug: string,
-  courseId?: string,
   description?: string,
+  courseId?: string,
 ) {
   try {
     const res = await db
@@ -37,8 +37,8 @@ export async function createBatchAction(
       .values({
         name,
         slug,
-        courseId,
-        description,
+        courseId: courseId?.trim() ? courseId.trim() : null,
+        description: description?.trim() ? description.trim() : null,
         isActive: true,
       })
       .returning();

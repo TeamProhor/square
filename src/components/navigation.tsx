@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Category, SquareLogo } from "@/components/icons";
 import { LanguageToggler } from "@/components/language-toggler";
-import { ThemeToggler } from "@/components/theme-toggler";
+
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -178,7 +178,7 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
               : "flex-row items-center gap-[12px] px-[8px]"
           }`}
         >
-          <ThemeToggler variant="circle" />
+
           <LanguageToggler lang={lang} className="text-[14px]" />
         </div>
 
