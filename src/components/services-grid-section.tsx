@@ -42,7 +42,7 @@ const services: readonly ServiceItem[] = [
     textClass: "text-violet-600 dark:text-violet-400",
   },
   {
-    title: "প্রশ্নব্যাংক",
+    title: "প্রশ্ন ব্যাংক",
     href: "/qb",
     icon: Star,
     bgClass: "bg-amber-500/10 dark:bg-amber-500/20",

@@ -28,9 +28,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getExamRoutines } from "@/lib/actions/routine";
+import { getCalendarSettings, getExamRoutines } from "@/lib/actions/routine";
 import { EXAMS } from "@/lib/routine";
-import type { Exam, ExamRoutine } from "@/types";
+import type { CalendarSettings, Exam, ExamRoutine } from "@/types";
 
 const _handlePrint = () => {
   if (typeof window !== "undefined") {
@@ -45,6 +45,11 @@ export default function CalendarPage() {
     hours: 0,
     minutes: 0,
     seconds: 0,
+  });
+
+  const { data: calSettings } = useQuery<CalendarSettings>({
+    queryKey: ["calendar-settings"],
+    queryFn: () => getCalendarSettings(),
   });
 
   const { data: dbRoutines = [] } = useQuery<ExamRoutine[]>({
@@ -127,7 +132,7 @@ export default function CalendarPage() {
               লাইভ কাউন্টডাউন
             </span>
             <h2 className="text-base sm:text-lg md:text-xl font-bold leading-tight">
-              বোর্ড পরীক্ষা শুরু হতে বাকি:
+              {calSettings?.countdownTitle || "বোর্ড পরীক্ষা শুরু হতে বাকি:"}
             </h2>
             <p className="text-xs text-primary-foreground/80">
               প্রথম পরীক্ষা: {allExams[0]?.subject || "বাংলা ১ম পত্র"} (
@@ -203,11 +208,12 @@ export default function CalendarPage() {
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b bg-muted/20">
             <div>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Filter className="size-5 text-primary" /> এইচএসসি ২০২৬ চূড়ান্ত
-                রুটিন
+                <Filter className="size-5 text-primary" />{" "}
+                {calSettings?.title || "এইচএসসি ২০২৬ চূড়ান্ত রুটিন"}
               </CardTitle>
               <CardDescription className="mt-1">
-                সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে
+                {calSettings?.subtitle ||
+                  "সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে"}
               </CardDescription>
             </div>
             {/* Interactive Search Box */}
@@ -278,8 +284,8 @@ export default function CalendarPage() {
             <Link
               href={
                 searchTerm
-                  ? `/print/calendar?search=${encodeURIComponent(searchTerm)}&autoprint=true`
-                  : `/print/calendar?autoprint=true`
+                  ? `/print/calendar?search=${encodeURIComponent(searchTerm)}`
+                  : `/print/calendar`
               }
               target="_blank"
             >
