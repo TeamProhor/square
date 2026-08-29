@@ -75,35 +75,33 @@ export default function AdminExamsPage() {
     }
   }, [calSettings]);
 
-  const updateSettingsMutation = useMutation({
-    mutationFn: async (payload: Partial<CalendarSettings>) => {
-      return await updateCalendarSettings(payload);
-    },
-    onSuccess: (res) => {
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    setSettingsSuccess(false);
+    setSettingsError(null);
+
+    try {
+      const res = await updateCalendarSettings({
+        title: calTitle,
+        subtitle: calSubtitle,
+      });
+
       if (res.success) {
         queryClient.invalidateQueries({ queryKey: ["calendar-settings"] });
         setSettingsSuccess(true);
-        setSettingsError(null);
         setTimeout(() => setSettingsSuccess(false), 3500);
       } else {
         setSettingsError(res.message || "সেটিংস সংরক্ষণ ব্যর্থ হয়েছে");
-        setSettingsSuccess(false);
       }
-    },
-    onError: (err: unknown) => {
+    } catch (err: unknown) {
       setSettingsError(
         err instanceof Error ? err.message : "সেটিংস সংরক্ষণ ব্যর্থ হয়েছে",
       );
-      setSettingsSuccess(false);
-    },
-  });
-
-  const handleSaveSettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateSettingsMutation.mutate({
-      title: calTitle,
-      subtitle: calSubtitle,
-    });
+    } finally {
+      setIsSavingSettings(false);
+    }
   };
 
   const applyPreset = (preset: { title: string; subtitle: string }) => {
@@ -221,7 +219,7 @@ export default function AdminExamsPage() {
           </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
-          <form onSubmit={handleSaveSettings} className="space-y-4">
+          <div className="space-y-4">
             {settingsSuccess && (
               <div className="p-3 text-xs font-semibold rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-2">
                 <TickCircle className="size-4 shrink-0" />
@@ -244,7 +242,6 @@ export default function AdminExamsPage() {
                   value={calTitle}
                   onChange={(e) => setCalTitle(e.target.value)}
                   placeholder="যেমন: স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী"
-                  required
                 />
               </div>
 
@@ -257,18 +254,18 @@ export default function AdminExamsPage() {
                   value={calSubtitle}
                   onChange={(e) => setCalSubtitle(e.target.value)}
                   placeholder="যেমন: এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন"
-                  required
                 />
               </div>
             </div>
 
             <div className="flex justify-end pt-2">
               <Button
-                type="submit"
-                disabled={updateSettingsMutation.isPending}
+                type="button"
+                onClick={handleSaveSettings}
+                disabled={isSavingSettings}
                 className="font-bold shadow-xs px-6 rounded-xl cursor-pointer"
               >
-                {updateSettingsMutation.isPending ? (
+                {isSavingSettings ? (
                   <>
                     <Spinner className="mr-2" /> সেভ হচ্ছে...
                   </>
@@ -277,7 +274,7 @@ export default function AdminExamsPage() {
                 )}
               </Button>
             </div>
-          </form>
+          </div>
         </CardContent>
       </Card>
 

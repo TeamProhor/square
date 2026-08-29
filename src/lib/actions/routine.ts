@@ -76,7 +76,6 @@ export async function updateCalendarSettings(
 
     try {
       revalidatePath("/calendar");
-      revalidatePath("/admin/exams/routines");
     } catch (e) {
       console.warn("Revalidation warning:", e);
     }
