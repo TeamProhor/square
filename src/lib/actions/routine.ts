@@ -74,12 +74,20 @@ export async function updateCalendarSettings(
       });
     }
 
-    revalidatePath("/calendar");
-    revalidatePath("/print/calendar");
-    revalidatePath("/admin/exams/routines");
-    revalidatePath("/admin/exams");
+    try {
+      revalidatePath("/calendar");
+      revalidatePath("/admin/exams/routines");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
-    return { success: true, data: updated };
+    return {
+      success: true,
+      data: {
+        title: updated.title,
+        subtitle: updated.subtitle,
+      },
+    };
   } catch (error: unknown) {
     console.error("Failed to update calendar settings:", error);
     return {

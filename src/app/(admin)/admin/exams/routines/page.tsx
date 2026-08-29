@@ -77,16 +77,18 @@ export default function AdminExamsPage() {
 
   const updateSettingsMutation = useMutation({
     mutationFn: async (payload: Partial<CalendarSettings>) => {
-      const res = await updateCalendarSettings(payload);
-      if (!res.success)
-        throw new Error(res.message || "Failed to update calendar settings");
-      return res;
+      return await updateCalendarSettings(payload);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["calendar-settings"] });
-      setSettingsSuccess(true);
-      setSettingsError(null);
-      setTimeout(() => setSettingsSuccess(false), 3500);
+    onSuccess: (res) => {
+      if (res.success) {
+        queryClient.invalidateQueries({ queryKey: ["calendar-settings"] });
+        setSettingsSuccess(true);
+        setSettingsError(null);
+        setTimeout(() => setSettingsSuccess(false), 3500);
+      } else {
+        setSettingsError(res.message || "সেটিংস সংরক্ষণ ব্যর্থ হয়েছে");
+        setSettingsSuccess(false);
+      }
     },
     onError: (err: unknown) => {
       setSettingsError(
