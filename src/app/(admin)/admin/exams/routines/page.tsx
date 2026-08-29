@@ -13,7 +13,13 @@ import {
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
@@ -24,7 +30,6 @@ import {
   getBatches,
   getCalendarSettings,
   getExamRoutines,
-  seedDemoRoutines,
   updateCalendarSettings,
 } from "@/lib/actions/routine";
 import type { Batch, CalendarSettings, ExamRoutine } from "@/types";
@@ -39,15 +44,12 @@ export default function AdminExamsPage() {
   const [examDate, setExamDate] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [totalMarks, setTotalMarks] = useState(25);
-  const [batchId, _setBatchId] = useState("");
+  const [batchId, setBatchId] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Calendar Header Settings State
+  // Calendar Header Settings State (Unified Title & Subtitle for both Calendar & Print)
   const [calTitle, setCalTitle] = useState("");
   const [calSubtitle, setCalSubtitle] = useState("");
-  const [calCountdownTitle, setCalCountdownTitle] = useState("");
-  const [calPrintTitle, setCalPrintTitle] = useState("");
-  const [calPrintSubtitle, setCalPrintSubtitle] = useState("");
   const [settingsSuccess, setSettingsSuccess] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
 
@@ -70,9 +72,6 @@ export default function AdminExamsPage() {
     if (calSettings) {
       setCalTitle(calSettings.title);
       setCalSubtitle(calSettings.subtitle);
-      setCalCountdownTitle(calSettings.countdownTitle);
-      setCalPrintTitle(calSettings.printTitle);
-      setCalPrintSubtitle(calSettings.printSubtitle);
     }
   }, [calSettings]);
 
@@ -97,42 +96,17 @@ export default function AdminExamsPage() {
     },
   });
 
-  const seedMutation = useMutation({
-    mutationFn: async (type: "hsc" | "admission") => {
-      const res = await seedDemoRoutines(type);
-      if (!res.success)
-        throw new Error(res.message || "Failed to seed demo routines");
-      return res;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-routines"] });
-      queryClient.invalidateQueries({ queryKey: ["exam-routines"] });
-    },
-  });
-
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     updateSettingsMutation.mutate({
       title: calTitle,
       subtitle: calSubtitle,
-      countdownTitle: calCountdownTitle,
-      printTitle: calPrintTitle,
-      printSubtitle: calPrintSubtitle,
     });
   };
 
-  const applyPreset = (preset: {
-    title: string;
-    subtitle: string;
-    countdownTitle: string;
-    printTitle: string;
-    printSubtitle: string;
-  }) => {
+  const applyPreset = (preset: { title: string; subtitle: string }) => {
     setCalTitle(preset.title);
     setCalSubtitle(preset.subtitle);
-    setCalCountdownTitle(preset.countdownTitle);
-    setCalPrintTitle(preset.printTitle);
-    setCalPrintSubtitle(preset.printSubtitle);
   };
 
   const createMutation = useMutation({
@@ -205,14 +179,14 @@ export default function AdminExamsPage() {
             <div>
               <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                 <Edit className="size-5 text-primary" />
-                ক্যালেন্ডার ও প্রিন্ট হেডার সেটিংস (ডাইনামিক ডাটাবেজ)
+                ক্যালেন্ডার ও প্রিন্ট শিরোনাম সেটিংস
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm mt-1">
-                এখানে পরিবর্তন করলে মূল ক্যালেন্ডার পেইজ (/calendar) এবং প্রিন্ট পেইজ (/print/calendar)-এ সাথে সাথে সিঙ্ক হয়ে যাবে।
+                এখানে সেট করা টাইটেল ও সাবটাইটেল সরাসরি ক্যালেন্ডার পেইজ (/calendar) এবং প্রিন্ট পেইজ (/print/calendar)-এ সিঙ্ক হয়ে যাবে।
               </CardDescription>
             </div>
             {/* Quick Presets */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
@@ -220,15 +194,12 @@ export default function AdminExamsPage() {
                 className="h-8 text-xs font-semibold rounded-lg cursor-pointer"
                 onClick={() =>
                   applyPreset({
-                    title: "এইচএসসি ২০২৬ চূড়ান্ত রুটিন",
-                    subtitle: "সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে",
-                    countdownTitle: "বোর্ড পরীক্ষা শুরু হতে বাকি:",
-                    printTitle: "স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী",
-                    printSubtitle: "এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন",
+                    title: "স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী",
+                    subtitle: "এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন",
                   })
                 }
               >
-                🎓 HSC 2026
+                🎓 এইচএসসি ২০২৬
               </Button>
               <Button
                 type="button"
@@ -237,32 +208,12 @@ export default function AdminExamsPage() {
                 className="h-8 text-xs font-semibold rounded-lg cursor-pointer"
                 onClick={() =>
                   applyPreset({
-                    title: "বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী ২০২৬",
-                    subtitle: "সকল বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং এডমিশন টেস্টের চূড়ান্ত রুটিন",
-                    countdownTitle: "এডমিশন পরীক্ষা শুরু হতে বাকি:",
-                    printTitle: "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী",
-                    printSubtitle: "এডমিশন টেস্ট ও ভর্তি পরীক্ষার চূড়ান্ত ক্যালেন্ডার",
+                    title: "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী ২০২৬",
+                    subtitle: "এডমিশন টেস্ট ও ভর্তি পরীক্ষার চূড়ান্ত ক্যালেন্ডার",
                   })
                 }
               >
-                🏛️ Admission 2026
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs font-semibold rounded-lg cursor-pointer"
-                onClick={() =>
-                  applyPreset({
-                    title: "বিশেষ মডেল টেস্ট ও মূল্যায়ন পরীক্ষার সময়সূচী",
-                    subtitle: "অনলাইন ও অফলাইন মডেল টেস্ট পরীক্ষার চূড়ান্ত রুটিন",
-                    countdownTitle: "পরবর্তী মডেল টেস্ট বাকি:",
-                    printTitle: "স্কয়ার বিশেষ মডেল টেস্ট ও মূল্যায়ন পরীক্ষার সময়সূচী",
-                    printSubtitle: "মডেল টেস্ট ও প্রস্তুতিমূলক মূল্যায়ন চূড়ান্ত রুটিন",
-                  })
-                }
-              >
-                📝 Model Test
+                🏛️ এডমিশন ২০২৬
               </Button>
             </div>
           </div>
@@ -272,7 +223,7 @@ export default function AdminExamsPage() {
             {settingsSuccess && (
               <div className="p-3 text-xs font-semibold rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-2">
                 <TickCircle className="size-4 shrink-0" />
-                ক্যালেন্ডার ও প্রিন্ট হেডার সেটিংস ডাটাবেজে সফলভাবে সংরক্ষিত ও সিঙ্ক হয়েছে!
+                শিরোনাম ও উপ-শিরোনাম ডাটাবেজে সফলভাবে সংরক্ষিত হয়েছে!
               </div>
             )}
             {settingsError && (
@@ -284,97 +235,32 @@ export default function AdminExamsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="cal-title" className="text-xs font-bold">
-                  ক্যালেন্ডার পেইজ টাইটেল (/calendar)
+                  ক্যালেন্ডার ও প্রিন্ট প্রধান শিরোনাম (Title)
                 </Label>
                 <Input
                   id="cal-title"
                   value={calTitle}
                   onChange={(e) => setCalTitle(e.target.value)}
-                  placeholder="যেমন: এইচএসসি ২০২৬ চূড়ান্ত রুটিন বা এডমিশন ক্যালেন্ডার"
+                  placeholder="যেমন: স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী"
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="cal-subtitle" className="text-xs font-bold">
-                  ক্যালেন্ডার পেইজ সাব-টাইটেল (/calendar)
+                  উপ-শিরোনাম (Subtitle)
                 </Label>
                 <Input
                   id="cal-subtitle"
                   value={calSubtitle}
                   onChange={(e) => setCalSubtitle(e.target.value)}
-                  placeholder="যেমন: সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="cal-countdown" className="text-xs font-bold">
-                  লাইভ কাউন্টডাউন টেক্সট (/calendar)
-                </Label>
-                <Input
-                  id="cal-countdown"
-                  value={calCountdownTitle}
-                  onChange={(e) => setCalCountdownTitle(e.target.value)}
-                  placeholder="যেমন: বোর্ড পরীক্ষা শুরু হতে বাকি: বা এডমিশন টেস্ট শুরু হতে বাকি:"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="cal-print-title" className="text-xs font-bold">
-                  প্রিন্ট পেইজ প্রধান শিরোনাম (/print/calendar)
-                </Label>
-                <Input
-                  id="cal-print-title"
-                  value={calPrintTitle}
-                  onChange={(e) => setCalPrintTitle(e.target.value)}
-                  placeholder="যেমন: স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী"
-                  required
-                />
-              </div>
-
-              <div className="space-y-1.5 md:col-span-2">
-                <Label htmlFor="cal-print-subtitle" className="text-xs font-bold">
-                  প্রিন্ট পেইজ উপ-শিরোনাম (/print/calendar)
-                </Label>
-                <Input
-                  id="cal-print-subtitle"
-                  value={calPrintSubtitle}
-                  onChange={(e) => setCalPrintSubtitle(e.target.value)}
                   placeholder="যেমন: এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs text-muted-foreground font-medium">ডেমো ডাটা পুশ:</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={seedMutation.isPending}
-                  onClick={() => seedMutation.mutate("hsc")}
-                  className="h-8 text-xs rounded-lg cursor-pointer"
-                >
-                  {seedMutation.isPending ? <Spinner className="size-3 mr-1" /> : null}
-                  + HSC ডেমো রুটিন পুশ
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={seedMutation.isPending}
-                  onClick={() => seedMutation.mutate("admission")}
-                  className="h-8 text-xs rounded-lg cursor-pointer"
-                >
-                  {seedMutation.isPending ? <Spinner className="size-3 mr-1" /> : null}
-                  + এডমিশন ডেমো রুটিন পুশ
-                </Button>
-              </div>
-
+            <div className="flex justify-end pt-2">
               <Button
                 type="submit"
                 disabled={updateSettingsMutation.isPending}
@@ -385,7 +271,7 @@ export default function AdminExamsPage() {
                     <Spinner className="mr-2" /> সেভ হচ্ছে...
                   </>
                 ) : (
-                  "হেডার সেটিংস সেভ করুন"
+                  "শিরোনাম সেভ করুন"
                 )}
               </Button>
             </div>
@@ -412,6 +298,24 @@ export default function AdminExamsPage() {
               {formError && (
                 <div className="p-3 text-xs font-semibold rounded-xl bg-destructive/10 text-destructive border border-destructive/20">
                   {formError}
+                </div>
+              )}
+
+              {batchesList.length > 1 && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="batch-select">ব্যাচ নির্বাচন করুন</Label>
+                  <select
+                    id="batch-select"
+                    value={batchId}
+                    onChange={(e) => setBatchId(e.target.value)}
+                    className="w-full h-10 px-3 py-2 bg-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  >
+                    {batchesList.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
 

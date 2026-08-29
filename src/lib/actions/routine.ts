@@ -9,11 +9,8 @@ import { auth } from "@/lib/auth";
 import type { Batch, CalendarSettings, ExamRoutine } from "@/types";
 
 export const DEFAULT_CALENDAR_SETTINGS: CalendarSettings = {
-  title: "এইচএসসি ২০২৬ চূড়ান্ত রুটিন",
-  subtitle: "সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে",
-  printTitle: "স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী",
-  printSubtitle: "এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন",
-  countdownTitle: "বোর্ড পরীক্ষা শুরু হতে বাকি:",
+  title: "স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী",
+  subtitle: "এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন",
 };
 
 export async function getCalendarSettings(): Promise<CalendarSettings> {
@@ -27,11 +24,6 @@ export async function getCalendarSettings(): Promise<CalendarSettings> {
       return {
         title: val.title?.trim() || DEFAULT_CALENDAR_SETTINGS.title,
         subtitle: val.subtitle?.trim() || DEFAULT_CALENDAR_SETTINGS.subtitle,
-        printTitle: val.printTitle?.trim() || DEFAULT_CALENDAR_SETTINGS.printTitle,
-        printSubtitle:
-          val.printSubtitle?.trim() || DEFAULT_CALENDAR_SETTINGS.printSubtitle,
-        countdownTitle:
-          val.countdownTitle?.trim() || DEFAULT_CALENDAR_SETTINGS.countdownTitle,
       };
     }
     return DEFAULT_CALENDAR_SETTINGS;
@@ -60,9 +52,6 @@ export async function updateCalendarSettings(
     const updated: CalendarSettings = {
       title: settings.title?.trim() || current.title,
       subtitle: settings.subtitle?.trim() || current.subtitle,
-      printTitle: settings.printTitle?.trim() || current.printTitle,
-      printSubtitle: settings.printSubtitle?.trim() || current.printSubtitle,
-      countdownTitle: settings.countdownTitle?.trim() || current.countdownTitle,
     };
 
     const existing = await db.query.siteSettings.findFirst({

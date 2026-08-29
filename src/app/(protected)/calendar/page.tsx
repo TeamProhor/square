@@ -29,7 +29,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getCalendarSettings, getExamRoutines } from "@/lib/actions/routine";
-import { EXAMS } from "@/lib/routine";
 import type { CalendarSettings, Exam, ExamRoutine } from "@/types";
 
 const _handlePrint = () => {
@@ -57,31 +56,28 @@ export default function CalendarPage() {
     queryFn: () => getExamRoutines(),
   });
 
-  // Combine dynamic DB routines with static fallback routine
-  const allExams: Exam[] =
-    dbRoutines.length > 0
-      ? dbRoutines.map((r) => {
-          const dateObj = new Date(r.examDate);
-          const formattedDate = dateObj.toLocaleDateString("bn-BD", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-          return {
-            id: r.id,
-            subject: r.subject,
-            title: r.title,
-            date: formattedDate,
-            dateObj,
-            countdown: `${Math.max(
-              0,
-              Math.ceil(
-                (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-              ),
-            )} দিন`,
-          };
-        })
-      : (EXAMS as Exam[]);
+  // 100% dynamic DB routines (No hardcoded static fallback)
+  const allExams: Exam[] = dbRoutines.map((r) => {
+    const dateObj = new Date(r.examDate);
+    const formattedDate = dateObj.toLocaleDateString("bn-BD", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    return {
+      id: r.id,
+      subject: r.subject,
+      title: r.title,
+      date: formattedDate,
+      dateObj,
+      countdown: `${Math.max(
+        0,
+        Math.ceil(
+          (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        ),
+      )} দিন`,
+    };
+  });
 
   const examDates = allExams
     .map((exam) => exam.dateObj)
@@ -132,11 +128,12 @@ export default function CalendarPage() {
               লাইভ কাউন্টডাউন
             </span>
             <h2 className="text-base sm:text-lg md:text-xl font-bold leading-tight">
-              {calSettings?.countdownTitle || "বোর্ড পরীক্ষা শুরু হতে বাকি:"}
+              পরীক্ষা শুরু হতে বাকি:
             </h2>
             <p className="text-xs text-primary-foreground/80">
-              প্রথম পরীক্ষা: {allExams[0]?.subject || "বাংলা ১ম পত্র"} (
-              {allExams[0]?.date || "২১ জুন, ২০২৬ ইং"})
+              {allExams.length > 0
+                ? `প্রথম পরীক্ষা: ${allExams[0]?.subject} (${allExams[0]?.date})`
+                : "রুটিন শীঘ্রই যোগ করা হবে"}
             </p>
           </div>
           {/* Timer Display Grid */}

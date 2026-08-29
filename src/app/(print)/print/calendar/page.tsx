@@ -7,7 +7,6 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { ArrowLeft2, Download, Edit } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { getCalendarSettings, getExamRoutines } from "@/lib/actions/routine";
-import { EXAMS } from "@/lib/routine";
 import type { CalendarSettings, Exam, ExamRoutine } from "@/types";
 
 function PrintCalendarContent() {
@@ -27,16 +26,16 @@ function PrintCalendarContent() {
   useEffect(() => {
     if (paramTitle) {
       setTitle(paramTitle);
-    } else if (calSettings?.printTitle) {
-      setTitle(calSettings.printTitle);
+    } else if (calSettings?.title) {
+      setTitle(calSettings.title);
     } else if (!title) {
       setTitle("স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী");
     }
 
     if (paramSubtitle) {
       setSubtitle(paramSubtitle);
-    } else if (calSettings?.printSubtitle) {
-      setSubtitle(calSettings.printSubtitle);
+    } else if (calSettings?.subtitle) {
+      setSubtitle(calSettings.subtitle);
     } else if (!subtitle) {
       setSubtitle("এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন");
     }
@@ -47,30 +46,28 @@ function PrintCalendarContent() {
     queryFn: () => getExamRoutines(),
   });
 
-  const allExams: Exam[] =
-    dbRoutines.length > 0
-      ? dbRoutines.map((r) => {
-          const dateObj = new Date(r.examDate);
-          const formattedDate = dateObj.toLocaleDateString("bn-BD", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-          return {
-            id: r.id,
-            subject: r.subject,
-            title: r.title,
-            date: formattedDate,
-            dateObj,
-            countdown: `${Math.max(
-              0,
-              Math.ceil(
-                (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-              ),
-            )} দিন`,
-          };
-        })
-      : (EXAMS as Exam[]);
+  // 100% dynamic DB routines
+  const allExams: Exam[] = dbRoutines.map((r) => {
+    const dateObj = new Date(r.examDate);
+    const formattedDate = dateObj.toLocaleDateString("bn-BD", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    return {
+      id: r.id,
+      subject: r.subject,
+      title: r.title,
+      date: formattedDate,
+      dateObj,
+      countdown: `${Math.max(
+        0,
+        Math.ceil(
+          (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+        ),
+      )} দিন`,
+    };
+  });
 
   const filteredExams = search
     ? allExams.filter((exam) =>
@@ -145,27 +142,13 @@ function PrintCalendarContent() {
             size="sm"
             onClick={() =>
               setPreset(
-                "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী",
+                "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী ২০২৬",
                 "এডমিশন টেস্ট ও ভর্তি পরীক্ষার চূড়ান্ত ক্যালেন্ডার",
               )
             }
             className="h-7 text-xs px-2.5 rounded-lg font-medium cursor-pointer"
           >
             🏛️ এডমিশন ক্যালেন্ডার
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              setPreset(
-                "স্কয়ার বিশেষ মডেল টেস্ট ও মূল্যায়ন পরীক্ষার সময়সূচী",
-                "মডেল টেস্ট ও প্রস্তুতিমূলক মূল্যায়ন চূড়ান্ত রুটিন",
-              )
-            }
-            className="h-7 text-xs px-2.5 rounded-lg font-medium cursor-pointer"
-          >
-            📝 স্পেশাল মডেল টেস্ট
           </Button>
           <span className="text-[11px] text-muted-foreground ml-auto italic">
             💡 নিচের শিরোনামে ক্লিক করে সরাসরি যেকোনো টেক্সট এডিট করতে পারেন

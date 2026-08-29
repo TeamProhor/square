@@ -125,9 +125,6 @@ export interface ExamRoutine {
 export interface CalendarSettings {
   readonly title: string;
   readonly subtitle: string;
-  readonly printTitle: string;
-  readonly printSubtitle: string;
-  readonly countdownTitle: string;
 }
 
 export interface Batch {
