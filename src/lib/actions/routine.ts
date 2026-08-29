@@ -125,13 +125,25 @@ export async function getExamRoutines(
   batchId?: string,
 ): Promise<ExamRoutine[]> {
   try {
-    const query = db.select().from(examRoutines);
-    if (batchId && batchId !== "all") {
-      return (await query
-        .where(eq(examRoutines.batchId, batchId))
-        .orderBy(asc(examRoutines.examDate))) as ExamRoutine[];
-    }
-    return (await query.orderBy(asc(examRoutines.examDate))) as ExamRoutine[];
+    const rows = await (batchId && batchId !== "all"
+      ? db
+          .select()
+          .from(examRoutines)
+          .where(eq(examRoutines.batchId, batchId))
+          .orderBy(asc(examRoutines.examDate))
+      : db.select().from(examRoutines).orderBy(asc(examRoutines.examDate)));
+
+    return rows.map((r) => ({
+      id: r.id,
+      batchId: r.batchId,
+      title: r.title,
+      subject: r.subject,
+      syllabus: r.syllabus ?? null,
+      examDate: r.examDate instanceof Date ? r.examDate : new Date(r.examDate),
+      durationMinutes: r.durationMinutes ?? 30,
+      totalMarks: r.totalMarks ?? 25,
+      createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
+    }));
   } catch (error) {
     console.error("Error fetching exam routines:", error);
     return [];
@@ -198,12 +210,32 @@ export async function createExamRoutine(
       })
       .returning();
 
-    revalidatePath("/calendar");
-    revalidatePath("/print/calendar");
-    revalidatePath("/admin/exams/routines");
-    revalidatePath("/admin/exams");
+    try {
+      revalidatePath("/calendar");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
-    return { success: true, data: newRoutine as ExamRoutine };
+    return {
+      success: true,
+      data: {
+        id: newRoutine.id,
+        batchId: newRoutine.batchId,
+        title: newRoutine.title,
+        subject: newRoutine.subject,
+        syllabus: newRoutine.syllabus ?? null,
+        examDate:
+          newRoutine.examDate instanceof Date
+            ? newRoutine.examDate
+            : new Date(newRoutine.examDate),
+        durationMinutes: newRoutine.durationMinutes ?? 30,
+        totalMarks: newRoutine.totalMarks ?? 25,
+        createdAt:
+          newRoutine.createdAt instanceof Date
+            ? newRoutine.createdAt
+            : new Date(newRoutine.createdAt),
+      },
+    };
   } catch (error: unknown) {
     console.error("Error creating exam routine:", error);
     return {
@@ -235,17 +267,19 @@ export async function deleteExamRoutine(
 
     await db.delete(examRoutines).where(eq(examRoutines.id, id));
 
-    revalidatePath("/calendar");
-    revalidatePath("/print/calendar");
-    revalidatePath("/admin/exams/routines");
-    revalidatePath("/admin/exams");
+    try {
+      revalidatePath("/calendar");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
     return { success: true, message: "রুটিন সফলভাবে মুছে ফেলা হয়েছে।" };
   } catch (error: unknown) {
     console.error("Error deleting exam routine:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "রুটিন মুছতে ব্যর্থ হয়েছে।",
+      message:
+        error instanceof Error ? error.message : "রুটিন ডিলিট করতে ব্যর্থ হয়েছে।",
     };
   }
 }
