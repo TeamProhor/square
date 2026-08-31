@@ -130,7 +130,7 @@ export default async function MyCoursesPage() {
                   )}
 
                   <Link
-                    href={`/my-batches/${batch.id}`}
+                    href={`/my-courses/${batch.id}`}
                     className="w-full sm:w-auto flex-1"
                   >
                     <Button

@@ -301,7 +301,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <Link
-            href={userEnrolledCourses.length > 0 ? "/my-batches" : "/#batches"}
+            href={userEnrolledCourses.length > 0 ? "/my-courses" : "/#courses-section"}
             className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
           >
             সকল কোর্স <ArrowRight2 className="size-3" />
@@ -347,8 +347,8 @@ export default async function DashboardPage() {
                     <Link
                       href={
                         userEnrolledCourses.some((c) => c.id === batch.id)
-                          ? `/my-batches/${batch.id}`
-                          : `/batches/${batch.slug}`
+                          ? `/my-courses/${batch.id}`
+                          : `/courses/${batch.slug}`
                       }
                     >
                       {userEnrolledCourses.some((c) => c.id === batch.id)

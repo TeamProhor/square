@@ -71,6 +71,20 @@ export async function hasEnrolled(userId: string, batchId: string) {
 }
 
 export async function checkEnrollmentStatus(userId: string, batchId: string) {
+  // 1. First check if user has an active enrollment
+  const activeEnrollment = await db.query.batchEnrollments.findFirst({
+    where: and(
+      eq(batchEnrollments.userId, userId),
+      eq(batchEnrollments.batchId, batchId),
+      eq(batchEnrollments.status, "active"),
+    ),
+  });
+
+  if (activeEnrollment) {
+    return { status: "active" as const };
+  }
+
+  // 2. Otherwise check enrollment requests (pending, rejected, etc.)
   const userReqs = await db.query.batchEnrollmentRequests.findMany({
     where: and(
       eq(batchEnrollmentRequests.userId, userId),
