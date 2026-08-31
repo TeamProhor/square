@@ -337,17 +337,20 @@ export async function importQuestionsAction(
         ).trim();
         if (!qText) continue;
 
-        const resolvedType = (item.type || defaults.type || "mcq") === "cq" ? "cq" : "mcq";
+        // Always enforce the manual selections from the page
+        const resolvedType = (defaults.type || item.type || "mcq") === "cq" ? "cq" : "mcq";
         const resolvedStandard = (
-          item.standard ||
           defaults.standard ||
+          item.standard ||
           "HSC"
         ) as "HSC" | "Varsity" | "Engineering" | "Medical";
-        const resolvedSource = (item.source || defaults.source || "Custom").trim();
+        const resolvedSource = (defaults.source || item.source || "Custom").trim();
         const resolvedIsFree = Boolean(
-          item.isFree ?? item.is_free ?? defaults.isFree ?? false,
+          defaults.isFree !== undefined
+            ? defaults.isFree
+            : (item.isFree ?? item.is_free ?? false),
         );
-        const resolvedTopicId = item.topicId || item.topic_id || defaults.topicId || null;
+        const resolvedTopicId = defaults.topicId || item.topicId || item.topic_id || null;
         const resolvedExplanation = (item.explanation || item.solution || "").trim() || null;
 
         const [question] = await tx

@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import {
   Add,
   ArrowLeft2,
-  BookOpen,
   Category,
   Copy,
   Danger,
@@ -17,23 +16,19 @@ import {
   Flash,
   Information,
   Lightbulb,
-  Lock,
   SecurityCard,
   TaskSquare,
   TickCircle,
   Trash2,
 } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
-import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -86,6 +81,7 @@ export function UniversalQuestionCreator({
   ]);
 
   // UI States
+  const [mobileActiveView, setMobileActiveView] = useState<"editor" | "preview">("editor");
   const [formError, setFormError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [recentList, setRecentList] = useState<any[]>(initialRecentQuestions);
@@ -219,7 +215,7 @@ export function UniversalQuestionCreator({
       if (type === "mcq") {
         const hasValidOptions = mcqOptions.some((o) => o.optionText.trim().length > 0);
         if (!hasValidOptions) {
-          throw new Error("কমপক্ষে ২টি অপশনের লেখা পূরণ করুন।");
+          throw new Error("কমপক্ষে ২টি অপশনের টেক্সট পূরণ করুন।");
         }
       }
 
@@ -286,12 +282,9 @@ export function UniversalQuestionCreator({
     },
   });
 
-  const sampleMcqJson = `[
+  // Clean MCQ JSON (Without meta fields)
+  const cleanSampleMcqJson = `[
   {
-    "type": "mcq",
-    "standard": "${standard || "HSC"}",
-    "source": "${source || "ঢাকা বোর্ড ২০২৩"}",
-    "isFree": ${isFree},
     "questionText": "নিচের কোনটি ভেক্টর রাশি?",
     "mcqOptions": [
       { "optionText": "বেগ", "isCorrect": true },
@@ -302,10 +295,6 @@ export function UniversalQuestionCreator({
     "explanation": "বেগ একটি ভেক্টর রাশি কারণ এর নির্দিষ্ট মান ও দিক উভয়ই বিদ্যমান।"
   },
   {
-    "type": "mcq",
-    "standard": "${standard || "HSC"}",
-    "source": "${source || "কুয়েট ২২-২৩"}",
-    "isFree": ${isFree},
     "questionText": "$$\\\\vec{A} = 2\\\\hat{i} + 3\\\\hat{j}$$ এবং $$\\\\vec{B} = 4\\\\hat{i} - \\\\hat{j}$$ হলে ভেক্টরদ্বয়ের ডট গুণন কত?",
     "mcqOptions": [
       { "optionText": "5", "isCorrect": true },
@@ -317,12 +306,9 @@ export function UniversalQuestionCreator({
   }
 ]`;
 
-  const sampleCqJson = `[
+  // Clean CQ JSON (Without meta fields)
+  const cleanSampleCqJson = `[
   {
-    "type": "cq",
-    "standard": "${standard || "HSC"}",
-    "source": "${source || "ঢাকা বোর্ড ২০২৩"}",
-    "isFree": ${isFree},
     "questionText": "একটি গাড়ি স্থির অবস্থান থেকে $2\\\\text{ ms}^{-2}$ সুষম ত্বরণে চলা শুরু করল এবং $10\\\\text{ s}$ পর সমবেগে চলল।",
     "cqParts": [
       {
@@ -364,17 +350,14 @@ export function UniversalQuestionCreator({
     const promptText = `তুমি একজন অভিজ্ঞ শিক্ষক ও প্রশ্নপ্রণেতা।
 দয়া করে নিচের বিষয়ের উপর ১০টি ${type === "mcq" ? "MCQ (বহুনির্বাচনী ৪টি অপশন সহ)" : "CQ (সৃজনশীল ৪টি অংশ ক,খ,গ,ঘ সহ)"} প্রশ্ন তৈরি করে দাও।
 
-কোর্স/প্রশ্নব্যাংক: ${currentContainer?.title || "HSC"}
 বিষয়: ${currentSubject?.name || "পদার্থবিজ্ঞান"}
 অধ্যায়: ${currentChapter?.name || "অধ্যায়"}
-মান/স্তর: ${standard}
-উৎস: ${source}
 
-নিয়মাবলী:
+নির্দেশনা:
 ১. ম্যাথমেটিক্যাল বা সাইন্টিফিক সূত্রের জন্য অবশ্যই LaTeX ($...$ বা $$...$$) ব্যবহার করবে।
-২. আউটপুট হিসেবে কোনো অতিরিক্ত কথা না বলে শুধুমাত্র নিচের JSON ফরম্যাটে একটি ভ্যালিড JSON অ্যারে আউটপুট দেবে:
+২. আউটপুট হিসেবে কোনো অতিরিক্ত কথা, ব্যাখ্যা বা মেটাডেটা ছাড়া শুধুমাত্র নিচের JSON ফরম্যাটে একটি ভ্যালিড JSON অ্যারে আউটপুট দেবে:
 
-${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
+${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
 
     copyToClipboard(promptText, "ai-prompt");
   };
@@ -391,6 +374,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
         return;
       }
 
+      // Always pass the manual selections so they are assigned to every question!
       const res = await importQuestionsAction(
         selectedChapterId,
         parsed,
@@ -437,16 +421,16 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
   const banglaLetters = ["ক", "খ", "গ", "ঘ", "ঙ", "চ"];
 
   return (
-    <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-2 md:py-8 gap-8">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-24 sm:pb-16 pt-1 sm:pt-2 md:py-8 gap-5 sm:gap-8 px-2.5 sm:px-4 md:px-6">
       {/* Top Header & Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-border">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <Button
               asChild
               variant="outline"
               size="icon"
-              className="size-9 rounded-xl shrink-0"
+              className="size-8 sm:size-9 rounded-xl shrink-0"
               title="প্রশ্নব্যাংক তালিকায় ফিরুন"
             >
               <Link href="/admin/qb">
@@ -454,19 +438,19 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground flex items-center gap-2.5">
-                <TaskSquare className="size-6 text-primary shrink-0" />
-                প্রশ্ন আপলোড ও বিল্ডার
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight text-foreground flex items-center gap-2">
+                <TaskSquare className="size-5 sm:size-6 text-primary shrink-0" />
+                <span>প্রশ্ন আপলোড ও বিল্ডার</span>
               </h1>
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground pl-12">
-            একই ইন্টারফেস থেকে ক্যাটাগরি, বিষয় ও অধ্যায় নির্ধারণ করে একক ও বাল্ক প্রশ্ন পরিচালনা করুন।
+          <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground pl-10 sm:pl-12">
+            এক পেজেই ক্যাটাগরি, বিষয় ও অধ্যায় সিলেক্ট করে সরাসরি একক ও বাল্ক প্রশ্ন তৈরি করুন।
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto pl-12 sm:pl-0">
-          <Button asChild variant="outline" size="sm" className="rounded-xl text-xs font-bold gap-1.5 h-9">
+        <div className="flex items-center gap-2 self-start sm:self-auto pl-10 sm:pl-0">
+          <Button asChild variant="outline" size="sm" className="rounded-xl text-xs font-bold gap-1.5 h-8 sm:h-9">
             <Link href="/admin/qb">
               <span>প্রশ্নব্যাংক তালিকা</span>
               <ArrowLeft2 className="size-3.5 rotate-180" />
@@ -477,24 +461,53 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
 
       {/* Notifications */}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-xs">
-          <TickCircle className="size-5 shrink-0" />
+        <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-xs">
+          <TickCircle className="size-4 sm:size-5 shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
       {formError && (
-        <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-xs sm:text-sm font-bold flex items-center gap-2.5">
-          <Danger className="size-5 shrink-0" />
+        <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-xs sm:text-sm font-bold flex items-center gap-2.5">
+          <Danger className="size-4 sm:size-5 shrink-0" />
           <span>{formError}</span>
         </div>
       )}
 
+      {/* Mobile Toggle Bar: Editor vs Live Preview */}
+      <div className="flex lg:hidden items-center justify-between p-1.5 bg-muted/70 rounded-xl border border-border">
+        <button
+          type="button"
+          onClick={() => setMobileActiveView("editor")}
+          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            mobileActiveView === "editor"
+              ? "bg-card text-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Edit className="size-3.5" />
+          <span>প্রশ্ন এডিটর</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileActiveView("preview")}
+          className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            mobileActiveView === "preview"
+              ? "bg-card text-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Eye className="size-3.5" />
+          <span>লাইভ প্রিভিউ</span>
+        </button>
+      </div>
+
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         {/* Left Column: Editor Forms */}
-        <div className="lg:col-span-7 flex flex-col gap-6">
-          <Tabs defaultValue="single" className="w-full flex flex-col gap-5">
+        <div className={`lg:col-span-7 flex flex-col gap-5 sm:gap-6 ${mobileActiveView === "preview" ? "hidden lg:flex" : "flex"}`}>
+          <Tabs defaultValue="single" className="w-full flex flex-col gap-4 sm:gap-5">
             <TabsList className="grid grid-cols-2 w-full max-w-sm rounded-xl p-1 bg-muted/60 h-10">
               <TabsTrigger value="single" className="rounded-lg text-xs font-bold gap-1.5 h-8">
                 <Edit className="size-3.5" />
@@ -507,17 +520,17 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
             </TabsList>
 
             {/* TAB 1: Single Question Creator */}
-            <TabsContent value="single" className="flex flex-col gap-6 focus-visible:outline-none m-0">
+            <TabsContent value="single" className="flex flex-col gap-5 sm:gap-6 focus-visible:outline-none m-0">
               {/* STEP 1: CASCADING LOCATION SELECTOR */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                   <Category className="size-4 text-primary shrink-0" />
-                  <h3 className="font-extrabold text-sm sm:text-base">
-                    লোকেশন নির্বাচন (প্রশ্নব্যাংক, বিষয় ও অধ্যায়)
+                  <h3 className="font-extrabold text-xs sm:text-sm md:text-base">
+                    ১. লোকেশন নির্বাচন (প্রশ্নব্যাংক, বিষয় ও অধ্যায়)
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {/* Container / QB Select */}
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-bold text-foreground">
@@ -526,7 +539,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <NativeSelect
                       value={selectedContainerId}
                       onChange={(e) => handleContainerChange(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold h-10"
+                      className="w-full rounded-xl text-xs font-bold min-h-[42px]"
                     >
                       {hierarchy.map((c) => (
                         <NativeSelectOption key={c.id} value={c.id}>
@@ -544,7 +557,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <NativeSelect
                       value={selectedSubjectId}
                       onChange={(e) => handleSubjectChange(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold h-10"
+                      className="w-full rounded-xl text-xs font-bold min-h-[42px]"
                     >
                       {availableSubjects.map((s) => (
                         <NativeSelectOption key={s.id} value={s.id}>
@@ -562,7 +575,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <NativeSelect
                       value={selectedChapterId}
                       onChange={(e) => setSelectedChapterId(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold h-10"
+                      className="w-full rounded-xl text-xs font-bold min-h-[42px]"
                     >
                       {availableChapters.map((ch) => (
                         <NativeSelectOption key={ch.id} value={ch.id}>
@@ -580,7 +593,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <NativeSelect
                       value={selectedTopicId}
                       onChange={(e) => setSelectedTopicId(e.target.value)}
-                      className="w-full rounded-xl text-xs h-10"
+                      className="w-full rounded-xl text-xs min-h-[42px]"
                     >
                       <NativeSelectOption value="">সাধারণ (কোনো নির্দিষ্ট টপিক ছাড়া)</NativeSelectOption>
                       {availableTopics.map((tp) => (
@@ -594,22 +607,22 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
               </div>
 
               {/* STEP 2: QUESTION META & STANDARD */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
                   <SecurityCard className="size-4 text-primary shrink-0" />
-                  <h3 className="font-extrabold text-sm sm:text-base">
-                    প্রশ্নের ধরন ও উৎস সেটিংস
+                  <h3 className="font-extrabold text-xs sm:text-sm md:text-base">
+                    ২. প্রশ্নের ধরন ও উৎস সেটিংস
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                   {/* Type */}
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-bold">টাইপ *</Label>
                     <NativeSelect
                       value={type}
                       onChange={(e) => setType(e.target.value as "mcq" | "cq")}
-                      className="w-full rounded-xl text-xs font-bold h-10"
+                      className="w-full rounded-xl text-xs font-bold min-h-[42px]"
                     >
                       <NativeSelectOption value="mcq">MCQ (বহুনির্বাচনী)</NativeSelectOption>
                       <NativeSelectOption value="cq">CQ (সৃজনশীল)</NativeSelectOption>
@@ -622,7 +635,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <NativeSelect
                       value={standard}
                       onChange={(e) => setStandard(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold h-10"
+                      className="w-full rounded-xl text-xs font-bold min-h-[42px]"
                     >
                       <NativeSelectOption value="HSC">HSC (বোর্ড)</NativeSelectOption>
                       <NativeSelectOption value="Varsity">Varsity (ভার্সিটি)</NativeSelectOption>
@@ -639,7 +652,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       value={source}
                       onChange={(e) => setSource(e.target.value)}
                       list="unified-source-suggestions"
-                      className="rounded-xl text-xs h-10"
+                      className="rounded-xl text-xs min-h-[42px]"
                     />
                     <datalist id="unified-source-suggestions">
                       <option value="ঢাকা বোর্ড ২০২৩" />
@@ -657,34 +670,34 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                 </div>
 
                 {/* Free Question Checkbox */}
-                <div className="flex items-center gap-2.5 p-3.5 bg-muted/40 rounded-2xl border border-border/70">
+                <div className="flex items-center gap-2.5 p-3 sm:p-3.5 bg-muted/40 rounded-2xl border border-border/70">
                   <input
                     type="checkbox"
                     id="universal-is-free"
                     checked={isFree}
                     onChange={(e) => setIsFree(e.target.checked)}
-                    className="size-4 rounded accent-primary cursor-pointer"
+                    className="size-4.5 rounded accent-primary cursor-pointer shrink-0"
                   />
                   <label
                     htmlFor="universal-is-free"
-                    className="text-xs font-bold text-foreground cursor-pointer select-none flex items-center gap-1.5"
+                    className="text-xs font-bold text-foreground cursor-pointer select-none"
                   >
-                    <span>সবার জন্য উন্মুক্ত ও ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক যেকোনো শিক্ষার্থী অনুশীলন করতে পারবে)</span>
+                    সবার জন্য উন্মুক্ত ও ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক যেকোনো শিক্ষার্থী অনুশীলন করতে পারবে)
                   </label>
                 </div>
               </div>
 
               {/* STEP 3: QUESTION STEM & ANSWERS */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center justify-between pb-2 border-b border-border/50">
                   <div className="flex items-center gap-2">
                     <FileText className="size-4 text-primary shrink-0" />
-                    <h3 className="font-extrabold text-sm sm:text-base">
-                      {type === "mcq" ? "প্রশ্নের মূল বিবরণ ও অপশনসমূহ" : "সৃজনশীল উদ্দীপক ও অংশসমূহ"}
+                    <h3 className="font-extrabold text-xs sm:text-sm md:text-base">
+                      {type === "mcq" ? "৩. প্রশ্নের মূল বিবরণ ও অপশনসমূহ" : "৩. সৃজনশীল উদ্দীপক ও অংশসমূহ"}
                     </h3>
                   </div>
 
-                  <span className="text-[11px] font-mono text-muted-foreground">
+                  <span className="text-[10px] sm:text-[11px] font-mono text-muted-foreground">
                     LaTeX: $...$ বা $$...$$
                   </span>
                 </div>
@@ -729,7 +742,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       {mcqOptions.map((opt, idx) => (
                         <div
                           key={idx}
-                          className={`flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all ${
+                          className={`flex items-center gap-2 sm:gap-2.5 p-2 sm:p-2.5 rounded-2xl border transition-all ${
                             opt.isCorrect
                               ? "bg-emerald-500/10 border-emerald-500/40"
                               : "bg-card border-border/70"
@@ -738,7 +751,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                           <button
                             type="button"
                             onClick={() => handleCorrectSelect(idx)}
-                            className={`size-7 rounded-xl font-black text-xs flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                            className={`size-8 rounded-xl font-black text-xs flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                               opt.isCorrect
                                 ? "bg-emerald-600 text-white shadow-xs"
                                 : "bg-muted text-muted-foreground hover:bg-accent"
@@ -752,7 +765,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                             placeholder={`অপশন ${banglaLetters[idx] || idx + 1} এর টেক্সট`}
                             value={opt.optionText}
                             onChange={(e) => handleOptionChange(idx, e.target.value)}
-                            className="h-9 rounded-xl text-xs flex-1 bg-background"
+                            className="h-10 rounded-xl text-xs flex-1 bg-background"
                           />
 
                           {mcqOptions.length > 2 && (
@@ -784,7 +797,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       {cqParts.map((part, idx) => (
                         <div
                           key={part.partKey}
-                          className="flex flex-col gap-2.5 p-3.5 rounded-2xl border border-border/70 bg-muted/20"
+                          className="flex flex-col gap-2.5 p-3 sm:p-3.5 rounded-2xl border border-border/70 bg-muted/20"
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -805,7 +818,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                                 onChange={(e) =>
                                   handleCqPartChange(idx, "marks", parseInt(e.target.value) || 1)
                                 }
-                                className="w-14 h-7 text-xs rounded-lg text-center"
+                                className="w-14 h-8 text-xs rounded-lg text-center"
                               />
                             </div>
                           </div>
@@ -884,15 +897,15 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
 
             {/* TAB 2: Bulk JSON Import */}
             <TabsContent value="bulk" className="flex flex-col gap-4 focus-visible:outline-none m-0">
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-5">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-xs flex flex-col gap-4 sm:gap-5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex flex-col gap-0.5">
-                    <h3 className="font-extrabold text-base flex items-center gap-2">
+                    <h3 className="font-extrabold text-sm sm:text-base flex items-center gap-2">
                       <DocumentDownload className="size-4 text-primary" />
                       <span>বাল্ক প্রশ্ন ইমপোর্ট (JSON)</span>
                     </h3>
-                    <p className="text-xs text-muted-foreground">
-                      নির্বাচিত অধ্যায়ে ({currentChapter?.name || "অধ্যায় নির্বাচন করুন"}) একসাথে একাধিক প্রশ্ন ইমপোর্ট করুন।
+                    <p className="text-[11px] sm:text-xs text-muted-foreground">
+                      নিচের টেক্সটবক্সে শুধুমাত্র প্রশ্ন ও অপশনের JSON অ্যারে পেস্ট করুন।
                     </p>
                   </div>
 
@@ -902,7 +915,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(sampleMcqJson, "mcq-json")}
+                      onClick={() => copyToClipboard(cleanSampleMcqJson, "mcq-json")}
                       className="text-[11px] h-8 rounded-xl font-bold gap-1"
                     >
                       <Copy className="size-3" />
@@ -912,7 +925,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(sampleCqJson, "cq-json")}
+                      onClick={() => copyToClipboard(cleanSampleCqJson, "cq-json")}
                       className="text-[11px] h-8 rounded-xl font-bold gap-1"
                     >
                       <Copy className="size-3" />
@@ -931,13 +944,13 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                   </div>
                 </div>
 
-                {/* Info banner showing active manual settings */}
-                <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 text-xs flex flex-col gap-2">
+                {/* Info banner explaining that manual selections are automatically applied */}
+                <div className="p-3.5 sm:p-4 rounded-2xl bg-muted/50 border border-border/70 text-xs flex flex-col gap-2">
                   <div className="font-bold text-foreground flex items-center gap-1.5">
                     <Information className="size-4 text-primary shrink-0" />
-                    <span>ম্যানুয়াল সিলেকশন ডিফল্ট (JSON ফিল্ড মিসিং থাকলে এই সেটিংস প্রযোজ্য হবে):</span>
+                    <span>স্বয়ংক্রিয়ভাবে কার্যকর সেটিংস (Auto-Applied Settings):</span>
                   </div>
-                  <div className="flex flex-wrap gap-2 text-[11px]">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2 text-[10.5px] sm:text-[11px]">
                     <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
                       প্রশ্নব্যাংক: {currentContainer?.title || "ক্যাটাগরি"}
                     </span>
@@ -960,6 +973,9 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                       {isFree ? "উন্মুক্ত ও ফ্রি" : "ব্যাচ নিয়ন্ত্রিত"}
                     </span>
                   </div>
+                  <p className="text-[11px] text-muted-foreground italic pt-0.5">
+                    উপরের এই সেটিংসগুলো স্বয়ংক্রিয়ভাবে ইমপোর্টের সব প্রশ্নে সেট হয়ে যাবে। তাই JSON-এ এগুলো উল্লেখ করার প্রয়োজন নেই।
+                  </p>
                 </div>
 
                 {/* JSON Input Area */}
@@ -969,23 +985,23 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => setBulkJson(sampleMcqJson)}
-                        className="text-[11px] text-primary hover:underline font-bold"
+                        onClick={() => setBulkJson(cleanSampleMcqJson)}
+                        className="text-[11px] text-primary hover:underline font-bold cursor-pointer"
                       >
-                        ৪-অপশন MCQ নমুনা লোড
+                        MCQ নমুনা লোড
                       </button>
                       <span className="text-muted-foreground text-[11px]">•</span>
                       <button
                         type="button"
-                        onClick={() => setBulkJson(sampleCqJson)}
-                        className="text-[11px] text-primary hover:underline font-bold"
+                        onClick={() => setBulkJson(cleanSampleCqJson)}
+                        className="text-[11px] text-primary hover:underline font-bold cursor-pointer"
                       >
-                        ৪-অংশ CQ নমুনা লোড
+                        CQ নমুনা লোড
                       </button>
                     </div>
                   </div>
                   <Textarea
-                    placeholder={sampleMcqJson}
+                    placeholder={cleanSampleMcqJson}
                     value={bulkJson}
                     onChange={(e) => setBulkJson(e.target.value)}
                     rows={12}
@@ -1025,7 +1041,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
         </div>
 
         {/* Right Column: Live Preview Panel */}
-        <div className="lg:col-span-5 flex flex-col gap-5 sticky top-20">
+        <div className={`lg:col-span-5 flex flex-col gap-4 sm:gap-5 lg:sticky lg:top-20 ${mobileActiveView === "editor" ? "hidden lg:flex" : "flex"}`}>
           <div className="flex items-center justify-between pb-2 border-b border-border">
             <h3 className="font-extrabold text-sm sm:text-base flex items-center gap-2">
               <Eye className="size-4 text-primary shrink-0" />
@@ -1047,7 +1063,7 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
 
           {/* Location Summary Card */}
           {currentChapter && (
-            <div className="p-4 rounded-2xl bg-card border border-border/70 text-xs flex flex-col gap-2">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-card border border-border/70 text-xs flex flex-col gap-2">
               <div className="flex items-center justify-between font-bold">
                 <span className="text-muted-foreground">বর্তমান লোকেশন:</span>
                 <span className="text-primary">{currentContainer?.title}</span>
@@ -1061,27 +1077,27 @@ ${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
       </div>
 
       {/* Bottom Section: Recently Uploaded Questions */}
-      <div className="flex flex-col gap-4 pt-8 border-t border-border">
+      <div className="flex flex-col gap-4 pt-6 sm:pt-8 border-t border-border">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-            <TickCircle className="size-5 text-emerald-500" />
+          <h2 className="text-base sm:text-xl font-bold flex items-center gap-2">
+            <TickCircle className="size-4.5 sm:size-5 text-emerald-500" />
             <span>সাম্প্রতিক আপলোডকৃত প্রশ্নসমূহ ({recentList.length})</span>
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">
             আপনার এই সেশনে আপলোড হওয়া প্রশ্নগুলোর তালিকা
           </p>
         </div>
 
         {recentList.length === 0 ? (
-          <div className="p-8 text-center border border-dashed rounded-2xl bg-muted/10 text-muted-foreground text-xs">
+          <div className="p-6 sm:p-8 text-center border border-dashed rounded-2xl bg-muted/10 text-muted-foreground text-xs">
             এখনও কোনো প্রশ্ন আপলোড করা হয়নি। উপরের ফর্ম থেকে প্রশ্ন যুক্ত করুন।
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
             {recentList.map((q, idx) => (
               <div
                 key={q.id || idx}
-                className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs"
+                className="bg-card border border-border/70 rounded-2xl p-3.5 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs"
               >
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
