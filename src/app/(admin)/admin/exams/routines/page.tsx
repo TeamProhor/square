@@ -3,10 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
+  BookOpen,
+  Calendar,
   CalendarTick,
   Clock,
+  Courthouse,
   Edit,
   Flash,
+  Teacher,
   TickCircle,
   Trash2,
 } from "@/components/icons";
@@ -182,7 +186,8 @@ export default function AdminExamsPage() {
                 ক্যালেন্ডার ও প্রিন্ট শিরোনাম সেটিংস
               </CardTitle>
               <CardDescription className="text-xs sm:text-sm mt-1">
-                এখানে সেট করা টাইটেল ও সাবটাইটেল সরাসরি ক্যালেন্ডার পেইজ (/calendar) এবং প্রিন্ট পেইজ (/print/calendar)-এ সিঙ্ক হয়ে যাবে।
+                এখানে সেট করা টাইটেল ও সাবটাইটেল সরাসরি ক্যালেন্ডার পেইজ (/calendar) এবং
+                প্রিন্ট পেইজ (/print/calendar)-এ সিঙ্ক হয়ে যাবে।
               </CardDescription>
             </div>
             {/* Quick Presets */}
@@ -199,7 +204,7 @@ export default function AdminExamsPage() {
                   })
                 }
               >
-                🎓 এইচএসসি ২০২৬
+                <Teacher className="size-3.5 mr-1.5" /> এইচএসসি ২০২৬
               </Button>
               <Button
                 type="button"
@@ -208,12 +213,13 @@ export default function AdminExamsPage() {
                 className="h-8 text-xs font-semibold rounded-lg cursor-pointer"
                 onClick={() =>
                   applyPreset({
-                    title: "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী ২০২৬",
+                    title:
+                      "স্কয়ার বিশ্ববিদ্যালয় ও ইঞ্জিনিয়ারিং ভর্তি পরীক্ষা সময়সূচী ২০২৬",
                     subtitle: "এডমিশন টেস্ট ও ভর্তি পরীক্ষার চূড়ান্ত ক্যালেন্ডার",
                   })
                 }
               >
-                🏛️ এডমিশন ২০২৬
+                <Courthouse className="size-3.5 mr-1.5" /> এডমিশন ২০২৬
               </Button>
             </div>
           </div>
@@ -465,17 +471,24 @@ export default function AdminExamsPage() {
                         নম্বর)
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      📅 তারিখ ও সময়:{" "}
-                      <span className="font-medium text-foreground">
-                        {formattedDate}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Calendar className="size-3.5 shrink-0" />
+                        <span>তারিখ ও সময়:</span>
+                        <span className="font-medium text-foreground">
+                          {formattedDate}
+                        </span>
                       </span>
                       {routine.syllabus && (
-                        <span className="ml-3">
-                          📖 সিলেবাস: {routine.syllabus}
+                        <span className="inline-flex items-center gap-1.5">
+                          <BookOpen className="size-3.5 shrink-0" />
+                          <span>সিলেবাস:</span>
+                          <span className="font-medium text-foreground">
+                            {routine.syllabus}
+                          </span>
                         </span>
                       )}
-                    </p>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">

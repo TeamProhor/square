@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ExamScoreCard } from "@/components/exams/exam-score-card";
-import { ArrowLeft2, BookOpen, StatusUp } from "@/components/icons";
+import {
+  ArrowLeft2,
+  BookOpen,
+  CloseCircle,
+  StatusUp,
+  TickCircle,
+} from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
 import type { Question } from "@/types";
@@ -167,14 +173,20 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
                           উত্তর দেওয়া হয়নি
                         </span>
                       ) : isCorrect ? (
-                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                          ✓ সঠিক উত্তর (+
-                          {toBanglaDigits(resp.examQuestion?.marks || 1)})
+                        <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold inline-flex items-center gap-1">
+                          <TickCircle className="size-3.5 shrink-0" />
+                          <span>
+                            সঠিক উত্তর (+
+                            {toBanglaDigits(resp.examQuestion?.marks || 1)})
+                          </span>
                         </span>
                       ) : (
-                        <span className="text-xs text-destructive font-bold">
-                          ✕ ভুল উত্তর (-
-                          {toBanglaDigits(exam?.negativeMarking || 0)})
+                        <span className="text-xs text-destructive font-bold inline-flex items-center gap-1">
+                          <CloseCircle className="size-3.5 shrink-0" />
+                          <span>
+                            ভুল উত্তর (-
+                            {toBanglaDigits(exam?.negativeMarking || 0)})
+                          </span>
                         </span>
                       )}
                     </div>

@@ -4,7 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Category, SquareLogo } from "@/components/icons";
+import {
+  ArrowRight2,
+  Category,
+  HambergerMenu,
+  SquareLogo,
+} from "@/components/icons";
 import { LanguageToggler } from "@/components/language-toggler";
 
 import { Button } from "@/components/ui/button";
@@ -152,8 +157,8 @@ export function Sidebar({ onClose, dict, lang }: SidebarProps) {
           }`}
         >
           <Image
-            src={sidebarAnnouncement.imageSrc}
-            alt={sidebarAnnouncement.imageAlt}
+            src={sidebarAnnouncement.imageSrc || "/images/image.png"}
+            alt={sidebarAnnouncement.imageAlt || "Announcement"}
             width={732}
             height={420}
             className="w-full aspect-[732/420] object-cover rounded-[12px]"
@@ -249,7 +254,7 @@ export function MobileBottomNav({ dict }: MobileBottomNavProps) {
           );
         })}
 
-        {/* 5th Tab: 'আরো' (More) Drawer Trigger */}
+        {/* 5th Tab: Udvash-style Three-Line Menu Trigger */}
         {moreNavItems.length > 0 && (
           <Drawer open={isMoreOpen} onOpenChange={setIsMoreOpen}>
             <DrawerTrigger asChild>
@@ -261,22 +266,23 @@ export function MobileBottomNav({ dict }: MobileBottomNavProps) {
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
-                <Category size={22} className="mb-[3px]" />
+                <HambergerMenu size={22} className="mb-[3px]" />
                 <span className="text-[11px] tracking-tight whitespace-nowrap">
-                  আরো
+                  মেনু
                 </span>
               </button>
             </DrawerTrigger>
 
-            <DrawerContent className="px-5 pb-8 pt-3 bg-card border-t border-border rounded-t-[28px] max-w-lg mx-auto">
-              <DrawerHeader className="px-0 pt-1 pb-3 text-left">
+            <DrawerContent className="px-4 sm:px-6 pb-8 pt-3 bg-card border-t border-border rounded-t-[28px] max-w-lg mx-auto">
+              <DrawerHeader className="px-1 pt-1 pb-3 text-left">
                 <DrawerTitle className="text-base font-extrabold text-foreground flex items-center gap-2">
-                  <Category className="size-5 text-primary" />
-                  অন্যান্য মেনু ও ফিচার
+                  <HambergerMenu className="size-5 text-primary" />
+                  মেনু ও অন্যান্য ফিচার
                 </DrawerTitle>
               </DrawerHeader>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+              {/* Separated, distinct full-width items */}
+              <div className="flex flex-col gap-2 pt-1">
                 {moreNavItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = item.exact
@@ -288,26 +294,41 @@ export function MobileBottomNav({ dict }: MobileBottomNavProps) {
                       key={item.name}
                       href={item.path}
                       onClick={() => setIsMoreOpen(false)}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+                      className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
                         isActive
-                          ? "bg-primary/10 border-primary text-primary font-bold shadow-2xs"
-                          : "bg-muted/40 border-border/70 text-foreground hover:bg-accent"
+                          ? "bg-primary/10 border-primary text-primary font-bold shadow-xs"
+                          : "bg-muted/30 border-border/70 text-foreground hover:bg-muted/60"
                       }`}
                     >
-                      <div
-                        className={`p-2 rounded-xl shrink-0 ${
-                          isActive
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-background text-muted-foreground shadow-2xs"
-                        }`}
-                      >
-                        <Icon size={20} />
+                      <div className="flex items-center gap-3.5">
+                        <div
+                          className={`p-2.5 rounded-xl shrink-0 ${
+                            isActive
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-background text-primary border border-border/50 shadow-2xs"
+                          }`}
+                        >
+                          <Icon size={22} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold">{item.name}</span>
+                          <span className="text-[11px] text-muted-foreground font-normal">
+                            {item.name === "পিডিএফ" ||
+                            item.name === "পিডিএফ সাজেশন"
+                              ? "লেকচার নোটস ও সাজেশন শিট"
+                              : item.name === "ক্যালেন্ডার" ||
+                                  item.name === "রুটিন ক্যালেন্ডার"
+                                ? "পরীক্ষার সময়সূচী ও দিনপঞ্জি"
+                                : item.name === "পোল"
+                                  ? "কুইক পোলিং ও এমসিকিউ কুইজ"
+                                  : item.name === "হিরো স্লাইডার"
+                                    ? "হোমপেজ ব্যানার ম্যানেজমেন্ট"
+                                    : "সরাসরি ব্রাউজ করুন"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold truncate">
-                          {item.name}
-                        </span>
-                      </div>
+
+                      <ArrowRight2 className="size-4 text-muted-foreground shrink-0" />
                     </Link>
                   );
                 })}

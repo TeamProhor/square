@@ -101,7 +101,7 @@ export function CoursesPricingSection() {
                   <Image
                     alt={course.name || course.title || "Course"}
                     className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    src={course.image}
+                    src={course.image || "/images/image.png"}
                     width={600}
                     height={338}
                     unoptimized

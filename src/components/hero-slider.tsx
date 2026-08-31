@@ -64,7 +64,7 @@ export function HeroSlider({ slides }: { slides?: SliderItem[] }) {
               <Image
                 alt={slide.alt || "Hero Banner"}
                 className="w-full h-full object-cover"
-                src={slide.url}
+                src={slide.url || "/images/image.png"}
                 fill
                 priority={index === 0}
                 unoptimized

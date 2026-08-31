@@ -72,9 +72,7 @@ export default function CalendarPage() {
       dateObj,
       countdown: `${Math.max(
         0,
-        Math.ceil(
-          (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-        ),
+        Math.ceil((dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
       )} দিন`,
     };
   });
@@ -209,8 +207,7 @@ export default function CalendarPage() {
                 {calSettings?.title || "এইচএসসি ২০২৬ চূড়ান্ত রুটিন"}
               </CardTitle>
               <CardDescription className="mt-1">
-                {calSettings?.subtitle ||
-                  "সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে"}
+                {calSettings?.subtitle || "সবগুলো পরীক্ষা একই সূচীতে দেখে নিন সহজে"}
               </CardDescription>
             </div>
             {/* Interactive Search Box */}

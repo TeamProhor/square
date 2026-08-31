@@ -3,6 +3,7 @@
 import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Award, BookOpen, Like } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -109,12 +110,23 @@ export default function PollSolvePage() {
             </span>
           </div>
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-foreground">
-              {percentage >= 80
-                ? "দারুণ ফলাফল! 🎉"
-                : percentage >= 50
-                  ? "ভালো হয়েছে! 👍"
-                  : "আরও অনুশীলন প্রয়োজন 📚"}
+            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+              {percentage >= 80 ? (
+                <>
+                  <span>দারুণ ফলাফল!</span>
+                  <Award className="size-5 text-amber-500 shrink-0" />
+                </>
+              ) : percentage >= 50 ? (
+                <>
+                  <span>ভালো হয়েছে!</span>
+                  <Like className="size-5 text-emerald-500 shrink-0" />
+                </>
+              ) : (
+                <>
+                  <span>আরও অনুশীলন প্রয়োজন</span>
+                  <BookOpen className="size-5 text-primary shrink-0" />
+                </>
+              )}
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
               মোট {toBengaliNumber(activeQuestions.length)}টির মধ্যে{" "}

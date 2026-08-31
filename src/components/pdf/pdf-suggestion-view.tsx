@@ -271,7 +271,7 @@ export function PdfSuggestionView() {
               </div>
             )}
 
-            {selectedPdf ? (
+            {selectedPdf && previewUrl ? (
               <iframe
                 src={previewUrl}
                 title={selectedPdf.title}

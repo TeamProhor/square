@@ -97,7 +97,7 @@ export default async function CourseDetailPage({
         {/* HERO COVER BANNER */}
         <section className="w-full relative overflow-hidden rounded-2xl md:rounded-3xl border border-border/70 shadow-sm bg-muted aspect-16/7 md:aspect-21/9 max-h-[380px]">
           <Image
-            src={course.image}
+            src={course.image || "/images/image.png"}
             alt={`${course.name} - কোর্স কভার ছবি`}
             fill
             priority

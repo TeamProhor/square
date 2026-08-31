@@ -8,22 +8,13 @@ import {
   Calendar,
   CalendarTick,
   DocumentDownload,
-  Flash,
   StatusUp,
   TaskSquare,
-  TickCircle,
-  Trophy,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/db";
-import {
-  batchEnrollments,
-  batches,
-  examRoutines,
-  examSubmissions,
-  exams,
-} from "@/db/schema";
+import { batchEnrollments, batches, examRoutines, exams } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -66,31 +57,7 @@ export default async function DashboardPage() {
           .where(eq(batches.isPublished, true))
           .limit(3);
 
-  // 4. Fetch User's Exam Submissions & Activity Stats
-  let examsTakenCount = 0;
-  let averageScore = 0;
-  if (userId) {
-    const submissions = await db
-      .select()
-      .from(examSubmissions)
-      .where(eq(examSubmissions.userId, userId));
-
-    examsTakenCount = submissions.filter(
-      (s) => s.status === "submitted",
-    ).length;
-    if (examsTakenCount > 0) {
-      const totalPercentage = submissions
-        .filter((s) => s.status === "submitted")
-        .reduce((acc, curr) => {
-          const score = parseFloat(curr.score || "0");
-          const total = curr.totalMarks || 1;
-          return acc + (score / total) * 100;
-        }, 0);
-      averageScore = Math.round(totalPercentage / examsTakenCount);
-    }
-  }
-
-  // 5. Fetch Upcoming / Live Exams
+  // 4. Fetch Upcoming / Live Exams
   const liveExams = await db
     .select()
     .from(exams)
@@ -154,110 +121,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-1 sm:pt-4 md:py-6 gap-6 sm:gap-8 px-2 sm:px-4 md:px-6">
-      {/* ─── Hero Welcome Banner ──────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-[28px] border border-border/70 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-6 md:p-8 shadow-xs">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-end gap-3 sm:gap-6">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
-            <Button
-              asChild
-              className="rounded-xl px-5 h-10 sm:h-11 text-xs sm:text-sm font-bold shadow-xs flex-1 sm:flex-initial"
-            >
-              <Link href="/exams">
-                <CalendarTick className="size-4 mr-2" /> পরীক্ষা দিন
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-xl px-5 h-10 sm:h-11 text-xs sm:text-sm font-bold flex-1 sm:flex-initial"
-            >
-              <Link href="/qb">
-                <TaskSquare className="size-4 mr-2" /> প্রশ্নব্যাংক
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Metric & Activity Highlights ────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border/70 shadow-2xs flex flex-col justify-between gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              এনরোল্ড কোর্স
-            </span>
-            <div className="size-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-              <BookOpen className="size-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-foreground">
-              {toBanglaDigits(userEnrolledCourses.length)}
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              সক্রিয় কোর্সসমূহ
-            </p>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border/70 shadow-2xs flex flex-col justify-between gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              পরীক্ষা সম্পন্ন
-            </span>
-            <div className="size-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <TickCircle className="size-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-foreground">
-              {toBanglaDigits(examsTakenCount)}
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              অংশগ্রহণকৃত পরীক্ষা
-            </p>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border/70 shadow-2xs flex flex-col justify-between gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              গড় একিউরেসি
-            </span>
-            <div className="size-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-              <Trophy className="size-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-foreground">
-              {examsTakenCount > 0 ? `${toBanglaDigits(averageScore)}%` : "--"}
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              সামগ্রিক পারফরম্যান্স
-            </p>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border/70 shadow-2xs flex flex-col justify-between gap-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              প্রশ্নব্যাংক
-            </span>
-            <div className="size-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-              <Flash className="size-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-foreground">
-              {toBanglaDigits(containers.length)}
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
-              ক্যাটাগরি উপলব্ধ
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* ─── Core Learning Hub Grid ──────────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
@@ -451,18 +314,16 @@ export default async function DashboardPage() {
               key={batch.id}
               className="bg-card rounded-[22px] overflow-hidden border border-border/70 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between p-0 group"
             >
-              {batch.image && (
-                <div className="relative aspect-video overflow-hidden bg-muted">
-                  <Image
-                    alt={batch.name}
-                    className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    src={batch.image}
-                    width={500}
-                    height={280}
-                    unoptimized
-                  />
-                </div>
-              )}
+              <div className="relative aspect-video overflow-hidden bg-muted">
+                <Image
+                  alt={batch.name}
+                  className="size-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  src={batch.image || "/images/image.png"}
+                  width={500}
+                  height={280}
+                  unoptimized
+                />
+              </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between gap-4">
                 <div>

@@ -1,7 +1,10 @@
 "use client";
 
+import { BatchClassesTab } from "@/components/admin/batch-classes-tab";
 import { BatchExamsTab } from "@/components/admin/batch-exams-tab";
 import { BatchMembersTab } from "@/components/admin/batch-members-tab";
+import { BatchPdfsTab } from "@/components/admin/batch-pdfs-tab";
+import { FileText, Profile2user, TaskSquare, Video } from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BatchDetail } from "@/types";
 
@@ -27,36 +30,63 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
         </p>
       </div>
 
-      <Tabs defaultValue="members" className="w-full space-y-6">
+      <Tabs defaultValue="classes" className="w-full space-y-6">
         <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar">
           <TabsList className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 bg-transparent p-0 h-auto min-w-max mx-auto">
             <TabsTrigger
-              value="members"
-              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[8px] font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-semibold transition-colors shrink-0 whitespace-nowrap"
+              value="classes"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
             >
-              <span>সদস্যরা</span>
-              <span className="bg-primary/10 text-primary font-bold text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-[6px]">
-                {members.length}
-              </span>
+              <Video className="size-4 shrink-0" />
+              <span>ক্লাস ও লেকচার</span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="pdfs"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
+            >
+              <FileText className="size-4 shrink-0" />
+              <span>পিডিএফ রিসোর্স</span>
+            </TabsTrigger>
+
             <TabsTrigger
               value="exams"
-              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-[8px] font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-semibold transition-colors shrink-0 whitespace-nowrap"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
             >
+              <TaskSquare className="size-4 shrink-0" />
               <span>পরীক্ষাসমূহ</span>
               <span className="bg-muted text-muted-foreground font-bold text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-[6px]">
                 {batchExams.length}
               </span>
             </TabsTrigger>
+
+            <TabsTrigger
+              value="members"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
+            >
+              <Profile2user className="size-4 shrink-0" />
+              <span>সদস্যবৃন্দ</span>
+              <span className="bg-primary/10 text-primary font-bold text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-[6px]">
+                {members.length}
+              </span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="members">
-          <BatchMembersTab batchId={batch.id} members={members} />
+        <TabsContent value="classes">
+          <BatchClassesTab batchId={batch.id} />
+        </TabsContent>
+
+        <TabsContent value="pdfs">
+          <BatchPdfsTab batchId={batch.id} />
         </TabsContent>
 
         <TabsContent value="exams">
           <BatchExamsTab batchId={batch.id} batchExams={batchExams} />
+        </TabsContent>
+
+        <TabsContent value="members">
+          <BatchMembersTab batchId={batch.id} members={members} />
         </TabsContent>
       </Tabs>
     </div>

@@ -172,14 +172,14 @@ function cleanJsonInput(raw: string): string {
 
 const COMMENTED_SAMPLE_JSON_STRING = `/**
  * ═══════════════════════════════════════════════════════════════════════
- * 📌 SQUARE QUESTION BANK — JSON IMPORT SCHEMA & FORMAT GUIDE
+ * SQUARE QUESTION BANK — JSON IMPORT SCHEMA & FORMAT GUIDE
  * ═══════════════════════════════════════════════════════════════════════
  * 
- * 💡 HOW TO USE WITH AI (ChatGPT, Claude, DeepSeek):
+ * HOW TO USE WITH AI (ChatGPT, Claude, DeepSeek):
  * Copy this entire template (including comments) and provide it to your AI along with raw questions.
  * The AI will read the field rules and format your questions into this exact JSON array.
  * 
- * ⚙️ SPECIFICATIONS FOR EVERY FIELD:
+ * SPECIFICATIONS FOR EVERY FIELD:
  * 
  * 1. "type" (String, REQUIRED):
  *    - "mcq" -> Multiple Choice Question (বহুনির্বাচনী প্রশ্ন)
@@ -225,7 +225,7 @@ const COMMENTED_SAMPLE_JSON_STRING = `/**
  */
 [
   // -------------------------------------------------------------
-  // 🟢 EXAMPLE 1: Board Standard MCQ (HSC Board)
+  // EXAMPLE 1: Board Standard MCQ (HSC Board)
   // -------------------------------------------------------------
   {
     "type": "mcq",                            // Question type: "mcq"
@@ -242,7 +242,7 @@ const COMMENTED_SAMPLE_JSON_STRING = `/**
   },
 
   // -------------------------------------------------------------
-  // 🟢 EXAMPLE 2: Engineering Standard MCQ (BUET / CKRUET)
+  // EXAMPLE 2: Engineering Standard MCQ (BUET / CKRUET)
   // -------------------------------------------------------------
   {
     "type": "mcq",
@@ -259,7 +259,7 @@ const COMMENTED_SAMPLE_JSON_STRING = `/**
   },
 
   // -------------------------------------------------------------
-  // 🟢 EXAMPLE 3: University Admission MCQ (Varsity)
+  // EXAMPLE 3: University Admission MCQ (Varsity)
   // -------------------------------------------------------------
   {
     "type": "mcq",
@@ -276,7 +276,7 @@ const COMMENTED_SAMPLE_JSON_STRING = `/**
   },
 
   // -------------------------------------------------------------
-  // 🟢 EXAMPLE 4: Medical Admission MCQ (Medical)
+  // EXAMPLE 4: Medical Admission MCQ (Medical)
   // -------------------------------------------------------------
   {
     "type": "mcq",
@@ -293,7 +293,7 @@ const COMMENTED_SAMPLE_JSON_STRING = `/**
   },
 
   // -------------------------------------------------------------
-  // 🟢 EXAMPLE 5: Creative / Structured Question (CQ - সৃজনশীল)
+  // EXAMPLE 5: Creative / Structured Question (CQ - সৃজনশীল)
   // -------------------------------------------------------------
   {
     "type": "cq",                             // Question type: "cq"

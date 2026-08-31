@@ -4,7 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { ArrowLeft2, Download, Edit } from "@/components/icons";
+import {
+  ArrowLeft2,
+  Courthouse,
+  Download,
+  Edit,
+  Lightbulb,
+  Teacher,
+} from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { getCalendarSettings, getExamRoutines } from "@/lib/actions/routine";
 import type { CalendarSettings, Exam, ExamRoutine } from "@/types";
@@ -62,9 +69,7 @@ function PrintCalendarContent() {
       dateObj,
       countdown: `${Math.max(
         0,
-        Math.ceil(
-          (dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-        ),
+        Math.ceil((dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
       )} দিন`,
     };
   });
@@ -102,7 +107,11 @@ function PrintCalendarContent() {
       <div className="flex flex-col gap-4 pb-6 mb-6 border-b print:hidden">
         <div className="flex items-center justify-between gap-3">
           <Link href="/calendar">
-            <Button variant="outline" size="sm" className="gap-1.5 rounded-xl cursor-pointer">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 rounded-xl cursor-pointer"
+            >
               <ArrowLeft2 className="size-4" /> ক্যালেন্ডারে ফিরুন
             </Button>
           </Link>
@@ -134,7 +143,7 @@ function PrintCalendarContent() {
             }
             className="h-7 text-xs px-2.5 rounded-lg font-medium cursor-pointer"
           >
-            🎓 এইচএসসি রুটিন
+            <Teacher className="size-3.5 mr-1.5" /> এইচএসসি রুটিন
           </Button>
           <Button
             type="button"
@@ -148,10 +157,13 @@ function PrintCalendarContent() {
             }
             className="h-7 text-xs px-2.5 rounded-lg font-medium cursor-pointer"
           >
-            🏛️ এডমিশন ক্যালেন্ডার
+            <Courthouse className="size-3.5 mr-1.5" /> এডমিশন ক্যালেন্ডার
           </Button>
-          <span className="text-[11px] text-muted-foreground ml-auto italic">
-            💡 নিচের শিরোনামে ক্লিক করে সরাসরি যেকোনো টেক্সট এডিট করতে পারেন
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground ml-auto italic">
+            <Lightbulb className="size-3.5 shrink-0" />
+            <span>
+              নিচের শিরোনামে ক্লিক করে সরাসরি যেকোনো টেক্সট এডিট করতে পারেন
+            </span>
           </span>
         </div>
       </div>

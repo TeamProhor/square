@@ -516,6 +516,45 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const courseClasses = pgTable("course_classes", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  batchId: text("batch_id")
+    .notNull()
+    .references(() => batches.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  subject: text("subject").notNull(),
+  chapter: text("chapter"),
+  youtubeUrl: text("youtube_url").notNull(),
+  description: text("description"),
+  durationMinutes: integer("duration_minutes").default(60),
+  orderIndex: integer("order_index").default(0).notNull(),
+  isLive: boolean("is_live").default(false).notNull(),
+  isPublished: boolean("is_published").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const coursePdfs = pgTable("course_pdfs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  batchId: text("batch_id")
+    .notNull()
+    .references(() => batches.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  subject: text("subject").notNull(),
+  chapter: text("chapter"),
+  pdfUrl: text("pdf_url").notNull(),
+  description: text("description"),
+  fileSize: text("file_size"),
+  orderIndex: integer("order_index").default(0).notNull(),
+  isPublished: boolean("is_published").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // ─── Relations ────────────────────────────────────────────────────────────────
 
 export const containersRelations = relations(containers, ({ many }) => ({
@@ -598,6 +637,22 @@ export const batchesRelations = relations(batches, ({ one, many }) => ({
   batchExams: many(batchExams),
   enrollments: many(batchEnrollments),
   enrollmentRequests: many(batchEnrollmentRequests),
+  classes: many(courseClasses),
+  pdfs: many(coursePdfs),
+}));
+
+export const courseClassesRelations = relations(courseClasses, ({ one }) => ({
+  batch: one(batches, {
+    fields: [courseClasses.batchId],
+    references: [batches.id],
+  }),
+}));
+
+export const coursePdfsRelations = relations(coursePdfs, ({ one }) => ({
+  batch: one(batches, {
+    fields: [coursePdfs.batchId],
+    references: [batches.id],
+  }),
 }));
 
 export const batchDetailsRelations = relations(batchDetails, ({ one }) => ({

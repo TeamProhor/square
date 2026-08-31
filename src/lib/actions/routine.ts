@@ -8,7 +8,7 @@ import { batches, examRoutines, siteSettings } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import type { Batch, CalendarSettings, ExamRoutine } from "@/types";
 
-export const DEFAULT_CALENDAR_SETTINGS: CalendarSettings = {
+const DEFAULT_CALENDAR_SETTINGS: CalendarSettings = {
   title: "স্কয়ার এইচএসসি ২০২৬ চূড়ান্ত পরীক্ষার সময়সূচী",
   subtitle: "এইচএসসি ও সমমান বোর্ড পরীক্ষা ২০২৬ চূড়ান্ত রুটিন",
 };
@@ -142,7 +142,8 @@ export async function getExamRoutines(
       examDate: r.examDate instanceof Date ? r.examDate : new Date(r.examDate),
       durationMinutes: r.durationMinutes ?? 30,
       totalMarks: r.totalMarks ?? 25,
-      createdAt: r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
+      createdAt:
+        r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt),
     }));
   } catch (error) {
     console.error("Error fetching exam routines:", error);
@@ -435,7 +436,9 @@ export async function seedDemoRoutines(
       success: false,
       count: 0,
       message:
-        error instanceof Error ? error.message : "ডেমো রুটিন যুক্ত করতে ব্যর্থ হয়েছে।",
+        error instanceof Error
+          ? error.message
+          : "ডেমো রুটিন যুক্ত করতে ব্যর্থ হয়েছে।",
     };
   }
 }

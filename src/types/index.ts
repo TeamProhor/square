@@ -138,6 +138,37 @@ export interface Batch {
   readonly updatedAt?: Date;
 }
 
+export interface CourseClass {
+  readonly id: string;
+  readonly batchId: string;
+  readonly title: string;
+  readonly subject: string;
+  readonly chapter?: string | null;
+  readonly youtubeUrl: string;
+  readonly description?: string | null;
+  readonly durationMinutes?: number | null;
+  readonly orderIndex: number;
+  readonly isLive: boolean;
+  readonly isPublished: boolean;
+  readonly createdAt?: Date;
+  readonly updatedAt?: Date;
+}
+
+export interface CoursePdf {
+  readonly id: string;
+  readonly batchId: string;
+  readonly title: string;
+  readonly subject: string;
+  readonly chapter?: string | null;
+  readonly pdfUrl: string;
+  readonly description?: string | null;
+  readonly fileSize?: string | null;
+  readonly orderIndex: number;
+  readonly isPublished: boolean;
+  readonly createdAt?: Date;
+  readonly updatedAt?: Date;
+}
+
 export interface SidebarAnnouncement {
   readonly imageSrc: string;
   readonly imageAlt: string;
