@@ -304,9 +304,12 @@ export interface CreateQuestionPayload {
 }
 
 export interface ImportQuestionItem {
-  readonly type: "mcq" | "cq";
+  readonly type?: "mcq" | "cq";
   readonly source?: string;
-  readonly standard?: QuestionStandard;
+  readonly standard?: QuestionStandard | string;
+  readonly isFree?: boolean;
+  readonly is_free?: boolean;
+  readonly topicId?: string;
   readonly questionText: string;
   readonly explanation?: string;
   readonly mcqOptions?: readonly {
@@ -314,7 +317,7 @@ export interface ImportQuestionItem {
     readonly isCorrect: boolean;
   }[];
   readonly cqParts?: readonly {
-    readonly partKey: "a" | "b" | "c" | "d";
+    readonly partKey: "a" | "b" | "c" | "d" | string;
     readonly questionText: string;
     readonly answerText?: string;
     readonly marks: number;

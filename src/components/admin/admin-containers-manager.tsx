@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { NewQuestionBankForm } from "@/components/admin/forms/new-qb-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
-import { BookOpen, Trash2 } from "@/components/icons";
+import { Add, BookOpen, Flash, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -71,19 +72,21 @@ export function AdminContainersManager({
         <div className="flex items-center gap-2.5 flex-wrap">
           <Button
             asChild
-            className="rounded-xl gap-2 font-bold shadow-xs bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+            className="rounded-xl gap-1.5 font-bold shadow-xs bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer text-xs h-10 px-4"
           >
-            <a href="/admin/qb/add-question">
-              ⚡ এক পেজে প্রশ্ন আপলোড
-            </a>
+            <Link href="/admin/qb/add-question">
+              <Flash className="size-4" />
+              <span>এক পেজে প্রশ্ন আপলোড</span>
+            </Link>
           </Button>
 
           <Button
             onClick={() => setIsCreateOpen(true)}
             variant="outline"
-            className="rounded-xl gap-2 font-bold cursor-pointer"
+            className="rounded-xl gap-1.5 font-bold cursor-pointer text-xs h-10 px-4"
           >
-            + নতুন প্রশ্নব্যাংক
+            <Add className="size-4" />
+            <span>নতুন প্রশ্নব্যাংক</span>
           </Button>
         </div>
       </div>

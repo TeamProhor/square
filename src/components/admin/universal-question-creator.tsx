@@ -3,32 +3,37 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeKatex from "rehype-katex";
-import remarkBreaks from "remark-breaks";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import {
   Add,
   ArrowLeft2,
   BookOpen,
+  Category,
+  Copy,
+  Danger,
+  DocumentDownload,
+  Edit,
   Eye,
+  FileText,
   Flash,
+  Information,
   Lightbulb,
   Lock,
-  Search,
+  SecurityCard,
   TaskSquare,
   TickCircle,
   Trash2,
 } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "@/components/ui/native-select";
+import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,10 +86,10 @@ export function UniversalQuestionCreator({
   ]);
 
   // UI States
-  const [showLivePreview, setShowLivePreview] = useState(true);
   const [formError, setFormError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [recentList, setRecentList] = useState<any[]>(initialRecentQuestions);
+  const [copiedStatus, setCopiedStatus] = useState<string | null>(null);
 
   // Bulk Import State
   const [bulkJson, setBulkJson] = useState("");
@@ -174,6 +179,16 @@ export function UniversalQuestionCreator({
     }
   };
 
+  const handleCqPartChange = (
+    idx: number,
+    field: "questionText" | "answerText" | "marks",
+    value: string | number,
+  ) => {
+    const updated = [...cqParts];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setCqParts(updated);
+  };
+
   const resetQuestionInputs = () => {
     setQuestionText("");
     setExplanation("");
@@ -193,7 +208,7 @@ export function UniversalQuestionCreator({
   };
 
   const createMutation = useMutation({
-    mutationFn: async (andAddAnother: boolean) => {
+    mutationFn: async () => {
       if (!selectedChapterId) {
         throw new Error("অনুগ্রহ করে একটি অধ্যায় নির্বাচন করুন।");
       }
@@ -222,13 +237,13 @@ export function UniversalQuestionCreator({
       });
 
       if (!res.success) {
-        throw new Error(res.message || "Failed to create question");
+        throw new Error(res.message || "প্রশ্ন সংরক্ষণে সমস্যা হয়েছে");
       }
 
-      return { ...res, andAddAnother };
+      return res;
     },
     onSuccess: (data) => {
-      setSuccessMsg("✓ প্রশ্নটি সফলভাবে ডাটাবেজে যুক্ত হয়েছে!");
+      setSuccessMsg("প্রশ্নটি সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে।");
       setTimeout(() => setSuccessMsg(null), 3500);
 
       // Prepend to live recent list
@@ -271,6 +286,99 @@ export function UniversalQuestionCreator({
     },
   });
 
+  const sampleMcqJson = `[
+  {
+    "type": "mcq",
+    "standard": "${standard || "HSC"}",
+    "source": "${source || "ঢাকা বোর্ড ২০২৩"}",
+    "isFree": ${isFree},
+    "questionText": "নিচের কোনটি ভেক্টর রাশি?",
+    "mcqOptions": [
+      { "optionText": "বেগ", "isCorrect": true },
+      { "optionText": "দ্রুতি", "isCorrect": false },
+      { "optionText": "কাজ", "isCorrect": false },
+      { "optionText": "ক্ষমতা", "isCorrect": false }
+    ],
+    "explanation": "বেগ একটি ভেক্টর রাশি কারণ এর নির্দিষ্ট মান ও দিক উভয়ই বিদ্যমান।"
+  },
+  {
+    "type": "mcq",
+    "standard": "${standard || "HSC"}",
+    "source": "${source || "কুয়েট ২২-২৩"}",
+    "isFree": ${isFree},
+    "questionText": "$$\\\\vec{A} = 2\\\\hat{i} + 3\\\\hat{j}$$ এবং $$\\\\vec{B} = 4\\\\hat{i} - \\\\hat{j}$$ হলে ভেক্টরদ্বয়ের ডট গুণন কত?",
+    "mcqOptions": [
+      { "optionText": "5", "isCorrect": true },
+      { "optionText": "8", "isCorrect": false },
+      { "optionText": "11", "isCorrect": false },
+      { "optionText": "14", "isCorrect": false }
+    ],
+    "explanation": "$$\\\\vec{A} \\\\cdot \\\\vec{B} = (2 \\\\times 4) + (3 \\\\times -1) = 8 - 3 = 5$$"
+  }
+]`;
+
+  const sampleCqJson = `[
+  {
+    "type": "cq",
+    "standard": "${standard || "HSC"}",
+    "source": "${source || "ঢাকা বোর্ড ২০২৩"}",
+    "isFree": ${isFree},
+    "questionText": "একটি গাড়ি স্থির অবস্থান থেকে $2\\\\text{ ms}^{-2}$ সুষম ত্বরণে চলা শুরু করল এবং $10\\\\text{ s}$ পর সমবেগে চলল।",
+    "cqParts": [
+      {
+        "partKey": "a",
+        "marks": 1,
+        "questionText": "ত্বরণ কাকে বলে?",
+        "answerText": "সময়ের সাথে বস্তুর অসম বেগের পরিবর্তনের হারকে ত্বরণ বলে।"
+      },
+      {
+        "partKey": "b",
+        "marks": 2,
+        "questionText": "সুষম ত্বরণে চলমান বস্তুর বেগ নিয়মিত বৃদ্ধি পায় কেন? ব্যাখ্যা করো।",
+        "answerText": "ত্বরণ হলো বেগের পরিবর্তনের হার, তাই সুষম ত্বরণে বেগ নির্দিষ্ট হারে বাড়তে থাকে।"
+      },
+      {
+        "partKey": "c",
+        "marks": 3,
+        "questionText": "প্রথম $10\\\\text{ s}$-এ গাড়িটি কত দূরত্ব অতিক্রম করবে?",
+        "answerText": "$$s = ut + \\\\frac{1}{2}at^2 = 0 + \\\\frac{1}{2}(2)(10)^2 = 100\\\\text{ m}$$"
+      },
+      {
+        "partKey": "d",
+        "marks": 4,
+        "questionText": "উদ্দীপকের তথ্যানুযায়ী বেগ-সময় লেখচিত্র অঙ্কন করে গতি বিশ্লেষণ করো।",
+        "answerText": "প্রথম ১০ সেকেন্ড বেগ বৃদ্ধি পেয়ে ২০ মি/সে হবে, পরবর্তীতে সমবেগে চলবে।"
+      }
+    ],
+    "explanation": "গতিবিদ্যার সৃজনশীল সমাধান।"
+  }
+]`;
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedStatus(label);
+    setTimeout(() => setCopiedStatus(null), 2500);
+  };
+
+  const copyAiPrompt = () => {
+    const promptText = `তুমি একজন অভিজ্ঞ শিক্ষক ও প্রশ্নপ্রণেতা।
+দয়া করে নিচের বিষয়ের উপর ১০টি ${type === "mcq" ? "MCQ (বহুনির্বাচনী ৪টি অপশন সহ)" : "CQ (সৃজনশীল ৪টি অংশ ক,খ,গ,ঘ সহ)"} প্রশ্ন তৈরি করে দাও।
+
+কোর্স/প্রশ্নব্যাংক: ${currentContainer?.title || "HSC"}
+বিষয়: ${currentSubject?.name || "পদার্থবিজ্ঞান"}
+অধ্যায়: ${currentChapter?.name || "অধ্যায়"}
+মান/স্তর: ${standard}
+উৎস: ${source}
+
+নিয়মাবলী:
+১. ম্যাথমেটিক্যাল বা সাইন্টিফিক সূত্রের জন্য অবশ্যই LaTeX ($...$ বা $$...$$) ব্যবহার করবে।
+২. আউটপুট হিসেবে কোনো অতিরিক্ত কথা না বলে শুধুমাত্র নিচের JSON ফরম্যাটে একটি ভ্যালিড JSON অ্যারে আউটপুট দেবে:
+
+${type === "mcq" ? sampleMcqJson : sampleCqJson}`;
+
+    copyToClipboard(promptText, "ai-prompt");
+  };
+
   const handleBulkImport = async () => {
     if (!selectedChapterId) {
       setBulkImportStatus("অনুগ্রহ করে আগে অধ্যায় নির্বাচন করুন।");
@@ -286,12 +394,19 @@ export function UniversalQuestionCreator({
       const res = await importQuestionsAction(
         selectedChapterId,
         parsed,
-        selectedTopicId || undefined,
+        {
+          type,
+          standard,
+          source,
+          isFree,
+          topicId: selectedTopicId || undefined,
+        },
       );
       if (res.error) throw new Error(res.error);
 
-      setBulkImportStatus(`✓ সফলভাবে ${parsed.length} টি প্রশ্ন ইমপোর্ট হয়েছে!`);
+      setBulkImportStatus(`সফলভাবে ${parsed.length} টি প্রশ্ন ইমপোর্ট হয়েছে।`);
       setBulkJson("");
+      queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
     } catch (e: unknown) {
       setBulkImportStatus(e instanceof Error ? e.message : "ভুল JSON ফরম্যাট");
     }
@@ -314,75 +429,89 @@ export function UniversalQuestionCreator({
       id: `part-${p.partKey}`,
       partKey: p.partKey as any,
       questionText: p.questionText || `অংশ ${p.partKey}`,
+      answerText: p.answerText || "",
       marks: p.marks,
     })),
   };
 
+  const banglaLetters = ["ক", "খ", "গ", "ঘ", "ঙ", "চ"];
+
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-2 md:py-8 gap-8">
-      {/* ─── Top Header & Back Link ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Link
-              href="/admin/qb"
-              className="inline-flex items-center justify-center size-8 rounded-xl border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              title="প্রশ্নব্যাংক ম্যানেজারে ফিরুন"
+      {/* Top Header & Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="size-9 rounded-xl shrink-0"
+              title="প্রশ্নব্যাংক তালিকায় ফিরুন"
             >
-              <ArrowLeft2 className="size-4" />
-            </Link>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground flex items-center gap-2.5">
-              <TaskSquare className="size-6 text-primary shrink-0" />
-              প্রশ্ন আপলোড ও ইউনিভার্সাল বিল্ডার
-            </h1>
+              <Link href="/admin/qb">
+                <ArrowLeft2 className="size-4" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight text-foreground flex items-center gap-2.5">
+                <TaskSquare className="size-6 text-primary shrink-0" />
+                প্রশ্ন আপলোড ও বিল্ডার
+              </h1>
+            </div>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground pl-10 sm:pl-10">
-            একই পেজে প্রশ্নব্যাংক, বিষয় ও অধ্যায় সিলেক্ট করে সরাসরি দ্রুত প্রশ্ন আপলোড করুন।
+          <p className="text-xs sm:text-sm text-muted-foreground pl-12">
+            একই ইন্টারফেস থেকে ক্যাটাগরি, বিষয় ও অধ্যায় নির্ধারণ করে একক ও বাল্ক প্রশ্ন পরিচালনা করুন।
           </p>
         </div>
 
-        <Link href="/admin/qb">
-          <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold gap-1.5">
-            প্রশ্নব্যাংক তালিকা &rarr;
+        <div className="flex items-center gap-2 self-start sm:self-auto pl-12 sm:pl-0">
+          <Button asChild variant="outline" size="sm" className="rounded-xl text-xs font-bold gap-1.5 h-9">
+            <Link href="/admin/qb">
+              <span>প্রশ্নব্যাংক তালিকা</span>
+              <ArrowLeft2 className="size-3.5 rotate-180" />
+            </Link>
           </Button>
-        </Link>
+        </div>
       </div>
 
+      {/* Notifications */}
       {successMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-sm font-bold flex items-center gap-2 shadow-xs">
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs sm:text-sm font-bold flex items-center gap-2.5 shadow-xs">
           <TickCircle className="size-5 shrink-0" />
-          {successMsg}
+          <span>{successMsg}</span>
         </div>
       )}
 
       {formError && (
-        <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm font-bold">
-          {formError}
+        <div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-xs sm:text-sm font-bold flex items-center gap-2.5">
+          <Danger className="size-5 shrink-0" />
+          <span>{formError}</span>
         </div>
       )}
 
-      {/* ─── Main Unified Editor Grid ─── */}
+      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* ================= LEFT COLUMN: Form Controls (Col Span 7) ================= */}
-        <div className="lg:col-span-7 space-y-6">
-          <Tabs defaultValue="single" className="w-full space-y-5">
-            <TabsList className="grid grid-cols-2 w-full max-w-sm rounded-xl p-1 bg-muted/60">
-              <TabsTrigger value="single" className="rounded-lg text-xs font-bold py-2">
-                ✍️ সিঙ্গেল প্রশ্ন তৈরি
+        {/* Left Column: Editor Forms */}
+        <div className="lg:col-span-7 flex flex-col gap-6">
+          <Tabs defaultValue="single" className="w-full flex flex-col gap-5">
+            <TabsList className="grid grid-cols-2 w-full max-w-sm rounded-xl p-1 bg-muted/60 h-10">
+              <TabsTrigger value="single" className="rounded-lg text-xs font-bold gap-1.5 h-8">
+                <Edit className="size-3.5" />
+                <span>একক প্রশ্ন তৈরি</span>
               </TabsTrigger>
-              <TabsTrigger value="bulk" className="rounded-lg text-xs font-bold py-2">
-                📦 বাল্ক JSON ইমপোর্ট
+              <TabsTrigger value="bulk" className="rounded-lg text-xs font-bold gap-1.5 h-8">
+                <DocumentDownload className="size-3.5" />
+                <span>বাল্ক JSON ইমপোর্ট</span>
               </TabsTrigger>
             </TabsList>
 
             {/* TAB 1: Single Question Creator */}
-            <TabsContent value="single" className="space-y-6 focus-visible:outline-none">
+            <TabsContent value="single" className="flex flex-col gap-6 focus-visible:outline-none m-0">
               {/* STEP 1: CASCADING LOCATION SELECTOR */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                  <span className="size-6 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center">
-                    ১
-                  </span>
+                  <Category className="size-4 text-primary shrink-0" />
                   <h3 className="font-extrabold text-sm sm:text-base">
                     লোকেশন নির্বাচন (প্রশ্নব্যাংক, বিষয় ও অধ্যায়)
                   </h3>
@@ -390,32 +519,32 @@ export function UniversalQuestionCreator({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Container / QB Select */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      📂 প্রশ্নব্যাংক ক্যাটাগরি *
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-bold text-foreground">
+                      প্রশ্নব্যাংক ক্যাটাগরি *
                     </Label>
                     <NativeSelect
                       value={selectedContainerId}
                       onChange={(e) => handleContainerChange(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold"
+                      className="w-full rounded-xl text-xs font-bold h-10"
                     >
                       {hierarchy.map((c) => (
                         <NativeSelectOption key={c.id} value={c.id}>
-                          {c.title} {c.isPublic ? "(ফ্রি ও উন্মুক্ত)" : ""}
+                          {c.title} {c.isPublic ? "(উন্মুক্ত)" : ""}
                         </NativeSelectOption>
                       ))}
                     </NativeSelect>
                   </div>
 
                   {/* Subject Select */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      📚 বিষয় (Subject) *
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-bold text-foreground">
+                      বিষয় (Subject) *
                     </Label>
                     <NativeSelect
                       value={selectedSubjectId}
                       onChange={(e) => handleSubjectChange(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold"
+                      className="w-full rounded-xl text-xs font-bold h-10"
                     >
                       {availableSubjects.map((s) => (
                         <NativeSelectOption key={s.id} value={s.id}>
@@ -426,14 +555,14 @@ export function UniversalQuestionCreator({
                   </div>
 
                   {/* Chapter Select */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      📖 অধ্যায় (Chapter) *
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-bold text-foreground">
+                      অধ্যায় (Chapter) *
                     </Label>
                     <NativeSelect
                       value={selectedChapterId}
                       onChange={(e) => setSelectedChapterId(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold"
+                      className="w-full rounded-xl text-xs font-bold h-10"
                     >
                       {availableChapters.map((ch) => (
                         <NativeSelectOption key={ch.id} value={ch.id}>
@@ -444,16 +573,16 @@ export function UniversalQuestionCreator({
                   </div>
 
                   {/* Topic Select (Optional) */}
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      🔖 টপিক (ঐচ্ছিক)
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-bold text-foreground">
+                      টপিক (ঐচ্ছিক)
                     </Label>
                     <NativeSelect
                       value={selectedTopicId}
                       onChange={(e) => setSelectedTopicId(e.target.value)}
-                      className="w-full rounded-xl text-xs"
+                      className="w-full rounded-xl text-xs h-10"
                     >
-                      <NativeSelectOption value="">কোনো টপিক নেই (সাধারণ)</NativeSelectOption>
+                      <NativeSelectOption value="">সাধারণ (কোনো নির্দিষ্ট টপিক ছাড়া)</NativeSelectOption>
                       {availableTopics.map((tp) => (
                         <NativeSelectOption key={tp.id} value={tp.id}>
                           {tp.name}
@@ -465,11 +594,9 @@ export function UniversalQuestionCreator({
               </div>
 
               {/* STEP 2: QUESTION META & STANDARD */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-border/50">
-                  <span className="size-6 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center">
-                    ২
-                  </span>
+                  <SecurityCard className="size-4 text-primary shrink-0" />
                   <h3 className="font-extrabold text-sm sm:text-base">
                     প্রশ্নের ধরন ও উৎস সেটিংস
                   </h3>
@@ -477,12 +604,12 @@ export function UniversalQuestionCreator({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {/* Type */}
-                  <div className="space-y-1.5">
+                  <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-bold">টাইপ *</Label>
                     <NativeSelect
                       value={type}
                       onChange={(e) => setType(e.target.value as "mcq" | "cq")}
-                      className="w-full rounded-xl text-xs font-bold"
+                      className="w-full rounded-xl text-xs font-bold h-10"
                     >
                       <NativeSelectOption value="mcq">MCQ (বহুনির্বাচনী)</NativeSelectOption>
                       <NativeSelectOption value="cq">CQ (সৃজনশীল)</NativeSelectOption>
@@ -490,12 +617,12 @@ export function UniversalQuestionCreator({
                   </div>
 
                   {/* Standard */}
-                  <div className="space-y-1.5">
+                  <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-bold">মান / স্তর (Standard) *</Label>
                     <NativeSelect
                       value={standard}
                       onChange={(e) => setStandard(e.target.value)}
-                      className="w-full rounded-xl text-xs font-bold"
+                      className="w-full rounded-xl text-xs font-bold h-10"
                     >
                       <NativeSelectOption value="HSC">HSC (বোর্ড)</NativeSelectOption>
                       <NativeSelectOption value="Varsity">Varsity (ভার্সিটি)</NativeSelectOption>
@@ -505,14 +632,14 @@ export function UniversalQuestionCreator({
                   </div>
 
                   {/* Source */}
-                  <div className="space-y-1.5">
+                  <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-bold">উৎস (Source)</Label>
                     <Input
                       placeholder="যেমন: ঢাকা বোর্ড ২০২৩..."
                       value={source}
                       onChange={(e) => setSource(e.target.value)}
                       list="unified-source-suggestions"
-                      className="rounded-xl text-xs"
+                      className="rounded-xl text-xs h-10"
                     />
                     <datalist id="unified-source-suggestions">
                       <option value="ঢাকা বোর্ড ২০২৩" />
@@ -536,39 +663,39 @@ export function UniversalQuestionCreator({
                     id="universal-is-free"
                     checked={isFree}
                     onChange={(e) => setIsFree(e.target.checked)}
-                    className="size-4.5 rounded accent-primary cursor-pointer"
+                    className="size-4 rounded accent-primary cursor-pointer"
                   />
                   <label
                     htmlFor="universal-is-free"
-                    className="text-xs font-bold text-foreground cursor-pointer select-none"
+                    className="text-xs font-bold text-foreground cursor-pointer select-none flex items-center gap-1.5"
                   >
-                    🌐 সবার জন্য উন্মুক্ত / ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক যেকোনো শিক্ষার্থী অনুশীলন করতে পারবে)
+                    <span>সবার জন্য উন্মুক্ত ও ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক যেকোনো শিক্ষার্থী অনুশীলন করতে পারবে)</span>
                   </label>
                 </div>
               </div>
 
               {/* STEP 3: QUESTION STEM & ANSWERS */}
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-4">
                 <div className="flex items-center justify-between pb-2 border-b border-border/50">
                   <div className="flex items-center gap-2">
-                    <span className="size-6 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center">
-                      ৩
-                    </span>
+                    <FileText className="size-4 text-primary shrink-0" />
                     <h3 className="font-extrabold text-sm sm:text-base">
-                      প্রশ্নের মূল টেক্সট ও অপশনসমূহ
+                      {type === "mcq" ? "প্রশ্নের মূল বিবরণ ও অপশনসমূহ" : "সৃজনশীল উদ্দীপক ও অংশসমূহ"}
                     </h3>
                   </div>
 
                   <span className="text-[11px] font-mono text-muted-foreground">
-                    LaTeX Support: $...$ বা $$...$$
+                    LaTeX: $...$ বা $$...$$
                   </span>
                 </div>
 
                 {/* Question Stem Textarea */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-bold">প্রশ্নের বিবরণ (Question Stem) *</Label>
+                <div className="flex flex-col gap-1.5">
+                  <Label className="text-xs font-bold">
+                    {type === "mcq" ? "প্রশ্নের বিবরণ (Question Stem) *" : "সৃজনশীল উদ্দীপক (Stem) *"}
+                  </Label>
                   <Textarea
-                    placeholder="প্রশ্ন লিখুন... (ম্যাথের সূত্রের জন্য LaTeX যেমন $F = ma$ ব্যবহার করুন)"
+                    placeholder={type === "mcq" ? "প্রশ্ন লিখুন... (ম্যাথ সূত্রের জন্য LaTeX যেমন $F = ma$ ব্যবহার করুন)" : "উদ্দীপক লিখুন..."}
                     value={questionText}
                     onChange={(e) => setQuestionText(e.target.value)}
                     rows={4}
@@ -579,10 +706,10 @@ export function UniversalQuestionCreator({
 
                 {/* MCQ Options Block */}
                 {type === "mcq" && (
-                  <div className="space-y-3 pt-2">
+                  <div className="flex flex-col gap-3 pt-2">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs font-bold">
-                        অপশনসমূহ (সঠিক উত্তরের পাশে গোল বাটন সিলেক্ট করুন)
+                        অপশনসমূহ (সঠিক উত্তরের বর্ণে ক্লিক করুন)
                       </Label>
                       {mcqOptions.length < 6 && (
                         <Button
@@ -592,68 +719,129 @@ export function UniversalQuestionCreator({
                           onClick={handleAddOption}
                           className="h-7 text-xs font-bold text-primary gap-1"
                         >
-                          <Add className="size-3.5" /> + অপশন বাড়ান
+                          <Add className="size-3.5" />
+                          <span>অপশন যোগ করুন</span>
                         </Button>
                       )}
                     </div>
 
-                    <div className="space-y-2.5">
-                      {mcqOptions.map((opt, idx) => {
-                        const banglaLetters = ["ক", "খ", "গ", "ঘ", "ঙ", "চ"];
-                        return (
-                          <div
-                            key={idx}
-                            className={`flex items-center gap-2.5 p-2 rounded-2xl border transition-all ${
+                    <div className="flex flex-col gap-2.5">
+                      {mcqOptions.map((opt, idx) => (
+                        <div
+                          key={idx}
+                          className={`flex items-center gap-2.5 p-2.5 rounded-2xl border transition-all ${
+                            opt.isCorrect
+                              ? "bg-emerald-500/10 border-emerald-500/40"
+                              : "bg-card border-border/70"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleCorrectSelect(idx)}
+                            className={`size-7 rounded-xl font-black text-xs flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                               opt.isCorrect
-                                ? "bg-emerald-500/10 border-emerald-500/40"
-                                : "bg-card border-border/70"
+                                ? "bg-emerald-600 text-white shadow-xs"
+                                : "bg-muted text-muted-foreground hover:bg-accent"
                             }`}
+                            title={opt.isCorrect ? "সঠিক উত্তর" : "সঠিক হিসেবে মার্ক করুন"}
                           >
-                            <button
+                            {banglaLetters[idx] || idx + 1}
+                          </button>
+
+                          <Input
+                            placeholder={`অপশন ${banglaLetters[idx] || idx + 1} এর টেক্সট`}
+                            value={opt.optionText}
+                            onChange={(e) => handleOptionChange(idx, e.target.value)}
+                            className="h-9 rounded-xl text-xs flex-1 bg-background"
+                          />
+
+                          {mcqOptions.length > 2 && (
+                            <Button
                               type="button"
-                              onClick={() => handleCorrectSelect(idx)}
-                              className={`size-7 rounded-xl font-black text-xs flex items-center justify-center shrink-0 transition-all cursor-pointer ${
-                                opt.isCorrect
-                                  ? "bg-emerald-600 text-white shadow-xs"
-                                  : "bg-muted text-muted-foreground hover:bg-accent"
-                              }`}
-                              title={opt.isCorrect ? "সঠিক উত্তর" : "সঠিক হিসেবে মার্ক করুন"}
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRemoveOption(idx)}
+                              className="size-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg shrink-0 cursor-pointer"
+                              title="অপশন মুছুন"
                             >
-                              {banglaLetters[idx] || idx + 1}
-                            </button>
+                              <Trash2 className="size-4" />
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                            <Input
-                              placeholder={`অপশন ${banglaLetters[idx] || idx + 1} এর লেখা`}
-                              value={opt.optionText}
-                              onChange={(e) => handleOptionChange(idx, e.target.value)}
-                              className="h-9 rounded-xl text-xs flex-1 bg-background"
-                            />
+                {/* CQ Parts Block */}
+                {type === "cq" && (
+                  <div className="flex flex-col gap-3 pt-2">
+                    <Label className="text-xs font-bold">
+                      সৃজনশীল প্রশ্ন ও উত্তরের অংশসমূহ (ক, খ, গ, ঘ)
+                    </Label>
 
-                            {mcqOptions.length > 2 && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveOption(idx)}
-                                className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors cursor-pointer"
-                                title="অপশন মুছুন"
-                              >
-                                <Trash2 className="size-4" />
-                              </button>
-                            )}
+                    <div className="flex flex-col gap-3">
+                      {cqParts.map((part, idx) => (
+                        <div
+                          key={part.partKey}
+                          className="flex flex-col gap-2.5 p-3.5 rounded-2xl border border-border/70 bg-muted/20"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="size-6 rounded-lg bg-primary/10 text-primary font-black text-xs flex items-center justify-center">
+                                {banglaLetters[idx] || part.partKey}
+                              </span>
+                              <span className="text-xs font-bold">
+                                অংশ {banglaLetters[idx]} ({part.marks} নম্বর)
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Label className="text-[11px] text-muted-foreground">নম্বর:</Label>
+                              <Input
+                                type="number"
+                                min={1}
+                                max={10}
+                                value={part.marks}
+                                onChange={(e) =>
+                                  handleCqPartChange(idx, "marks", parseInt(e.target.value) || 1)
+                                }
+                                className="w-14 h-7 text-xs rounded-lg text-center"
+                              />
+                            </div>
                           </div>
-                        );
-                      })}
+
+                          <Input
+                            placeholder={`অংশ ${banglaLetters[idx]} এর প্রশ্ন...`}
+                            value={part.questionText}
+                            onChange={(e) =>
+                              handleCqPartChange(idx, "questionText", e.target.value)
+                            }
+                            className="text-xs rounded-xl h-9 bg-background"
+                          />
+
+                          <Textarea
+                            placeholder={`অংশ ${banglaLetters[idx]} এর সমাধান/উত্তর...`}
+                            value={part.answerText}
+                            onChange={(e) =>
+                              handleCqPartChange(idx, "answerText", e.target.value)
+                            }
+                            rows={2}
+                            className="text-xs rounded-xl bg-background"
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
 
                 {/* Explanation Block */}
-                <div className="space-y-1.5 pt-2">
+                <div className="flex flex-col gap-1.5 pt-2">
                   <Label className="text-xs font-bold flex items-center gap-1.5">
                     <Lightbulb className="size-3.5 text-amber-500" />
-                    ব্যাখ্যা ও সমাধান (Explanation)
+                    <span>সার্বিক ব্যাখ্যা ও নোট (Explanation)</span>
                   </Label>
                   <Textarea
-                    placeholder="শিক্ষার্থীদের জন্য বিস্তারিত সমাধান ও ব্যাখ্যামূলক নোট..."
+                    placeholder="শিক্ষার্থীদের জন্য ব্যাখ্যামূলক নোট ও সমাধান..."
                     value={explanation}
                     onChange={(e) => setExplanation(e.target.value)}
                     rows={3}
@@ -675,17 +863,19 @@ export function UniversalQuestionCreator({
 
                 <Button
                   type="button"
-                  onClick={() => createMutation.mutate(true)}
+                  onClick={() => createMutation.mutate()}
                   disabled={createMutation.isPending}
-                  className="rounded-xl h-11 px-6 text-xs font-bold gap-1.5 shadow-md bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                  className="rounded-xl h-11 px-6 text-xs font-bold gap-2 shadow-md bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
                 >
                   {createMutation.isPending ? (
                     <>
-                      <Spinner className="mr-1.5" /> সংরক্ষণ হচ্ছে...
+                      <Spinner className="size-4" />
+                      <span>সংরক্ষণ হচ্ছে...</span>
                     </>
                   ) : (
                     <>
-                      🚀 সংরক্ষণ ও আরেকটি যোগ করুন
+                      <Flash className="size-4" />
+                      <span>সংরক্ষণ করুন ও পরবর্তী প্রশ্ন যোগ করুন</span>
                     </>
                   )}
                 </Button>
@@ -693,78 +883,173 @@ export function UniversalQuestionCreator({
             </TabsContent>
 
             {/* TAB 2: Bulk JSON Import */}
-            <TabsContent value="bulk" className="space-y-4 focus-visible:outline-none">
-              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-xs space-y-4">
-                <div className="space-y-1">
-                  <h3 className="font-extrabold text-base">বাল্ক প্রশ্ন ইমপোর্ট (JSON)</h3>
-                  <p className="text-xs text-muted-foreground">
-                    নির্বাচিত অধ্যায়ে ({currentChapter?.name || "অধ্যায় নির্বাচন করুন"}) একসাথে একাধিক প্রশ্ন ইমপোর্ট করতে নিচের বক্সে JSON অ্যারে পেস্ট করুন।
-                  </p>
+            <TabsContent value="bulk" className="flex flex-col gap-4 focus-visible:outline-none m-0">
+              <div className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col gap-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="font-extrabold text-base flex items-center gap-2">
+                      <DocumentDownload className="size-4 text-primary" />
+                      <span>বাল্ক প্রশ্ন ইমপোর্ট (JSON)</span>
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      নির্বাচিত অধ্যায়ে ({currentChapter?.name || "অধ্যায় নির্বাচন করুন"}) একসাথে একাধিক প্রশ্ন ইমপোর্ট করুন।
+                    </p>
+                  </div>
+
+                  {/* Template & Copy Buttons */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(sampleMcqJson, "mcq-json")}
+                      className="text-[11px] h-8 rounded-xl font-bold gap-1"
+                    >
+                      <Copy className="size-3" />
+                      <span>{copiedStatus === "mcq-json" ? "কপি হয়েছে!" : "MCQ ফরম্যাট কপি"}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(sampleCqJson, "cq-json")}
+                      className="text-[11px] h-8 rounded-xl font-bold gap-1"
+                    >
+                      <Copy className="size-3" />
+                      <span>{copiedStatus === "cq-json" ? "কপি হয়েছে!" : "CQ ফরম্যাট কপি"}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={copyAiPrompt}
+                      className="text-[11px] h-8 rounded-xl font-bold gap-1 text-primary bg-primary/10 hover:bg-primary/20"
+                    >
+                      <Flash className="size-3" />
+                      <span>{copiedStatus === "ai-prompt" ? "প্রম্পট কপি হয়েছে!" : "AI প্রম্পট কপি"}</span>
+                    </Button>
+                  </div>
                 </div>
 
-                <Textarea
-                  placeholder={`[
-  {
-    "type": "mcq",
-    "questionText": "ভেক্টর রাশির উদাহরণ কোনটি?",
-    "source": "ঢাকা বোর্ড ২০২৩",
-    "standard": "HSC",
-    "isFree": true,
-    "mcqOptions": [
-      { "optionText": "বেগ", "isCorrect": true },
-      { "optionText": "দ্রুতি", "isCorrect": false }
-    ]
-  }
-]`}
-                  value={bulkJson}
-                  onChange={(e) => setBulkJson(e.target.value)}
-                  rows={10}
-                  className="font-mono text-xs rounded-2xl"
-                />
+                {/* Info banner showing active manual settings */}
+                <div className="p-4 rounded-2xl bg-muted/40 border border-border/70 text-xs flex flex-col gap-2">
+                  <div className="font-bold text-foreground flex items-center gap-1.5">
+                    <Information className="size-4 text-primary shrink-0" />
+                    <span>ম্যানুয়াল সিলেকশন ডিফল্ট (JSON ফিল্ড মিসিং থাকলে এই সেটিংস প্রযোজ্য হবে):</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-[11px]">
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      প্রশ্নব্যাংক: {currentContainer?.title || "ক্যাটাগরি"}
+                    </span>
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      বিষয়: {currentSubject?.name || "বিষয়"}
+                    </span>
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      অধ্যায়: {currentChapter?.name || "অধ্যায়"}
+                    </span>
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      টাইপ: {type === "mcq" ? "MCQ" : "CQ"}
+                    </span>
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      মান: {standard}
+                    </span>
+                    <span className="bg-background px-2.5 py-1 rounded-lg border border-border/60 font-medium">
+                      উৎস: {source}
+                    </span>
+                    <span className={`px-2.5 py-1 rounded-lg border font-bold ${isFree ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" : "bg-background border-border/60"}`}>
+                      {isFree ? "উন্মুক্ত ও ফ্রি" : "ব্যাচ নিয়ন্ত্রিত"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* JSON Input Area */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold">JSON ডেটা পেস্ট করুন</Label>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBulkJson(sampleMcqJson)}
+                        className="text-[11px] text-primary hover:underline font-bold"
+                      >
+                        ৪-অপশন MCQ নমুনা লোড
+                      </button>
+                      <span className="text-muted-foreground text-[11px]">•</span>
+                      <button
+                        type="button"
+                        onClick={() => setBulkJson(sampleCqJson)}
+                        className="text-[11px] text-primary hover:underline font-bold"
+                      >
+                        ৪-অংশ CQ নমুনা লোড
+                      </button>
+                    </div>
+                  </div>
+                  <Textarea
+                    placeholder={sampleMcqJson}
+                    value={bulkJson}
+                    onChange={(e) => setBulkJson(e.target.value)}
+                    rows={12}
+                    className="font-mono text-xs rounded-2xl bg-background leading-relaxed"
+                  />
+                </div>
 
                 {bulkImportStatus && (
-                  <p className="text-xs font-bold p-3 rounded-xl bg-muted/60">
-                    {bulkImportStatus}
-                  </p>
+                  <div className={`p-3.5 rounded-xl border text-xs font-bold flex items-center gap-2 ${bulkImportStatus.includes("সফলভাবে") ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600" : "bg-destructive/10 border-destructive/20 text-destructive"}`}>
+                    {bulkImportStatus.includes("সফলভাবে") ? <TickCircle className="size-4 shrink-0" /> : <Danger className="size-4 shrink-0" />}
+                    <span>{bulkImportStatus}</span>
+                  </div>
                 )}
 
-                <Button
-                  onClick={handleBulkImport}
-                  className="rounded-xl font-bold text-xs h-10 px-5"
-                >
-                  ইমপোর্ট সম্পন্ন করুন
-                </Button>
+                <div className="flex items-center justify-end gap-3 pt-2 border-t border-border/50">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setBulkJson("")}
+                    className="rounded-xl font-bold text-xs h-10 px-4"
+                  >
+                    ক্লিয়ার
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleBulkImport}
+                    disabled={!bulkJson.trim() || !selectedChapterId}
+                    className="rounded-xl font-bold text-xs h-10 px-6 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md cursor-pointer gap-2"
+                  >
+                    <DocumentDownload className="size-4" />
+                    <span>বাল্ক প্রশ্ন ইমপোর্ট করুন</span>
+                  </Button>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
         </div>
 
-        {/* ================= RIGHT COLUMN: Live Question Preview (Col Span 5) ================= */}
-        <div className="lg:col-span-5 space-y-5 sticky top-20">
-          <div className="flex items-center justify-between pb-2 border-b">
+        {/* Right Column: Live Preview Panel */}
+        <div className="lg:col-span-5 flex flex-col gap-5 sticky top-20">
+          <div className="flex items-center justify-between pb-2 border-b border-border">
             <h3 className="font-extrabold text-sm sm:text-base flex items-center gap-2">
-              <Eye className="size-4 text-primary" />
-              লাইভ প্রিভিউ (শিক্ষার্থীরা যেমন দেখবে)
+              <Eye className="size-4 text-primary shrink-0" />
+              <span>লাইভ প্রিভিউ</span>
             </h3>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              {type.toUpperCase()}
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-muted text-muted-foreground uppercase">
+              {type}
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <UniversalQuestionCard
               question={previewQuestionObj}
               questionIndex={0}
               showCorrectAnswer={true}
-              badgeText={isFree ? "🌐 ফ্রি ও উন্মুক্ত প্রশ্ন" : "🔒 ব্যাচ এক্সক্লুসিভ"}
+              badgeText={isFree ? "উন্মুক্ত ও ফ্রি প্রশ্ন" : "ব্যাচ এক্সক্লুসিভ"}
             />
           </div>
 
-          {/* Quick Stats of Current Chapter */}
+          {/* Location Summary Card */}
           {currentChapter && (
-            <div className="p-4 rounded-2xl bg-card border border-border/70 text-xs space-y-2">
+            <div className="p-4 rounded-2xl bg-card border border-border/70 text-xs flex flex-col gap-2">
               <div className="flex items-center justify-between font-bold">
-                <span>বর্তমান নির্বাচিত লোকেশন:</span>
+                <span className="text-muted-foreground">বর্তমান লোকেশন:</span>
                 <span className="text-primary">{currentContainer?.title}</span>
               </div>
               <p className="text-muted-foreground">
@@ -775,15 +1060,15 @@ export function UniversalQuestionCreator({
         </div>
       </div>
 
-      {/* ─── Bottom Section: Recently Uploaded Questions ─── */}
-      <div className="space-y-4 pt-8 border-t">
-        <div className="flex items-center justify-between">
+      {/* Bottom Section: Recently Uploaded Questions */}
+      <div className="flex flex-col gap-4 pt-8 border-t border-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
           <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
             <TickCircle className="size-5 text-emerald-500" />
-            সাম্প্রতিক আপলোডকৃত প্রশ্নসমূহ ({recentList.length})
+            <span>সাম্প্রতিক আপলোডকৃত প্রশ্নসমূহ ({recentList.length})</span>
           </h2>
           <p className="text-xs text-muted-foreground">
-            আপনার এই সেশনে আপলোড হওয়া প্রশ্নগুলোর তাৎক্ষণিক তালিকা
+            আপনার এই সেশনে আপলোড হওয়া প্রশ্নগুলোর তালিকা
           </p>
         </div>
 
@@ -798,7 +1083,7 @@ export function UniversalQuestionCreator({
                 key={q.id || idx}
                 className="bg-card border border-border/70 rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 shadow-2xs"
               >
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
                       {q.subjectName} • {q.chapterName}
@@ -829,9 +1114,10 @@ export function UniversalQuestionCreator({
                     variant="ghost"
                     onClick={() => deleteMutation.mutate(q.id)}
                     disabled={deleteMutation.isPending}
-                    className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg p-1 px-2 cursor-pointer"
+                    className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg p-1 px-2 cursor-pointer gap-1"
                   >
-                    <Trash2 className="size-3.5 mr-1" /> মুছুন
+                    <Trash2 className="size-3.5" />
+                    <span>মুছুন</span>
                   </Button>
                 </div>
               </div>

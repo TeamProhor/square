@@ -302,67 +302,132 @@ export async function deleteQuestionAction(questionId: string) {
   }
 }
 
+export interface ImportDefaults {
+  type?: "mcq" | "cq";
+  standard?: string;
+  source?: string;
+  isFree?: boolean;
+  topicId?: string;
+}
+
 export async function importQuestionsAction(
   chapterId: string,
-  questionsList: readonly ImportQuestionItem[],
-  topicId?: string,
+  questionsList: readonly any[],
+  topicIdOrDefaults?: string | ImportDefaults,
 ) {
   try {
     if (!questionsList || questionsList.length === 0) {
       return { error: "কোনো প্রশ্ন প্রদান করা হয়নি।" };
     }
 
+    const defaults: ImportDefaults =
+      typeof topicIdOrDefaults === "string"
+        ? { topicId: topicIdOrDefaults }
+        : topicIdOrDefaults || {};
+
     const insertedCount = await db.transaction(async (tx) => {
       let count = 0;
 
       for (const item of questionsList) {
-        const qText = item.questionText?.trim();
+        const qText = (
+          item.questionText ||
+          item.question_text ||
+          item.question ||
+          ""
+        ).trim();
         if (!qText) continue;
+
+        const resolvedType = (item.type || defaults.type || "mcq") === "cq" ? "cq" : "mcq";
+        const resolvedStandard = (
+          item.standard ||
+          defaults.standard ||
+          "HSC"
+        ) as "HSC" | "Varsity" | "Engineering" | "Medical";
+        const resolvedSource = (item.source || defaults.source || "Custom").trim();
+        const resolvedIsFree = Boolean(
+          item.isFree ?? item.is_free ?? defaults.isFree ?? false,
+        );
+        const resolvedTopicId = item.topicId || item.topic_id || defaults.topicId || null;
+        const resolvedExplanation = (item.explanation || item.solution || "").trim() || null;
 
         const [question] = await tx
           .insert(questions)
           .values({
             subitemId: chapterId,
-            topicId: topicId || null,
-            type: item.type === "cq" ? "cq" : "mcq",
-            source: item.source?.trim() || "Custom",
-            standard: item.standard || "HSC",
+            topicId: resolvedTopicId,
+            type: resolvedType,
+            source: resolvedSource,
+            standard: resolvedStandard,
             questionText: qText,
-            explanation: item.explanation?.trim() || null,
+            explanation: resolvedExplanation,
+            isFree: resolvedIsFree,
           })
           .returning();
 
         if (!question) continue;
         count++;
 
-        if (item.type === "mcq" && item.mcqOptions?.length) {
-          const optionsToInsert = item.mcqOptions.map((opt, idx: number) => ({
-            questionId: question.id,
-            optionText: opt.optionText?.trim() || "",
-            isCorrect: Boolean(opt.isCorrect),
-            orderNo: idx + 1,
-          }));
-          await tx.insert(mcqOptions).values(optionsToInsert);
-        } else if (item.type === "cq" && item.cqParts?.length) {
-          const defaultKeys: Array<"a" | "b" | "c" | "d"> = [
-            "a",
-            "b",
-            "c",
-            "d",
-          ];
-          const partsToInsert = item.cqParts.map((pt, idx: number) => ({
-            questionId: question.id,
-            partKey: (pt.partKey || defaultKeys[idx] || "a") as
-              | "a"
-              | "b"
-              | "c"
-              | "d",
-            questionText: pt.questionText?.trim() || "",
-            answerText: pt.answerText?.trim() || null,
-            marks: pt.marks || idx + 1,
-            orderNo: idx + 1,
-          }));
-          await tx.insert(cqParts).values(partsToInsert);
+        // Handle MCQ Options
+        if (resolvedType === "mcq") {
+          const rawOptions = item.mcqOptions || item.mcq_options || item.options || [];
+          if (Array.isArray(rawOptions) && rawOptions.length > 0) {
+            const correctIndex =
+              typeof item.correctIdx === "number"
+                ? item.correctIdx
+                : typeof item.correctIndex === "number"
+                  ? item.correctIndex
+                  : typeof item.correctOption === "number"
+                    ? item.correctOption
+                    : -1;
+
+            const optionsToInsert = rawOptions.map((opt: any, idx: number) => {
+              const optText = (
+                typeof opt === "string"
+                  ? opt
+                  : opt.optionText || opt.option_text || opt.text || ""
+              ).trim();
+
+              const isOptCorrect =
+                typeof opt === "object" && opt !== null && "isCorrect" in opt
+                  ? Boolean(opt.isCorrect)
+                  : typeof opt === "object" && opt !== null && "is_correct" in opt
+                    ? Boolean(opt.is_correct)
+                    : correctIndex === idx;
+
+              return {
+                questionId: question.id,
+                optionText: optText,
+                isCorrect: isOptCorrect,
+                orderNo: idx + 1,
+              };
+            });
+
+            // Ensure at least one option is marked correct if not already
+            if (!optionsToInsert.some((o) => o.isCorrect) && optionsToInsert.length > 0) {
+              optionsToInsert[0].isCorrect = true;
+            }
+
+            await tx.insert(mcqOptions).values(optionsToInsert);
+          }
+        } else if (resolvedType === "cq") {
+          // Handle CQ Parts
+          const rawParts = item.cqParts || item.cq_parts || item.parts || [];
+          if (Array.isArray(rawParts) && rawParts.length > 0) {
+            const defaultKeys: Array<"a" | "b" | "c" | "d"> = ["a", "b", "c", "d"];
+            const partsToInsert = rawParts.map((pt: any, idx: number) => ({
+              questionId: question.id,
+              partKey: (pt.partKey || pt.part_key || defaultKeys[idx] || "a") as
+                | "a"
+                | "b"
+                | "c"
+                | "d",
+              questionText: (pt.questionText || pt.question_text || pt.text || "").trim(),
+              answerText: (pt.answerText || pt.answer_text || pt.answer || "").trim() || null,
+              marks: typeof pt.marks === "number" ? pt.marks : idx + 1,
+              orderNo: idx + 1,
+            }));
+            await tx.insert(cqParts).values(partsToInsert);
+          }
         }
       }
 
