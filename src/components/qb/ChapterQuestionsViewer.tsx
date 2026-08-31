@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { Lock, TickCircle } from "@/components/icons";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -21,9 +24,18 @@ import {
 } from "@/components/ui/select";
 import type { Question, Topic } from "@/types";
 
+interface AssignedBatchInfo {
+  id: string;
+  name: string;
+  slug: string;
+  hscBatch?: string;
+}
+
 interface ChapterQuestionsViewerProps {
   readonly topics: Topic[];
   readonly questions: Question[];
+  readonly hasFullAccess?: boolean;
+  readonly assignedBatches?: AssignedBatchInfo[];
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -31,6 +43,8 @@ const ITEMS_PER_PAGE = 10;
 export function ChapterQuestionsViewer({
   topics,
   questions,
+  hasFullAccess = true,
+  assignedBatches = [],
 }: ChapterQuestionsViewerProps) {
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const hasMcq = questions.some((q) => q.type === "mcq");
@@ -211,17 +225,82 @@ export function ChapterQuestionsViewer({
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {paginatedQuestions.map((q: Question, idx: number) => (
-              <UniversalQuestionCard
-                key={q.id}
-                question={q}
-                questionIndex={startIndex + idx}
-                selectedOptionId={userAnswers[q.id]}
-                isSolutionOpen={Boolean(revealedSolutions[q.id])}
-                onSelectOption={handleSelectOption}
-                onToggleSolution={toggleSolution}
-              />
-            ))}
+            {paginatedQuestions.map((q: Question, idx: number) => {
+              const isFreeQuestion = Boolean(q.isFree || q.is_free);
+              const canViewQuestion = hasFullAccess || isFreeQuestion;
+
+              if (canViewQuestion) {
+                return (
+                  <UniversalQuestionCard
+                    key={q.id}
+                    question={q}
+                    questionIndex={startIndex + idx}
+                    selectedOptionId={userAnswers[q.id]}
+                    isSolutionOpen={Boolean(revealedSolutions[q.id])}
+                    onSelectOption={handleSelectOption}
+                    onToggleSolution={toggleSolution}
+                    badgeText={
+                      isFreeQuestion
+                        ? `ফ্রি প্র্যাকটিস • প্রশ্ন ${startIndex + idx + 1}`
+                        : undefined
+                    }
+                  />
+                );
+              }
+
+              // Render locked question preview card
+              const requiredBatch = assignedBatches[0];
+              return (
+                <div
+                  key={q.id}
+                  className="bg-card border border-border/80 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xs space-y-4 relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs sm:text-sm font-bold text-foreground/80">
+                      প্রশ্ন {startIndex + idx + 1}
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center gap-1">
+                      <Lock className="size-3" /> ব্যাচ এক্সক্লুসিভ
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 select-none opacity-60 filter blur-[0.5px]">
+                    <p className="text-sm sm:text-base font-bold text-foreground line-clamp-2">
+                      {q.question_text || q.questionText || "প্রিমিয়াম অধ্যায়ভিত্তিক প্রশ্ন ও সমাধান..."}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/30 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 p-4 rounded-b-2xl sm:rounded-b-3xl">
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <Lock className="size-3.5 text-primary" />
+                        এই প্রশ্নের সমাধান ও ব্যাখ্যা দেখতে ব্যাচে এনরোল করুন
+                      </p>
+                      {requiredBatch && (
+                        <p className="text-[11px] text-muted-foreground">
+                          কোর্স: {requiredBatch.name}
+                        </p>
+                      )}
+                    </div>
+
+                    <Link
+                      href={
+                        requiredBatch
+                          ? `/courses/${requiredBatch.slug}`
+                          : "/#courses-section"
+                      }
+                    >
+                      <Button
+                        size="sm"
+                        className="rounded-xl h-8.5 px-4 text-xs font-bold shadow-xs cursor-pointer w-full sm:w-auto"
+                      >
+                        কোর্সে ভর্তি হোন &rarr;
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
 
             {totalPages > 1 && (
               <div className="mt-4 flex justify-center">

@@ -186,6 +186,7 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
               | "Medical") || "HSC",
           questionText: payload.questionText,
           explanation: payload.explanation || null,
+          isFree: Boolean(payload.isFree),
         })
         .returning();
 
@@ -242,6 +243,8 @@ export async function updateQuestionAction(
         updateData.questionText = payload.questionText;
       if (payload.explanation !== undefined)
         updateData.explanation = payload.explanation || null;
+      if (payload.isFree !== undefined)
+        updateData.isFree = payload.isFree;
 
       if (Object.keys(updateData).length > 0) {
         await tx.update(questions).set(updateData).where(eq(questions.id, id));

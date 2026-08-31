@@ -105,6 +105,11 @@ export function UniversalQuestionCard({
                   • {question.standard}
                 </span>
               )}
+              {(question.isFree || question.is_free) && (
+                <span className="text-[10px] sm:text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                  উন্মুক্ত
+                </span>
+              )}
             </>
           )}
         </div>

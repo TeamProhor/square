@@ -182,6 +182,7 @@ export interface Container {
   readonly slug: string;
   readonly title: string;
   readonly description?: string | null;
+  readonly isPublic?: boolean;
   readonly items?: { readonly count: number }[];
   readonly createdAt?: Date;
 }
@@ -265,6 +266,8 @@ export interface Question {
   readonly topicId?: string | null;
   readonly subitemId?: string;
   readonly subitem_id?: string;
+  readonly isFree?: boolean;
+  readonly is_free?: boolean;
   readonly mcq_options?: readonly MCQOption[];
   readonly mcqOptions?: readonly MCQOption[];
   readonly cq_parts?: readonly CQPart[];
@@ -290,6 +293,7 @@ export interface CreateQuestionPayload {
   readonly standard?: QuestionStandard | string;
   readonly questionText: string;
   readonly explanation?: string;
+  readonly isFree?: boolean;
   readonly mcqOptions?: readonly { optionText: string; isCorrect: boolean }[];
   readonly cqParts?: readonly {
     partKey: string;

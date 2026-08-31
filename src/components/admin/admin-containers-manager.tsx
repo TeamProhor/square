@@ -60,13 +60,32 @@ export function AdminContainersManager({
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4">
-        <Button
-          onClick={() => setIsCreateOpen(true)}
-          className="rounded-xl gap-2 font-bold"
-        >
-          + নতুন প্রশ্নব্যাংক যোগ করুন
-        </Button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-black">প্রশ্নব্যাংক তালিকা</h2>
+          <p className="text-xs text-muted-foreground">
+            সকল ক্যাটাগরি ও প্রশ্নব্যাংক পরিচালনা করুন
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <Button
+            asChild
+            className="rounded-xl gap-2 font-bold shadow-xs bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+          >
+            <a href="/admin/qb/add-question">
+              ⚡ এক পেজে প্রশ্ন আপলোড
+            </a>
+          </Button>
+
+          <Button
+            onClick={() => setIsCreateOpen(true)}
+            variant="outline"
+            className="rounded-xl gap-2 font-bold cursor-pointer"
+          >
+            + নতুন প্রশ্নব্যাংক
+          </Button>
+        </div>
       </div>
 
       <QuickList items={items} columns={{ sm: 1, lg: 2 }} gap="md" />

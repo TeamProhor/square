@@ -4,11 +4,24 @@ import { BatchClassesTab } from "@/components/admin/batch-classes-tab";
 import { BatchExamsTab } from "@/components/admin/batch-exams-tab";
 import { BatchMembersTab } from "@/components/admin/batch-members-tab";
 import { BatchPdfsTab } from "@/components/admin/batch-pdfs-tab";
-import { FileText, Profile2user, TaskSquare, Video } from "@/components/icons";
+import { BatchQbAccessTab } from "@/components/admin/batch-qb-access-tab";
+import {
+  FileText,
+  Profile2user,
+  SecurityCard,
+  TaskSquare,
+  Video,
+} from "@/components/icons";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { BatchDetail } from "@/types";
 
-export function BatchDetailView({ batch }: { batch: BatchDetail }) {
+export function BatchDetailView({
+  batch,
+  allContainers = [],
+}: {
+  batch: BatchDetail;
+  allContainers?: any[];
+}) {
   const members = (batch.members || []) as unknown as Array<{
     id: string;
     userId: string;
@@ -50,6 +63,14 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
             </TabsTrigger>
 
             <TabsTrigger
+              value="qb"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
+            >
+              <SecurityCard className="size-4 shrink-0" />
+              <span>প্রশ্নব্যাংক অ্যাক্সেস</span>
+            </TabsTrigger>
+
+            <TabsTrigger
               value="exams"
               className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
             >
@@ -79,6 +100,10 @@ export function BatchDetailView({ batch }: { batch: BatchDetail }) {
 
         <TabsContent value="pdfs">
           <BatchPdfsTab batchId={batch.id} />
+        </TabsContent>
+
+        <TabsContent value="qb">
+          <BatchQbAccessTab batchId={batch.id} allContainers={allContainers} />
         </TabsContent>
 
         <TabsContent value="exams">

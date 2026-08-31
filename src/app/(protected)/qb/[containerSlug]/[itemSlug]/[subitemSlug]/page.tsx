@@ -1,10 +1,15 @@
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
 import { ChapterQuestionsViewer } from "@/components/qb/ChapterQuestionsViewer";
 import { db } from "@/db";
 import { containers, items, questions, subitems, topics } from "@/db/schema";
+import { checkQbContainerAccess } from "@/lib/actions/qb-access";
+import { auth } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 
 export default async function QbChapterPage({
   params,
@@ -16,10 +21,15 @@ export default async function QbChapterPage({
   }>;
 }): Promise<ReactElement> {
   const { containerSlug, itemSlug, subitemSlug } = await params;
+  const session = await auth.api.getSession({ headers: await headers() });
+  const userId = session?.user?.id;
 
-  const qb = await db.query.containers.findFirst({
-    where: eq(containers.slug, containerSlug),
-  });
+  const accessInfo = await checkQbContainerAccess(containerSlug, userId);
+  if (!accessInfo.exists || !accessInfo.container) {
+    notFound();
+  }
+
+  const qb = accessInfo.container;
 
   const subject = await db.query.items.findFirst({
     where: eq(items.slug, itemSlug),
@@ -29,7 +39,7 @@ export default async function QbChapterPage({
     where: eq(subitems.slug, subitemSlug),
   });
 
-  if (!qb || !subject || !chapter) notFound();
+  if (!subject || !chapter) notFound();
 
   const topicList = await db.query.topics.findMany({
     where: eq(topics.subitemId, chapter.id),
@@ -51,6 +61,8 @@ export default async function QbChapterPage({
     topic_id: q.topicId || undefined,
     question_text: q.questionText,
     explanation: q.explanation || undefined,
+    is_free: q.isFree,
+    isFree: q.isFree,
     mcq_options: q.mcqOptions.map((opt) => ({
       ...opt,
       question_id: opt.questionId,
@@ -70,7 +82,7 @@ export default async function QbChapterPage({
   }));
 
   return (
-    <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">
+    <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8">
       <div className="flex flex-col gap-2 mb-8">
         <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-muted-foreground mb-2 flex-wrap">
           <Link href="/qb" className="hover:text-primary transition-colors">
@@ -93,18 +105,30 @@ export default async function QbChapterPage({
           <span>/</span>
           <span className="text-foreground">{chapter.name}</span>
         </div>
-        <h1 className="text-2xl md:text-4xl font-bold text-foreground">
-          {chapter.name} - প্রশ্নসমূহ
-        </h1>
-        <p className="text-muted-foreground text-sm md:text-base">
-          টপিক অনুযায়ী ফিল্টার করে প্রশ্নগুলো অনুশীলন করুন
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+              {chapter.name} - প্রশ্নসমূহ
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base mt-1">
+              টপিক অনুযায়ী ফিল্টার করে প্রশ্নগুলো অনুশীলন করুন
+            </p>
+          </div>
+
+          {!accessInfo.hasAccess && (
+            <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-600 px-3.5 py-1.5 rounded-xl text-xs font-bold w-fit">
+              <span>🔒 উন্মুক্ত ও ফ্রি প্রশ্ন ছাড়া বাকি প্রশ্নের জন্য ব্যাচ এনরোলমেন্ট প্রয়োজন</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <div>
         <ChapterQuestionsViewer
           topics={topicList || []}
           questions={formattedQuestions || []}
+          hasFullAccess={accessInfo.hasAccess}
+          assignedBatches={accessInfo.assignedBatches}
         />
       </div>
     </div>

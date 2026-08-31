@@ -1,4 +1,5 @@
 import {
+  Add,
   BookOpen,
   CalendarTick,
   DocumentDownload,
@@ -28,6 +29,7 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     exact: false,
     icon: DocumentDownload,
   },
+  { name: "প্রশ্ন আপলোড", path: "/admin/qb/add-question", exact: false, icon: Add },
   { name: "প্রশ্নব্যাংক", path: "/admin/qb", exact: false, icon: TaskSquare },
   { name: "ম্যানেজ ব্যাচ", path: "/admin/batches", exact: false, icon: User },
   {

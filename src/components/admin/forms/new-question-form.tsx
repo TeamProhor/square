@@ -32,6 +32,8 @@ export function NewQuestionForm({
   const [questionText, setQuestionText] = useState("");
   const [explanation, setExplanation] = useState("");
 
+  const [isFree, setIsFree] = useState(false);
+
   const [mcqOptions, setMcqOptions] = useState([
     { optionText: "", isCorrect: true },
     { optionText: "", isCorrect: false },
@@ -68,6 +70,7 @@ export function NewQuestionForm({
         standard: standard.trim() || "HSC",
         questionText,
         explanation,
+        isFree,
         mcqOptions: type === "mcq" ? mcqOptions : undefined,
       },
       {
@@ -136,6 +139,22 @@ export function NewQuestionForm({
             <NativeSelectOption value="Medical">Medical</NativeSelectOption>
           </NativeSelect>
         </Field>
+      </div>
+
+      <div className="flex items-center gap-2 p-3 bg-muted/40 rounded-xl border border-border/70">
+        <input
+          type="checkbox"
+          id="new-question-is-free"
+          checked={isFree}
+          onChange={(e) => setIsFree(e.target.checked)}
+          className="size-4 rounded accent-primary cursor-pointer"
+        />
+        <label
+          htmlFor="new-question-is-free"
+          className="text-xs font-bold text-foreground cursor-pointer"
+        >
+          🌐 সবার জন্য উন্মুক্ত / ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক সবাই দেখতে ও অনুশীলন করতে পারবে)
+        </label>
       </div>
 
       <Field>

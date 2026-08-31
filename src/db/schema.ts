@@ -76,6 +76,7 @@ export const containers = pgTable("containers", {
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   description: text("description"),
+  isPublic: boolean("is_public").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -132,6 +133,7 @@ export const questions = pgTable("questions", {
     .notNull(),
   questionText: text("question_text").notNull(),
   explanation: text("explanation"),
+  isFree: boolean("is_free").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -555,10 +557,41 @@ export const coursePdfs = pgTable("course_pdfs", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const batchQbAccess = pgTable(
+  "batch_qb_access",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    batchId: text("batch_id")
+      .notNull()
+      .references(() => batches.id, { onDelete: "cascade" }),
+    containerId: text("container_id")
+      .notNull()
+      .references(() => containers.id, { onDelete: "cascade" }),
+    assignedAt: timestamp("assigned_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("batch_qb_unique_idx").on(table.batchId, table.containerId),
+  ],
+);
+
 // ─── Relations ────────────────────────────────────────────────────────────────
 
 export const containersRelations = relations(containers, ({ many }) => ({
   items: many(items),
+  batchAccess: many(batchQbAccess),
+}));
+
+export const batchQbAccessRelations = relations(batchQbAccess, ({ one }) => ({
+  batch: one(batches, {
+    fields: [batchQbAccess.batchId],
+    references: [batches.id],
+  }),
+  container: one(containers, {
+    fields: [batchQbAccess.containerId],
+    references: [containers.id],
+  }),
 }));
 
 export const itemsRelations = relations(items, ({ one, many }) => ({
@@ -639,6 +672,7 @@ export const batchesRelations = relations(batches, ({ one, many }) => ({
   enrollmentRequests: many(batchEnrollmentRequests),
   classes: many(courseClasses),
   pdfs: many(coursePdfs),
+  qbAccess: many(batchQbAccess),
 }));
 
 export const courseClassesRelations = relations(courseClasses, ({ one }) => ({

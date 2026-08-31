@@ -53,6 +53,8 @@ export function EditQuestionForm({
     { key: "opt-slot-3", optionText: "", isCorrect: false },
   ];
 
+  const [isFree, setIsFree] = useState(Boolean(question.isFree || question.is_free));
+
   const [mcqOptions, setMcqOptions] = useState(initialOptions);
 
   const initialParts = (question.cqParts || question.cq_parts)?.map((p) => ({
@@ -108,6 +110,7 @@ export function EditQuestionForm({
           standard: standard.trim() || "HSC",
           questionText,
           explanation,
+          isFree,
           mcqOptions: type === "mcq" ? mcqOptions : undefined,
           cqParts: type === "cq" ? cqParts : undefined,
         },
@@ -181,6 +184,22 @@ export function EditQuestionForm({
             <NativeSelectOption value="Medical">Medical</NativeSelectOption>
           </NativeSelect>
         </Field>
+      </div>
+
+      <div className="flex items-center gap-2 p-3 bg-muted/40 rounded-xl border border-border/70">
+        <input
+          type="checkbox"
+          id="edit-question-is-free"
+          checked={isFree}
+          onChange={(e) => setIsFree(e.target.checked)}
+          className="size-4 rounded accent-primary cursor-pointer"
+        />
+        <label
+          htmlFor="edit-question-is-free"
+          className="text-xs font-bold text-foreground cursor-pointer"
+        >
+          🌐 সবার জন্য উন্মুক্ত / ফ্রি প্রশ্ন (লগইন থাকুক বা না থাকুক সবাই দেখতে ও অনুশীলন করতে পারবে)
+        </label>
       </div>
 
       <Field>
