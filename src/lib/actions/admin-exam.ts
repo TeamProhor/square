@@ -3,7 +3,7 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { examQuestions, examSubmissions, exams } from "@/db/schema";
+import { batchExams, examQuestions, examSubmissions, exams } from "@/db/schema";
 import type { ExamDetail } from "@/types";
 
 export async function createExamAction(data: {
@@ -17,11 +17,24 @@ export async function createExamAction(data: {
   showResultImmediately: boolean;
   isPublished: boolean;
   createdBy: string;
+  batchId?: string | null;
 }) {
   try {
-    const res = await db.insert(exams).values(data).returning();
+    const { batchId, ...examValues } = data;
+    const res = await db.insert(exams).values(examValues).returning();
+    const createdExam = res[0] as unknown as ExamDetail;
+
+    if (batchId && createdExam?.id) {
+      await db.insert(batchExams).values({
+        batchId,
+        examId: createdExam.id,
+        isRequired: true,
+      });
+      revalidatePath(`/admin/batches/${batchId}`);
+    }
+
     revalidatePath("/admin/exams");
-    return { success: true, data: res[0] as unknown as ExamDetail };
+    return { success: true, data: createdExam };
   } catch (error: unknown) {
     return {
       success: false,
@@ -74,6 +87,203 @@ export async function publishExamAction(id: string) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to publish exam",
+    };
+  }
+}
+
+export async function togglePublishExamAction(id: string, isPublished: boolean) {
+  try {
+    await db
+      .update(exams)
+      .set({ isPublished, updatedAt: sql`(CURRENT_TIMESTAMP)` })
+      .where(eq(exams.id, id));
+    revalidatePath(`/admin/exams/${id}/questions`);
+    revalidatePath(`/admin/exams/${id}`);
+    revalidatePath("/admin/exams");
+    return { success: true };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update exam status",
+    };
+  }
+}
+
+export async function addMultipleQuestionsToExamAction(
+  examId: string,
+  questionIds: string[],
+) {
+  try {
+    if (!questionIds.length) return { success: true, count: 0 };
+
+    const currentCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(examQuestions)
+      .where(eq(examQuestions.examId, examId));
+    
+    let nextOrder = Number(currentCount[0]?.count || 0) + 1;
+
+    const values = questionIds.map((qid) => ({
+      examId,
+      questionId: qid,
+      orderNo: nextOrder++,
+      marks: 1,
+    }));
+
+    await db.insert(examQuestions).values(values).onConflictDoNothing();
+
+    revalidatePath(`/admin/exams/${examId}/questions`);
+    return { success: true, count: values.length };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to add questions to exam",
+    };
+  }
+}
+
+export async function importQuestionsDirectlyToExamAction(
+  examId: string,
+  questionsList: any[],
+  chapterId?: string,
+) {
+  try {
+    if (!questionsList || !questionsList.length) {
+      return { success: false, error: "কোনো প্রশ্ন প্রদান করা হয়নি।" };
+    }
+
+    // If no chapterId given, find or fallback to first available subitem/chapter
+    let targetChapterId = chapterId;
+    if (!targetChapterId) {
+      const firstSubitem = await db.query.subitems.findFirst();
+      targetChapterId = firstSubitem?.id;
+    }
+
+    if (!targetChapterId) {
+      return {
+        success: false,
+        error: "ডাটাবেজে কোনো অধ্যায় (Chapter) পাওয়া যায়নি। দয়া করে প্রশ্নব্যাংকে একটি বিষয়/অধ্যায় তৈরি করুন।",
+      };
+    }
+
+    const insertedCount = await db.transaction(async (tx) => {
+      let count = 0;
+      const currentCount = await tx
+        .select({ count: sql<number>`count(*)` })
+        .from(examQuestions)
+        .where(eq(examQuestions.examId, examId));
+      let nextOrder = Number(currentCount[0]?.count || 0) + 1;
+
+      for (const item of questionsList) {
+        const qText = (
+          item.questionText ||
+          item.question_text ||
+          item.question ||
+          ""
+        ).trim();
+        if (!qText) continue;
+
+        const resolvedType = (item.type || "mcq") === "cq" ? "cq" : "mcq";
+        const resolvedStandard = (item.standard || "HSC") as
+          | "HSC"
+          | "Varsity"
+          | "Engineering"
+          | "Medical";
+        const resolvedSource = (item.source || "Exam Import").trim();
+        const resolvedExplanation =
+          (item.explanation || item.solution || "").trim() || null;
+        const marks = Number(item.marks) || 1;
+
+        const [newQuestion] = await tx
+          .insert(questions)
+          .values({
+            subitemId: targetChapterId!,
+            type: resolvedType,
+            source: resolvedSource,
+            standard: resolvedStandard,
+            questionText: qText,
+            explanation: resolvedExplanation,
+            isFree: false,
+          })
+          .returning();
+
+        if (!newQuestion) continue;
+
+        // Insert MCQ options
+        if (resolvedType === "mcq") {
+          const rawOptions =
+            item.mcqOptions || item.mcq_options || item.options || [];
+          if (Array.isArray(rawOptions) && rawOptions.length > 0) {
+            const correctIndex =
+              typeof item.correctIdx === "number"
+                ? item.correctIdx
+                : typeof item.correctIndex === "number"
+                  ? item.correctIndex
+                  : typeof item.correctOption === "number"
+                    ? item.correctOption
+                    : -1;
+
+            const optionsToInsert = rawOptions.map(
+              (opt: any, idx: number) => {
+                const optText = (
+                  typeof opt === "string"
+                    ? opt
+                    : opt.optionText || opt.option_text || opt.text || ""
+                ).trim();
+
+                const isOptCorrect =
+                  typeof opt === "object" && opt !== null && "isCorrect" in opt
+                    ? Boolean(opt.isCorrect)
+                    : typeof opt === "object" &&
+                        opt !== null &&
+                        "is_correct" in opt
+                      ? Boolean(opt.is_correct)
+                      : correctIndex === idx;
+
+                return {
+                  questionId: newQuestion.id,
+                  optionText: optText,
+                  isCorrect: isOptCorrect,
+                  orderNo: idx + 1,
+                };
+              },
+            );
+
+            if (
+              !optionsToInsert.some((o) => o.isCorrect) &&
+              optionsToInsert.length > 0
+            ) {
+              optionsToInsert[0].isCorrect = true;
+            }
+
+            await tx.insert(mcqOptions).values(optionsToInsert);
+          }
+        }
+
+        // Add to Exam Questions
+        await tx.insert(examQuestions).values({
+          examId,
+          questionId: newQuestion.id,
+          orderNo: nextOrder++,
+          marks,
+        });
+
+        count++;
+      }
+
+      return count;
+    });
+
+    revalidatePath(`/admin/exams/${examId}/questions`);
+    return { success: true, count: insertedCount };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "প্রশ্ন সরাসরি ইমপোর্ট করতে ব্যর্থ হয়েছে",
     };
   }
 }

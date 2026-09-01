@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ExamQuestionBuilder } from "@/components/admin/exam-question-builder";
 import { getExamWithQuestionsAdmin } from "@/lib/actions/admin-exam";
 import { getQuestionsAdminAction } from "@/lib/actions/question";
+import { getFullQbHierarchy } from "@/lib/actions/universal-qb";
 
 export default async function ExamQuestionsPage({
   params,
@@ -10,13 +11,21 @@ export default async function ExamQuestionsPage({
 }) {
   const { id } = await params;
 
-  // Fetch exam
-  const { success: examSuccess, data: exam } =
-    await getExamWithQuestionsAdmin(id);
+  // Fetch exam, questions, and full hierarchy in parallel
+  const [{ success: examSuccess, data: exam }, questions, hierarchy] =
+    await Promise.all([
+      getExamWithQuestionsAdmin(id),
+      getQuestionsAdminAction(),
+      getFullQbHierarchy(),
+    ]);
+
   if (!examSuccess || !exam) return notFound();
 
-  // Fetch some questions for the bank (simplified for now)
-  const questions = await getQuestionsAdminAction();
-
-  return <ExamQuestionBuilder exam={exam} questions={questions || []} />;
+  return (
+    <ExamQuestionBuilder
+      exam={exam}
+      questions={questions || []}
+      hierarchy={hierarchy || []}
+    />
+  );
 }

@@ -101,6 +101,111 @@ export async function updateBatchAction(formData: FormData) {
   }
 }
 
+export async function updateBatchDetailsAction(
+  batchId: string,
+  payload: {
+    name?: string;
+    slug?: string;
+    subtitle?: string | null;
+    hscBatch?: string;
+    price?: number;
+    originalPrice?: number | null;
+    description?: string;
+    image?: string;
+    badge?: string | null;
+    isPublished?: boolean;
+    isActive?: boolean;
+    features?: string[];
+    curriculum?: any[];
+    instructors?: Array<{ name: string; role: string; institution: string }>;
+    faqs?: Array<{ question: string; answer: string }>;
+    routineUrl?: string | null;
+    routinePdfUrl?: string | null;
+    telegramGroupUrl?: string | null;
+    demoVideoUrl?: string | null;
+  },
+) {
+  try {
+    await db.transaction(async (tx) => {
+      // 1. Update batches table
+      const batchUpdate: Record<string, any> = { updatedAt: new Date() };
+      if (payload.name !== undefined) batchUpdate.name = payload.name;
+      if (payload.slug !== undefined) batchUpdate.slug = payload.slug;
+      if (payload.subtitle !== undefined) batchUpdate.subtitle = payload.subtitle;
+      if (payload.hscBatch !== undefined) batchUpdate.hscBatch = payload.hscBatch;
+      if (payload.price !== undefined) batchUpdate.price = payload.price;
+      if (payload.originalPrice !== undefined)
+        batchUpdate.originalPrice = payload.originalPrice;
+      if (payload.description !== undefined)
+        batchUpdate.description = payload.description;
+      if (payload.image !== undefined) batchUpdate.image = payload.image;
+      if (payload.badge !== undefined) batchUpdate.badge = payload.badge;
+      if (payload.isPublished !== undefined)
+        batchUpdate.isPublished = payload.isPublished;
+      if (payload.isActive !== undefined)
+        batchUpdate.isActive = payload.isActive;
+
+      await tx.update(batches).set(batchUpdate).where(eq(batches.id, batchId));
+
+      // 2. Check if batch_details exists
+      const existingDetails = await tx.query.batchDetails.findFirst({
+        where: eq(batchDetails.batchId, batchId),
+      });
+
+      const detailsData: Record<string, any> = {
+        updatedAt: new Date(),
+      };
+      if (payload.features !== undefined)
+        detailsData.features = payload.features;
+      if (payload.curriculum !== undefined)
+        detailsData.curriculum = payload.curriculum;
+      if (payload.faqs !== undefined) detailsData.faqs = payload.faqs;
+      if (payload.instructors !== undefined)
+        detailsData.instructors = payload.instructors;
+      if (payload.routineUrl !== undefined)
+        detailsData.routineUrl = payload.routineUrl;
+      if (payload.routinePdfUrl !== undefined)
+        detailsData.routinePdfUrl = payload.routinePdfUrl;
+      if (payload.telegramGroupUrl !== undefined)
+        detailsData.telegramGroupUrl = payload.telegramGroupUrl;
+      if (payload.demoVideoUrl !== undefined)
+        detailsData.demoVideoUrl = payload.demoVideoUrl;
+
+      if (existingDetails) {
+        await tx
+          .update(batchDetails)
+          .set(detailsData)
+          .where(eq(batchDetails.batchId, batchId));
+      } else {
+        await tx.insert(batchDetails).values({
+          id: nanoid(),
+          batchId,
+          features: payload.features || [],
+          curriculum: payload.curriculum || [],
+          mentorIds: [],
+          faqs: payload.faqs || [],
+          routineUrl: payload.routineUrl || null,
+          demoVideoUrl: payload.demoVideoUrl || null,
+          ...detailsData,
+        });
+      }
+    });
+
+    revalidatePath(`/admin/batches/${batchId}`);
+    revalidatePath("/admin/batches");
+    if (payload.slug) {
+      revalidatePath(`/courses/${payload.slug}`);
+    }
+    return { success: true };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "Failed to update course details",
+    };
+  }
+}
+
 export async function getAllBatchesAction() {
   try {
     const list = await db.query.batches.findMany({

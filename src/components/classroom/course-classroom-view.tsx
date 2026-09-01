@@ -27,6 +27,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  formatGoogleDriveDownloadUrl,
+  formatGoogleDriveUrl,
+} from "@/lib/drive";
+import { PdfEmbedViewer } from "@/components/pdf/pdf-embed-viewer";
 import type { CourseClass, CoursePdf } from "@/types";
 
 export function getYouTubeEmbedUrl(url: string): string {
@@ -669,12 +674,8 @@ export function CourseClassroomView({
         >
           <div className="space-y-3 py-2">
             <div className="relative w-full h-[65vh] rounded-2xl overflow-hidden bg-muted/20 border border-border">
-              <iframe
-                src={
-                  previewPdf.pdfUrl.includes("drive.google.com")
-                    ? previewPdf.pdfUrl.replace("/view", "/preview")
-                    : previewPdf.pdfUrl
-                }
+              <PdfEmbedViewer
+                url={previewPdf.pdfUrl}
                 title={previewPdf.title}
                 className="w-full h-full"
               />
@@ -683,18 +684,33 @@ export function CourseClassroomView({
               <span className="text-xs text-muted-foreground">
                 {previewPdf.description || "পিডিএফ ফাইল ভিউয়ার"}
               </span>
-              <a
-                href={previewPdf.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  size="sm"
-                  className="rounded-xl h-8 text-xs gap-1.5 font-bold"
+              <div className="flex items-center gap-2">
+                <a
+                  href={formatGoogleDriveDownloadUrl(previewPdf.pdfUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  <Download className="size-3.5" /> আলাদা ট্যাবে খুলুন
-                </Button>
-              </a>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl h-8 text-xs gap-1.5 font-bold"
+                  >
+                    <Download className="size-3.5" /> ডাউনলোড
+                  </Button>
+                </a>
+                <a
+                  href={previewPdf.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button
+                    size="sm"
+                    className="rounded-xl h-8 text-xs gap-1.5 font-bold"
+                  >
+                    <Eye className="size-3.5" /> ড্রাইভে খুলুন
+                  </Button>
+                </a>
+              </div>
             </div>
           </div>
         </ResponsiveDialog>

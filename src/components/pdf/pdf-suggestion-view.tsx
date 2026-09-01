@@ -27,6 +27,7 @@ import {
   formatGoogleDriveDownloadUrl,
   formatGoogleDriveUrl,
 } from "@/lib/drive";
+import { PdfEmbedViewer } from "@/components/pdf/pdf-embed-viewer";
 import type { PdfSuggestion } from "@/types";
 
 export function PdfSuggestionView() {
@@ -262,23 +263,11 @@ export function PdfSuggestionView() {
 
           {/* Viewer Body */}
           <div className="flex-1 relative bg-muted/10 flex flex-col">
-            {isLoading && selectedPdf && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/70 backdrop-blur-xs">
-                <Spinner className="size-8 text-primary mb-2" />
-                <p className="text-xs font-semibold text-foreground">
-                  গুগল ড্রাইভ থেকে লোড হচ্ছে...
-                </p>
-              </div>
-            )}
-
-            {selectedPdf && previewUrl ? (
-              <iframe
-                src={previewUrl}
+            {selectedPdf ? (
+              <PdfEmbedViewer
+                url={selectedPdf.fileUrl}
                 title={selectedPdf.title}
-                className="w-full h-full border-none"
-                allow="autoplay"
-                allowFullScreen
-                onLoad={() => setIsLoading(false)}
+                className="w-full h-full"
               />
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -300,7 +289,7 @@ export function PdfSuggestionView() {
           <div className="h-10 bg-muted/40 border-t px-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium">
               <Lock className="size-3 text-emerald-500" />
-              <span>Google Drive Embedded Viewer</span>
+              <span>Square PDF Reader Engine</span>
             </div>
             {selectedPdf && (
               <a
@@ -309,7 +298,7 @@ export function PdfSuggestionView() {
                 rel="noopener noreferrer"
                 className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium group"
               >
-                ব্রাউজার ব্লক করলে ড্রাইভে ওপেন করুন
+                ড্রাইভে দেখুন
                 <ArrowRight2 className="size-3 transform group-hover:translate-x-0.5 transition-transform" />
               </a>
             )}

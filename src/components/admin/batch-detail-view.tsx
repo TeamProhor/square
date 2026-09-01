@@ -5,7 +5,9 @@ import { BatchExamsTab } from "@/components/admin/batch-exams-tab";
 import { BatchMembersTab } from "@/components/admin/batch-members-tab";
 import { BatchPdfsTab } from "@/components/admin/batch-pdfs-tab";
 import { BatchQbAccessTab } from "@/components/admin/batch-qb-access-tab";
+import { BatchSettingsTab } from "@/components/admin/batch-settings-tab";
 import {
+  Edit,
   FileText,
   Profile2user,
   SecurityCard,
@@ -43,9 +45,17 @@ export function BatchDetailView({
         </p>
       </div>
 
-      <Tabs defaultValue="classes" className="w-full space-y-6">
+      <Tabs defaultValue="settings" className="w-full space-y-6">
         <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar">
           <TabsList className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 bg-transparent p-0 h-auto min-w-max mx-auto">
+            <TabsTrigger
+              value="settings"
+              className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
+            >
+              <Edit className="size-4 shrink-0" />
+              <span>কোর্স সেটিংস ও বিস্তারিত</span>
+            </TabsTrigger>
+
             <TabsTrigger
               value="classes"
               className="flex items-center gap-2 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl font-medium text-xs sm:text-sm text-muted-foreground hover:bg-accent hover:text-foreground data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:font-bold transition-all shrink-0 whitespace-nowrap"
@@ -93,6 +103,10 @@ export function BatchDetailView({
             </TabsTrigger>
           </TabsList>
         </div>
+
+        <TabsContent value="settings">
+          <BatchSettingsTab batch={batch} />
+        </TabsContent>
 
         <TabsContent value="classes">
           <BatchClassesTab batchId={batch.id} />

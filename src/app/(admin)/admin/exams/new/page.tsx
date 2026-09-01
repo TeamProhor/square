@@ -1,19 +1,34 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/use-auth";
 import { createExamAction } from "@/lib/actions/admin-exam";
+import { getAllBatchesAction } from "@/lib/actions/batch";
 
 export default function NewExamPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialBatchId = searchParams.get("batchId") || "";
+
   const { data: user } = useUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedBatchId, setSelectedBatchId] = useState(initialBatchId);
+
+  useEffect(() => {
+    getAllBatchesAction().then((res) => {
+      if (res.success && res.data) {
+        setBatches(res.data);
+      }
+    });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -39,6 +54,7 @@ export default function NewExamPage() {
     const showResultImmediately =
       formData.get("showResultImmediately") === "true";
     const isPublished = formData.get("isPublished") === "true";
+    const batchId = (formData.get("batchId") as string) || null;
 
     const createdBy = user?.id || "admin";
 
@@ -53,6 +69,7 @@ export default function NewExamPage() {
       showResultImmediately,
       isPublished,
       createdBy,
+      batchId,
     });
 
     if (res.success) {
@@ -117,6 +134,29 @@ export default function NewExamPage() {
             placeholder="Optional description"
             className="rounded-xl min-h-[100px]"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="batchId" className="text-sm font-medium">
+            কোর্স / ব্যাচ নির্বাচন করুন (ঐচ্ছিক)
+          </label>
+          <select
+            id="batchId"
+            name="batchId"
+            value={selectedBatchId}
+            onChange={(e) => setSelectedBatchId(e.target.value)}
+            className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            <option value="">কোনো কোর্সে যুক্ত নয় (সরাসরি এক্সাম)</option>
+            {batches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-muted-foreground">
+            কোর্স নির্বাচন করলে স্বয়ংক্রিয়ভাবে সেই কোর্সের শিক্ষার্থীদের জন্য এক্সামটি উন্মুক্ত হবে।
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
