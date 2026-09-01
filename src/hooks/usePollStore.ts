@@ -6,6 +6,7 @@ interface PollState {
   paper: string;
   subitem: string;
   standard: string;
+  questionLimit: number;
   activeQuestions: readonly MCQQuestion[];
   userAnswers: { [qIdx: number]: number };
   currentQuestionIndex: number;
@@ -14,6 +15,7 @@ interface PollState {
   setPaper: (paper: string) => void;
   setSubitem: (subitem: string) => void;
   setStandard: (standard: string) => void;
+  setQuestionLimit: (limit: number) => void;
   setActiveQuestions: (questions: readonly MCQQuestion[]) => void;
   setUserAnswers: (
     answers:
@@ -30,6 +32,7 @@ export const usePollStore = create<PollState>((set) => ({
   paper: "1st",
   subitem: "",
   standard: "board",
+  questionLimit: 10,
   activeQuestions: [],
   userAnswers: {},
   currentQuestionIndex: 0,
@@ -38,6 +41,7 @@ export const usePollStore = create<PollState>((set) => ({
   setPaper: (paper) => set({ paper }),
   setSubitem: (subitem) => set({ subitem }),
   setStandard: (standard) => set({ standard }),
+  setQuestionLimit: (questionLimit) => set({ questionLimit }),
   setActiveQuestions: (activeQuestions) => set({ activeQuestions }),
   setUserAnswers: (updater) =>
     set((state) => ({

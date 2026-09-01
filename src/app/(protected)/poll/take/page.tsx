@@ -19,16 +19,16 @@ export default function PollTakePage() {
 
   useEffect(() => {
     if (activeQuestions.length === 0) {
-      router.push("/poll/config");
+      router.replace("/poll/config");
     }
   }, [activeQuestions.length, router]);
 
   useEffect(() => {
     if (
       activeQuestions.length > 0 &&
-      currentQuestionIndex === activeQuestions.length
+      currentQuestionIndex >= activeQuestions.length
     ) {
-      router.push("/poll/solve");
+      router.replace("/poll/solve");
     }
   }, [currentQuestionIndex, activeQuestions.length, router]);
 

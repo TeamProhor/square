@@ -35,6 +35,8 @@ export default function PollConfigPage() {
     setSubitem,
     standard,
     setStandard,
+    questionLimit,
+    setQuestionLimit,
     setActiveQuestions,
     setUserAnswers,
     setCurrentQuestionIndex,
@@ -109,7 +111,7 @@ export default function PollConfigPage() {
         subitemId: subitem,
         paper,
         standard,
-        limit: 20,
+        limit: questionLimit === 0 ? 100 : questionLimit,
       });
 
       if (!qbQuestions || qbQuestions.length === 0) {
@@ -240,6 +242,35 @@ export default function PollConfigPage() {
               </ToggleGroup>
             </Field>
           </div>
+
+          {/* Question Limit Selection */}
+          <Field className="w-full">
+            <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
+              ৫. প্রশ্নের সংখ্যা নির্বাচন করুন
+            </FieldLabel>
+            <ToggleGroup
+              type="single"
+              value={String(questionLimit)}
+              onValueChange={(v) => v && setQuestionLimit(Number(v))}
+              className="w-full grid grid-cols-5 gap-2 sm:gap-3 h-auto"
+            >
+              {[
+                { label: "৫টি", value: "5" },
+                { label: "১০টি", value: "10" },
+                { label: "১৫টি", value: "15" },
+                { label: "২০টি", value: "20" },
+                { label: "সবগুলো", value: "0" },
+              ].map((opt) => (
+                <ToggleGroupItem
+                  key={opt.value}
+                  value={opt.value}
+                  className="h-9 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                >
+                  {opt.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </Field>
 
           {/* Question availability info card */}
           <div className="flex items-center justify-between p-3 sm:p-3.5 bg-muted/40 rounded-xl border border-border/60 text-xs sm:text-sm">

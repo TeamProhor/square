@@ -7,12 +7,11 @@ import {
   BookOpen,
   Calendar,
   CalendarTick,
-  DocumentDownload,
-  StatusUp,
   TaskSquare,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
+
 import { db } from "@/db";
 import {
   batchEnrollments,
@@ -107,91 +106,8 @@ export default async function DashboardPage() {
     );
   };
 
-  const featureCards = [
-    {
-      title: "প্রশ্নব্যাংক",
-      description: "অধ্যায় ও টপিকভিত্তিক হাজারো MCQ এবং সৃজনশীল সমাধান",
-      href: "/qb",
-      icon: TaskSquare,
-      iconBg:
-        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
-      badge: "জনপ্রিয়",
-    },
-    {
-      title: "পরীক্ষা ও টেস্ট",
-      description: "অনলাইন লাইভ এক্সাম ও সেলফ অ্যাসেসমেন্ট দিয়ে প্রস্তুতি যাচাই",
-      href: "/exams",
-      icon: CalendarTick,
-      iconBg:
-        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-      badge: "লাইভ",
-    },
-    {
-      title: "পিডিএফ রিসোর্স",
-      description: "বাছাইকৃত হ্যান্ডনোট, ফর্মুলা শিট ও এক্সক্লুসিভ সাজেশনস",
-      href: "/pdf",
-      icon: DocumentDownload,
-      iconBg:
-        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-      badge: "ফ্রি নোটস",
-    },
-    {
-      title: "ইনস্ট্যান্ট পোল",
-      description: "বোর্ড ও এডমিশন স্ট্যান্ডার্ড দ্রুত কুইজ সলভিং প্র্যাকটিস",
-      href: "/poll",
-      icon: StatusUp,
-      iconBg:
-        "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
-      badge: "কুইক সলভ",
-    },
-  ];
-
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-1 sm:pt-4 md:py-6 gap-6 sm:gap-8 px-2 sm:px-4 md:px-6">
-      {/* ─── Core Learning Hub Grid ──────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
-              লার্নিং হাব ও রিসোর্স
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              আপনার প্রয়োজনীয় ফিচার দ্রুত অ্যাক্সেস করুন
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {featureCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link key={card.title} href={card.href} className="group">
-                <Card className="h-full border-border/70 bg-card hover:border-primary/50 hover:shadow-md transition-all duration-300 rounded-[22px] overflow-hidden">
-                  <CardContent className="p-5 sm:p-6 flex flex-col justify-between h-full gap-4">
-                    <div className="flex items-center justify-between">
-                      <div
-                        className={`size-11 rounded-2xl flex items-center justify-center border ${card.iconBg}`}
-                      >
-                        <Icon className="size-5.5" />
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-bold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
-                        {card.title}
-                        <ArrowRight2 className="size-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                      </h3>
-                      <p className="text-muted-foreground text-xs leading-relaxed mt-1">
-                        {card.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
 
       {/* ─── Two-Column Section: Live Exams & Exam Schedule ──────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
