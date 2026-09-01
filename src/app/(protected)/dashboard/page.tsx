@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,7 +14,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { db } from "@/db";
-import { batchEnrollments, batches, examRoutines, exams } from "@/db/schema";
+import {
+  batchEnrollments,
+  batchExams,
+  batches,
+  examRoutines,
+  exams,
+} from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +53,8 @@ export default async function DashboardPage() {
     userEnrolledCourses = enrollments.map((e) => e.course);
   }
 
+  const userEnrolledBatchIds = userEnrolledCourses.map((c) => c.id);
+
   // 3. If user has no enrollments, fetch popular batches to show
   const featuredCourses =
     userEnrolledCourses.length > 0
@@ -57,20 +65,39 @@ export default async function DashboardPage() {
           .where(eq(batches.isPublished, true))
           .limit(3);
 
-  // 4. Fetch Upcoming / Live Exams
-  const liveExams = await db
-    .select()
-    .from(exams)
-    .where(eq(exams.isPublished, true))
-    .orderBy(desc(exams.createdAt))
-    .limit(3);
+  // 4. Fetch Upcoming / Live Exams (Only for user's enrolled batches, or public practice tests)
+  let liveExams: (typeof exams.$inferSelect)[] = [];
+  if (userEnrolledBatchIds.length > 0) {
+    const studentBatchExams = await db.query.batchExams.findMany({
+      where: inArray(batchExams.batchId, userEnrolledBatchIds),
+      with: {
+        exam: true,
+      },
+      orderBy: [desc(batchExams.assignedAt)],
+      limit: 3,
+    });
+    liveExams = studentBatchExams
+      .map((be) => be.exam)
+      .filter((e): e is typeof exams.$inferSelect => Boolean(e && e.isPublished));
+  } else {
+    liveExams = await db
+      .select()
+      .from(exams)
+      .where(and(eq(exams.isPublished, true), eq(exams.type, "practice")))
+      .orderBy(desc(exams.createdAt))
+      .limit(3);
+  }
 
-  // 6. Fetch Upcoming Routines
-  const upcomingRoutines = await db
-    .select()
-    .from(examRoutines)
-    .orderBy(desc(examRoutines.examDate))
-    .limit(3);
+  // 5. Fetch Upcoming Routines (Only for user's enrolled batches)
+  let upcomingRoutines: (typeof examRoutines.$inferSelect)[] = [];
+  if (userEnrolledBatchIds.length > 0) {
+    upcomingRoutines = await db
+      .select()
+      .from(examRoutines)
+      .where(inArray(examRoutines.batchId, userEnrolledBatchIds))
+      .orderBy(desc(examRoutines.examDate))
+      .limit(3);
+  }
 
   const toBanglaDigits = (str: string | number) => {
     const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];

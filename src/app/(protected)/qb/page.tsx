@@ -75,8 +75,11 @@ export default async function QuestionBankPage(): Promise<ReactElement> {
               </div>
 
               <div className="pt-2 border-t border-border/40 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                  {qb.questionsCount || 0} টি প্রশ্ন
+                </span>
                 <span className="text-[11px] text-muted-foreground font-medium">
-                  {qb.hasAccess ? "অনুশীলন শুরু করুন →" : "ফ্রি প্রিভিউ ও বিবরণ →"}
+                  {qb.hasAccess ? "অনুশীলন শুরু করুন →" : "ফ্রি প্রশ্ন ও বিবরণ →"}
                 </span>
               </div>
             </div>

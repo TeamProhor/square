@@ -159,6 +159,7 @@ export default function PollConfigPage() {
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
+                    <SelectItem value="all">উভয় / সকল পত্র</SelectItem>
                     <SelectItem value="1st">১ম পত্র</SelectItem>
                     <SelectItem value="2nd">২য় পত্র</SelectItem>
                   </SelectGroup>

@@ -133,10 +133,20 @@ export async function toggleQuestionFree(
 
 export async function getUserQbContainers(userId?: string) {
   try {
-    // 1. Fetch all containers with items count and assigned batches
+    // 1. Fetch all containers with items, subitems, questions count and assigned batches
     const allContainers = await db.query.containers.findMany({
       with: {
-        items: true,
+        items: {
+          with: {
+            subitems: {
+              with: {
+                questions: {
+                  columns: { id: true },
+                },
+              },
+            },
+          },
+        },
         batchAccess: {
           with: {
             batch: true,
@@ -181,6 +191,16 @@ export async function getUserQbContainers(userId?: string) {
         c.isPublic ||
         assignedBatches.some((b) => userBatchIds.includes(b.id));
 
+      const totalQuestionsCount = (c.items || []).reduce(
+        (acc, it) =>
+          acc +
+          (it.subitems || []).reduce(
+            (sacc, sub) => sacc + (sub.questions?.length || 0),
+            0,
+          ),
+        0,
+      );
+
       return {
         id: c.id,
         slug: c.slug,
@@ -188,6 +208,7 @@ export async function getUserQbContainers(userId?: string) {
         description: c.description,
         isPublic: c.isPublic,
         itemsCount: c.items?.length || 0,
+        questionsCount: totalQuestionsCount,
         hasAccess: hasBatchAccess,
         assignedBatches,
       };

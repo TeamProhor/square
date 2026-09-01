@@ -21,6 +21,15 @@ export default async function QbSubjectsPage({
 
   const itemList = await db.query.items.findMany({
     where: eq(items.containerId, qb.id),
+    with: {
+      subitems: {
+        with: {
+          questions: {
+            columns: { id: true },
+          },
+        },
+      },
+    },
     orderBy: (items, { asc }) => [asc(items.name)],
   });
 
@@ -42,19 +51,39 @@ export default async function QbSubjectsPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-        {itemList?.map((sub: Item) => (
-          <Link href={`/qb/${qb.slug}/${sub.slug}`} key={sub.id}>
-            <div className="group relative overflow-hidden rounded-[20px] md:rounded-[28px] p-4 md:p-6 cursor-pointer border border-border/50 bg-card hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all duration-300 aspect-square flex flex-col items-center justify-center text-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 flex flex-col items-center justify-center px-2">
-                <h3 className="font-bold text-[18px] md:text-[24px] leading-tight text-foreground group-hover:text-primary transition-colors duration-300">
-                  {sub.name}
-                </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5">
+        {itemList?.map((sub) => {
+          const chaptersCount = sub.subitems?.length || 0;
+          const questionsCount = (sub.subitems || []).reduce(
+            (acc, s) => acc + (s.questions?.length || 0),
+            0,
+          );
+
+          return (
+            <Link href={`/qb/${qb.slug}/${sub.slug}`} key={sub.id}>
+              <div className="group relative overflow-hidden rounded-2xl md:rounded-3xl p-5 md:p-6 cursor-pointer border border-border/70 bg-card hover:border-primary/50 shadow-2xs hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all duration-300 min-h-[160px] flex flex-col justify-between">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col gap-1.5">
+                  <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full w-fit">
+                    {chaptersCount} টি অধ্যায়
+                  </span>
+                  <h3 className="font-bold text-lg md:text-xl leading-tight text-foreground group-hover:text-primary transition-colors duration-300 pt-2">
+                    {sub.name}
+                  </h3>
+                </div>
+
+                <div className="relative z-10 pt-3 border-t border-border/40 flex items-center justify-between text-xs">
+                  <span className="text-[11px] font-bold text-muted-foreground">
+                    {questionsCount} টি প্রশ্ন
+                  </span>
+                  <span className="text-[11px] text-primary font-bold">
+                    অনুশীলন →
+                  </span>
+                </div>
               </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          );
+        })}
         {itemList?.length === 0 && (
           <div className="col-span-full py-12 text-center text-muted-foreground border border-dashed rounded-2xl">
             কোনো বিষয় পাওয়া যায়নি।

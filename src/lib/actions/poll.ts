@@ -23,10 +23,10 @@ export const getPollSubjectsAction = getPollItemsAction;
 export async function getPollSubitemsAction(itemId: string, paper?: string) {
   try {
     const list = await db.query.subitems.findMany({
-      where: (subitems, { and, eq }) => {
+      where: (subitems, { and, eq, or, isNull }) => {
         const conditions = [eq(subitems.itemId, itemId)];
-        if (paper) {
-          conditions.push(eq(subitems.paper, paper));
+        if (paper && paper !== "all") {
+          conditions.push(or(eq(subitems.paper, paper), isNull(subitems.paper))!);
         }
         return and(...conditions);
       },
@@ -55,21 +55,34 @@ export async function getPollSubitemsAction(itemId: string, paper?: string) {
 }
 
 export async function getPollQuestionCountAction(params: {
-  itemId: string;
+  itemId?: string;
   subitemId?: string;
   paper?: string;
   standard?: string;
 }): Promise<number> {
   try {
+    let subitemIds: string[] = [];
+
+    if (params.subitemId && params.subitemId !== "none" && params.subitemId !== "all") {
+      subitemIds = [params.subitemId];
+    } else if (params.itemId && params.itemId !== "all" && params.itemId !== "none") {
+      const subitemsList = await db.query.subitems.findMany({
+        where: (subitems, { and, eq }) => {
+          const conditions = [eq(subitems.itemId, params.itemId!)];
+          if (params.paper) conditions.push(eq(subitems.paper, params.paper));
+          return and(...conditions);
+        },
+        columns: { id: true },
+      });
+      subitemIds = subitemsList.map((s) => s.id);
+      if (subitemIds.length === 0) return 0;
+    }
+
     const countResult = await db.query.questions.findMany({
-      where: (questions, { and, eq }) => {
+      where: (questions, { and, eq, inArray }) => {
         const conditions = [eq(questions.type, "mcq")];
-        if (
-          params.subitemId &&
-          params.subitemId !== "none" &&
-          params.subitemId !== "all"
-        ) {
-          conditions.push(eq(questions.subitemId, params.subitemId));
+        if (subitemIds.length > 0) {
+          conditions.push(inArray(questions.subitemId, subitemIds));
         }
         if (params.standard) {
           conditions.push(
@@ -92,22 +105,35 @@ export async function getPollQuestionCountAction(params: {
 }
 
 export async function getPollQuestionsAction(params: {
-  itemId: string;
+  itemId?: string;
   subitemId?: string;
   paper?: string;
   standard?: string;
   limit?: number;
 }): Promise<MCQQuestion[]> {
   try {
+    let subitemIds: string[] = [];
+
+    if (params.subitemId && params.subitemId !== "none" && params.subitemId !== "all") {
+      subitemIds = [params.subitemId];
+    } else if (params.itemId && params.itemId !== "all" && params.itemId !== "none") {
+      const subitemsList = await db.query.subitems.findMany({
+        where: (subitems, { and, eq }) => {
+          const conditions = [eq(subitems.itemId, params.itemId!)];
+          if (params.paper) conditions.push(eq(subitems.paper, params.paper));
+          return and(...conditions);
+        },
+        columns: { id: true },
+      });
+      subitemIds = subitemsList.map((s) => s.id);
+      if (subitemIds.length === 0) return [];
+    }
+
     const data = await db.query.questions.findMany({
-      where: (questions, { and, eq }) => {
+      where: (questions, { and, eq, inArray }) => {
         const conditions = [eq(questions.type, "mcq")];
-        if (
-          params.subitemId &&
-          params.subitemId !== "none" &&
-          params.subitemId !== "all"
-        ) {
-          conditions.push(eq(questions.subitemId, params.subitemId));
+        if (subitemIds.length > 0) {
+          conditions.push(inArray(questions.subitemId, subitemIds));
         }
         if (params.standard) {
           conditions.push(

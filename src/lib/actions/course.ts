@@ -30,6 +30,8 @@ export async function getCourses(batch?: string) {
     .map((b) => ({
       ...b,
       ...(b.details || {}),
+      title: b.name,
+      name: b.name,
       details: undefined,
     }))
     .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
@@ -48,6 +50,8 @@ export async function getFeaturedCourses() {
   return results.map((b) => ({
     ...b,
     ...(b.details || {}),
+    title: b.name,
+    name: b.name,
     details: undefined,
   }));
 }
@@ -115,6 +119,8 @@ export async function getMyCourses(userId: string) {
       .map((e: any) => ({
         ...e.batch,
         ...(e.batch?.details || {}),
+        title: e.batch?.name,
+        name: e.batch?.name,
         details: undefined,
         enrolledAt: e.enrolledAt,
         accessGrantedBy: e.accessGrantedBy,
@@ -180,6 +186,8 @@ export async function getUserCourseById(userId: string, batchId: string) {
   return {
     ...enrollment.batch,
     ...(enrollment.batch?.details || {}),
+    title: enrollment.batch?.name,
+    name: enrollment.batch?.name,
     details: undefined,
     enrolledAt: enrollment.enrolledAt,
   };
@@ -194,6 +202,8 @@ export async function getCourseWithDetailsBySlug(slug: string) {
   return {
     ...b,
     ...(b.details || {}),
+    title: b.name,
+    name: b.name,
     details: undefined,
   };
 }
