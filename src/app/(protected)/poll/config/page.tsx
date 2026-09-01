@@ -101,21 +101,30 @@ export default function PollConfigPage() {
       : (currentSelectedSubitem?.questionCount ?? 0);
 
   const handleStart = async () => {
-    setIsStarting(true);
+    try {
+      setIsStarting(true);
 
-    const qbQuestions = await getPollQuestionsAction({
-      itemId: item,
-      subitemId: subitem,
-      paper,
-      standard,
-      limit: 20,
-    });
+      const qbQuestions = await getPollQuestionsAction({
+        itemId: item,
+        subitemId: subitem,
+        paper,
+        standard,
+        limit: 20,
+      });
 
-    setActiveQuestions(qbQuestions);
-    setUserAnswers({});
-    setCurrentQuestionIndex(0);
+      if (!qbQuestions || qbQuestions.length === 0) {
+        setIsStarting(false);
+        return;
+      }
 
-    router.push("/poll/take");
+      setActiveQuestions(qbQuestions);
+      setUserAnswers({});
+      setCurrentQuestionIndex(0);
+
+      router.push("/poll/take");
+    } catch {
+      setIsStarting(false);
+    }
   };
 
   return (

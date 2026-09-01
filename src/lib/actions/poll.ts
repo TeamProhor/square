@@ -54,6 +54,16 @@ export async function getPollSubitemsAction(itemId: string, paper?: string) {
   }
 }
 
+function getStandardFilter(standard?: string) {
+  if (!standard || standard === "all") return null;
+  const s = standard.toLowerCase();
+  if (s === "board" || s === "hsc") return ["HSC"] as const;
+  if (s === "varsity" || s === "admission") return ["Varsity", "Engineering", "Medical"] as const;
+  if (s === "engineering") return ["Engineering"] as const;
+  if (s === "medical") return ["Medical"] as const;
+  return null;
+}
+
 export async function getPollQuestionCountAction(params: {
   itemId?: string;
   subitemId?: string;
@@ -69,7 +79,7 @@ export async function getPollQuestionCountAction(params: {
       const subitemsList = await db.query.subitems.findMany({
         where: (subitems, { and, eq }) => {
           const conditions = [eq(subitems.itemId, params.itemId!)];
-          if (params.paper) conditions.push(eq(subitems.paper, params.paper));
+          if (params.paper && params.paper !== "all") conditions.push(eq(subitems.paper, params.paper));
           return and(...conditions);
         },
         columns: { id: true },
@@ -78,17 +88,19 @@ export async function getPollQuestionCountAction(params: {
       if (subitemIds.length === 0) return 0;
     }
 
+    const standards = getStandardFilter(params.standard);
+
     const countResult = await db.query.questions.findMany({
       where: (questions, { and, eq, inArray }) => {
         const conditions = [eq(questions.type, "mcq")];
         if (subitemIds.length > 0) {
           conditions.push(inArray(questions.subitemId, subitemIds));
         }
-        if (params.standard) {
+        if (standards && standards.length > 0) {
           conditions.push(
-            eq(
+            inArray(
               questions.standard,
-              params.standard as "HSC" | "Varsity" | "Engineering" | "Medical",
+              standards as unknown as ("HSC" | "Varsity" | "Engineering" | "Medical")[],
             ),
           );
         }
@@ -120,7 +132,7 @@ export async function getPollQuestionsAction(params: {
       const subitemsList = await db.query.subitems.findMany({
         where: (subitems, { and, eq }) => {
           const conditions = [eq(subitems.itemId, params.itemId!)];
-          if (params.paper) conditions.push(eq(subitems.paper, params.paper));
+          if (params.paper && params.paper !== "all") conditions.push(eq(subitems.paper, params.paper));
           return and(...conditions);
         },
         columns: { id: true },
@@ -129,17 +141,19 @@ export async function getPollQuestionsAction(params: {
       if (subitemIds.length === 0) return [];
     }
 
+    const standards = getStandardFilter(params.standard);
+
     const data = await db.query.questions.findMany({
       where: (questions, { and, eq, inArray }) => {
         const conditions = [eq(questions.type, "mcq")];
         if (subitemIds.length > 0) {
           conditions.push(inArray(questions.subitemId, subitemIds));
         }
-        if (params.standard) {
+        if (standards && standards.length > 0) {
           conditions.push(
-            eq(
+            inArray(
               questions.standard,
-              params.standard as "HSC" | "Varsity" | "Engineering" | "Medical",
+              standards as unknown as ("HSC" | "Varsity" | "Engineering" | "Medical")[],
             ),
           );
         }
