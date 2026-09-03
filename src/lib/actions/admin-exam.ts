@@ -3,8 +3,16 @@
 import { desc, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { batchExams, examQuestions, examSubmissions, exams } from "@/db/schema";
-import type { ExamDetail } from "@/types";
+import {
+  batchExams,
+  examQuestions,
+  examSubmissions,
+  exams,
+  mcqOptions,
+  questions,
+} from "@/db/schema";
+
+
 
 export async function createExamAction(data: {
   title: string;

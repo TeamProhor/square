@@ -198,11 +198,24 @@ export function ExamQuestionBuilder({
       return;
     }
 
-    const list = Array.isArray(parsed) ? parsed : [parsed];
+    let list: any[] = [];
+    if (Array.isArray(parsed)) {
+      list = parsed;
+    } else if (parsed && typeof parsed === "object") {
+      if (Array.isArray(parsed.questions)) {
+        list = parsed.questions;
+      } else if (Array.isArray(parsed.data)) {
+        list = parsed.data;
+      } else {
+        list = [parsed];
+      }
+    }
+
     if (!list.length) {
       setJsonError("JSON-এ কোনো প্রশ্ন পাওয়া যায়নি।");
       return;
     }
+
 
     setJsonImporting(true);
     const res = await importQuestionsDirectlyToExamAction(
