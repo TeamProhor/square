@@ -12,10 +12,15 @@ import {
   Profile2user,
   SecurityCard,
   TaskSquare,
+  Trash2,
   Video,
 } from "@/components/icons";
+import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { deleteBatchAction } from "@/lib/actions/batch";
 import type { BatchDetail } from "@/types";
+
 
 export function BatchDetailView({
   batch,
@@ -36,14 +41,42 @@ export function BatchDetailView({
 
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-12 pt-2 md:py-8 gap-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-          {batch.name}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          স্লাগ: {batch.slug} | স্ট্যাটাস: {batch.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            {batch.name}
+          </h1>
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
+            স্লাগ: {batch.slug} | স্ট্যাটাস: {batch.isActive ? "সক্রিয়" : "নিষ্ক্রিয়"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <DeleteConfirmDialog
+            title="ব্যাচ ডিলিট নিশ্চিতকরণ"
+            description={`আপনি কি নিশ্চিত যে "${batch.name}" ব্যাচটি স্থায়ীভাবে ডিলিট করতে চান? এর সাথে যুক্ত সকল এক্সাম, মেম্বার ও ডাটা মুছে যাবে!`}
+            onConfirm={async () => {
+              const res = await deleteBatchAction(batch.id);
+              if (res.error) {
+                alert(res.error);
+              } else {
+                window.location.href = "/admin/batches";
+              }
+            }}
+            trigger={
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-1.5 rounded-xl text-xs font-bold cursor-pointer"
+              >
+                <Trash2 className="size-4" />
+                <span>ব্যাচ ডিলিট করুন</span>
+              </Button>
+            }
+          />
+        </div>
       </div>
+
 
       <Tabs defaultValue="settings" className="w-full space-y-6">
         <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar">
