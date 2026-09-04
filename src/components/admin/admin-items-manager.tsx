@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { EditSubjectForm } from "@/components/admin/forms/edit-subject-form";
 import { NewSubjectForm } from "@/components/admin/forms/new-subject-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
-import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import {
+  ArrowRight2,
+  BookOpen,
+  Edit,
+  TaskSquare,
+  Trash2,
+} from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -23,6 +30,7 @@ export function AdminItemsManager({
 }: AdminItemsManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<Item | null>(null);
 
   const items: QuickListItem[] = initialSubjects.map((sub: Item) => ({
     href: `/admin/qb/${qb.slug}/${sub.slug}`,
@@ -43,28 +51,43 @@ export function AdminItemsManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     rightElement: (
-      <DeleteConfirmDialog
-        title="বিষয় ডিলিট নিশ্চিতকরণ"
-        description={`আপনি কি নিশ্চিতভাবে "${sub.name}" বিষয়টি ডিলিট করতে চান? এর ভিতরের সব অধ্যায় ও প্রশ্ন মুছে যাবে!`}
-        onConfirm={async () => {
-          await deleteSubjectAction(sub.id, qb.slug);
-          router.refresh();
-        }}
-        trigger={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
-          >
-            <Trash2 className="size-3.5" />
-            <span>ডিলিট</span>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setEditingSubject(sub);
+          }}
+          className="text-primary hover:bg-primary/10 gap-1 rounded-xl text-xs cursor-pointer"
+        >
+          <Edit className="size-3.5" />
+          <span>এডিট</span>
+        </Button>
+        <DeleteConfirmDialog
+          title="বিষয় ডিলিট নিশ্চিতকরণ"
+          description={`আপনি কি নিশ্চিতভাবে "${sub.name}" বিষয়টি ডিলিট করতে চান? এর ভিতরের সব অধ্যায় ও প্রশ্ন মুছে যাবে!`}
+          onConfirm={async () => {
+            await deleteSubjectAction(sub.id, qb.slug);
+            router.refresh();
+          }}
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+            >
+              <Trash2 className="size-3.5" />
+              <span>ডিলিট</span>
+            </Button>
+          }
+        />
+      </div>
     ),
   }));
 
@@ -87,13 +110,13 @@ export function AdminItemsManager({
             {qb.title} - বিষয়সমূহ
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            বিষয় নির্বাচন করে অধ্যায় দেখুন অথবা নতুন বিষয় যোগ ও রিমুভ করুন।
+            বিষয় নির্বাচন করে অধ্যায় দেখুন অথবা বিষয় এডিট, যোগ ও রিমুভ করুন।
           </p>
         </div>
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="rounded-xl gap-2 font-bold"
+          className="rounded-xl gap-2 font-bold cursor-pointer"
         >
           + নতুন বিষয় যোগ করুন
         </Button>
@@ -118,6 +141,29 @@ export function AdminItemsManager({
           onCancel={() => setIsCreateOpen(false)}
         />
       </ResponsiveDialog>
+
+      <ResponsiveDialog
+        open={Boolean(editingSubject)}
+        onOpenChange={(open) => {
+          if (!open) setEditingSubject(null);
+        }}
+        title="বিষয় এডিট করুন"
+        description="বিষয়ের নাম, slug ও কোড পরিবর্তন করুন।"
+        className="sm:max-w-lg"
+      >
+        {editingSubject && (
+          <EditSubjectForm
+            qbSlug={qb.slug}
+            subject={editingSubject}
+            onSuccess={() => {
+              setEditingSubject(null);
+              router.refresh();
+            }}
+            onCancel={() => setEditingSubject(null)}
+          />
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }
+

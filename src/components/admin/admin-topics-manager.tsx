@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { EditTopicForm } from "@/components/admin/forms/edit-topic-form";
 import { NewTopicForm } from "@/components/admin/forms/new-topic-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
-import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import {
+  ArrowRight2,
+  BookOpen,
+  Edit,
+  TaskSquare,
+  Trash2,
+} from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -27,6 +34,7 @@ export function AdminTopicsManager({
 }: AdminTopicsManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
 
   const items: QuickListItem[] = initialTopics.map((top: Topic) => ({
     href: `/admin/qb/${qb.slug}/${subject.slug}/${chapter.slug}/${top.slug}`,
@@ -41,28 +49,43 @@ export function AdminTopicsManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     rightElement: (
-      <DeleteConfirmDialog
-        title="টপিক ডিলিট নিশ্চিতকরণ"
-        description={`আপনি কি নিশ্চিতভাবে "${top.name}" টপিকটি ডিলিট করতে চান? এর ভিতরের সব প্রশ্ন মুছে যাবে!`}
-        onConfirm={async () => {
-          await deleteTopicAction(top.id, qb.slug, subject.slug, chapter.slug);
-          router.refresh();
-        }}
-        trigger={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
-          >
-            <Trash2 className="size-3.5" />
-            <span>ডিলিট</span>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setEditingTopic(top);
+          }}
+          className="text-primary hover:bg-primary/10 gap-1 rounded-xl text-xs cursor-pointer"
+        >
+          <Edit className="size-3.5" />
+          <span>এডিট</span>
+        </Button>
+        <DeleteConfirmDialog
+          title="টপিক ডিলিট নিশ্চিতকরণ"
+          description={`আপনি কি নিশ্চিতভাবে "${top.name}" টপিকটি ডিলিট করতে চান? এর ভিতরের সব প্রশ্ন মুছে যাবে!`}
+          onConfirm={async () => {
+            await deleteTopicAction(top.id, qb.slug, subject.slug, chapter.slug);
+            router.refresh();
+          }}
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+            >
+              <Trash2 className="size-3.5" />
+              <span>ডিলিট</span>
+            </Button>
+          }
+        />
+      </div>
     ),
   }));
 
@@ -106,13 +129,13 @@ export function AdminTopicsManager({
             {chapter.name} - টপিকসমূহ
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            টপিকের প্রশ্ন দেখতে ক্লিক করুন অথবা নতুন টপিক যোগ ও রিমুভ করুন।
+            টপিকের প্রশ্ন দেখতে ক্লিক করুন অথবা টপিক এডিট, যোগ ও রিমুভ করুন।
           </p>
         </div>
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="rounded-xl gap-2 font-bold"
+          className="rounded-xl gap-2 font-bold cursor-pointer"
         >
           + নতুন টপিক যোগ করুন
         </Button>
@@ -139,6 +162,31 @@ export function AdminTopicsManager({
           onCancel={() => setIsCreateOpen(false)}
         />
       </ResponsiveDialog>
+
+      <ResponsiveDialog
+        open={Boolean(editingTopic)}
+        onOpenChange={(open) => {
+          if (!open) setEditingTopic(null);
+        }}
+        title="টপিক এডিট করুন"
+        description="টপিকের নাম ও slug পরিবর্তন করুন।"
+        className="sm:max-w-lg"
+      >
+        {editingTopic && (
+          <EditTopicForm
+            qbSlug={qb.slug}
+            subjectSlug={subject.slug}
+            chapterSlug={chapter.slug}
+            topic={editingTopic}
+            onSuccess={() => {
+              setEditingTopic(null);
+              router.refresh();
+            }}
+            onCancel={() => setEditingTopic(null)}
+          />
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }
+

@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { EditChapterForm } from "@/components/admin/forms/edit-chapter-form";
 import { NewChapterForm } from "@/components/admin/forms/new-chapter-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
-import { ArrowRight2, BookOpen, TaskSquare, Trash2 } from "@/components/icons";
+import {
+  ArrowRight2,
+  BookOpen,
+  Edit,
+  TaskSquare,
+  Trash2,
+} from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -25,6 +32,7 @@ export function AdminSubitemsManager({
 }: AdminSubitemsManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingChapter, setEditingChapter] = useState<Subitem | null>(null);
 
   const items: QuickListItem[] = initialChapters.map((ch: Subitem) => ({
     href: `/admin/qb/${qb.slug}/${subject.slug}/${ch.slug}`,
@@ -49,28 +57,43 @@ export function AdminSubitemsManager({
       </span>
     ) : undefined,
     rightElement: (
-      <DeleteConfirmDialog
-        title="অধ্যায় ডিলিট নিশ্চিতকরণ"
-        description={`আপনি কি নিশ্চিতভাবে "${ch.name}" অধ্যায়টি ডিলিট করতে চান? এর ভিতরের সব টপিক ও প্রশ্ন মুছে যাবে!`}
-        onConfirm={async () => {
-          await deleteChapterAction(ch.id, qb.slug, subject.slug);
-          router.refresh();
-        }}
-        trigger={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
-          >
-            <Trash2 className="size-3.5" />
-            <span>ডিলিট</span>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setEditingChapter(ch);
+          }}
+          className="text-primary hover:bg-primary/10 gap-1 rounded-xl text-xs cursor-pointer"
+        >
+          <Edit className="size-3.5" />
+          <span>এডিট</span>
+        </Button>
+        <DeleteConfirmDialog
+          title="অধ্যায় ডিলিট নিশ্চিতকরণ"
+          description={`আপনি কি নিশ্চিতভাবে "${ch.name}" অধ্যায়টি ডিলিট করতে চান? এর ভিতরের সব টপিক ও প্রশ্ন মুছে যাবে!`}
+          onConfirm={async () => {
+            await deleteChapterAction(ch.id, qb.slug, subject.slug);
+            router.refresh();
+          }}
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+            >
+              <Trash2 className="size-3.5" />
+              <span>ডিলিট</span>
+            </Button>
+          }
+        />
+      </div>
     ),
   }));
 
@@ -107,13 +130,13 @@ export function AdminSubitemsManager({
             {subject.name} - অধ্যায়সমূহ
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            অধ্যায়ের টপিক দেখতে ক্লিক করুন অথবা নতুন অধ্যায় যোগ ও রিমুভ করুন।
+            অধ্যায়ের টপিক দেখতে ক্লিক করুন অথবা অধ্যায় এডিট, যোগ ও রিমুভ করুন।
           </p>
         </div>
 
         <Button
           onClick={() => setIsCreateOpen(true)}
-          className="rounded-xl gap-2 font-bold"
+          className="rounded-xl gap-2 font-bold cursor-pointer"
         >
           + নতুন অধ্যায় যোগ করুন
         </Button>
@@ -139,6 +162,30 @@ export function AdminSubitemsManager({
           onCancel={() => setIsCreateOpen(false)}
         />
       </ResponsiveDialog>
+
+      <ResponsiveDialog
+        open={Boolean(editingChapter)}
+        onOpenChange={(open) => {
+          if (!open) setEditingChapter(null);
+        }}
+        title="অধ্যায় এডিট করুন"
+        description="অধ্যায়ের নাম, slug ও পেপার পরিবর্তন করুন।"
+        className="sm:max-w-lg"
+      >
+        {editingChapter && (
+          <EditChapterForm
+            qbSlug={qb.slug}
+            subjectSlug={subject.slug}
+            chapter={editingChapter}
+            onSuccess={() => {
+              setEditingChapter(null);
+              router.refresh();
+            }}
+            onCancel={() => setEditingChapter(null)}
+          />
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }
+

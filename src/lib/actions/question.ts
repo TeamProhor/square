@@ -39,11 +39,46 @@ export async function deleteContainerAction(id: string) {
   try {
     await db.delete(containers).where(eq(containers.id, id));
     revalidatePath("/admin/qb");
+    revalidatePath("/qb");
     return { success: true };
   } catch (error: unknown) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete container",
+    };
+  }
+}
+
+export async function updateContainerAction(
+  id: string,
+  data: {
+    title: string;
+    slug: string;
+    description?: string;
+    isPublic?: boolean;
+  },
+) {
+  try {
+    const finalSlug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    await db
+      .update(containers)
+      .set({
+        title: data.title.trim(),
+        slug: finalSlug,
+        description: data.description?.trim() || null,
+        isPublic: data.isPublic ?? false,
+      })
+      .where(eq(containers.id, id));
+
+    revalidatePath("/admin/qb");
+    revalidatePath(`/admin/qb/${finalSlug}`);
+    revalidatePath("/qb");
+    revalidatePath(`/qb/${finalSlug}`);
+    return { success: true, slug: finalSlug };
+  } catch (error: unknown) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to update container",
     };
   }
 }
@@ -79,10 +114,43 @@ export async function deleteItemAction(itemId: string, qbSlug: string) {
   try {
     await db.delete(items).where(eq(items.id, itemId));
     revalidatePath(`/admin/qb/${qbSlug}`);
+    revalidatePath(`/qb/${qbSlug}`);
     return { success: true };
   } catch (error: unknown) {
     return {
       error: error instanceof Error ? error.message : "Failed to delete item",
+    };
+  }
+}
+
+export async function updateItemAction(
+  itemId: string,
+  qbSlug: string,
+  data: {
+    name: string;
+    slug: string;
+    code?: string;
+  },
+) {
+  try {
+    const finalSlug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    await db
+      .update(items)
+      .set({
+        name: data.name.trim(),
+        slug: finalSlug,
+        code: data.code?.trim() || null,
+      })
+      .where(eq(items.id, itemId));
+
+    revalidatePath(`/admin/qb/${qbSlug}`);
+    revalidatePath(`/admin/qb/${qbSlug}/${finalSlug}`);
+    revalidatePath(`/qb/${qbSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${finalSlug}`);
+    return { success: true, slug: finalSlug };
+  } catch (error: unknown) {
+    return {
+      error: error instanceof Error ? error.message : "Failed to update item",
     };
   }
 }
@@ -120,11 +188,51 @@ export async function deleteSubitemAction(
   try {
     await db.delete(subitems).where(eq(subitems.id, subitemId));
     revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}`);
     return { success: true };
   } catch (error: unknown) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete subitem",
+    };
+  }
+}
+
+export async function updateSubitemAction(
+  subitemId: string,
+  qbSlug: string,
+  itemSlug: string,
+  data: {
+    name: string;
+    slug: string;
+    paper?: string;
+    orderNo?: number;
+  },
+) {
+  try {
+    const finalSlug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    const updatePayload: Record<string, unknown> = {
+      name: data.name.trim(),
+      slug: finalSlug,
+    };
+    if (data.paper !== undefined) {
+      updatePayload.paper = data.paper?.trim() || null;
+    }
+    if (data.orderNo !== undefined) {
+      updatePayload.orderNo = data.orderNo;
+    }
+
+    await db.update(subitems).set(updatePayload).where(eq(subitems.id, subitemId));
+
+    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}`);
+    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${finalSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}/${finalSlug}`);
+    return { success: true, slug: finalSlug };
+  } catch (error: unknown) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to update subitem",
     };
   }
 }
@@ -161,6 +269,7 @@ export async function deleteTopicAction(
   try {
     await db.delete(topics).where(eq(topics.id, topicId));
     revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
     return { success: true };
   } catch (error: unknown) {
     return {
@@ -168,6 +277,41 @@ export async function deleteTopicAction(
     };
   }
 }
+
+export async function updateTopicAction(
+  topicId: string,
+  qbSlug: string,
+  itemSlug: string,
+  subitemSlug: string,
+  data: {
+    name: string;
+    slug: string;
+  },
+) {
+  try {
+    const finalSlug = data.slug.trim().toLowerCase().replace(/\s+/g, "-");
+    await db
+      .update(topics)
+      .set({
+        name: data.name.trim(),
+        slug: finalSlug,
+      })
+      .where(eq(topics.id, topicId));
+
+    revalidatePath(`/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
+    revalidatePath(
+      `/admin/qb/${qbSlug}/${itemSlug}/${subitemSlug}/${finalSlug}`,
+    );
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}/${subitemSlug}`);
+    revalidatePath(`/qb/${qbSlug}/${itemSlug}/${subitemSlug}/${finalSlug}`);
+    return { success: true, slug: finalSlug };
+  } catch (error: unknown) {
+    return {
+      error: error instanceof Error ? error.message : "Failed to update topic",
+    };
+  }
+}
+
 
 export async function createQuestionAction(payload: CreateQuestionPayload) {
   try {

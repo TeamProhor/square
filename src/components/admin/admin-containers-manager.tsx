@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { EditQuestionBankForm } from "@/components/admin/forms/edit-qb-form";
 import { NewQuestionBankForm } from "@/components/admin/forms/new-qb-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
-import { Add, BookOpen, Flash, Trash2 } from "@/components/icons";
+import { Add, BookOpen, Edit, Flash, Trash2 } from "@/components/icons";
 import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export function AdminContainersManager({
 }: AdminContainersManagerProps) {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingQb, setEditingQb] = useState<Container | null>(null);
 
   const items: QuickListItem[] = initialQbs.map((qb: Container) => ({
     href: `/admin/qb/${qb.slug}`,
@@ -34,30 +36,46 @@ export function AdminContainersManager({
       </span>
     ),
     rightElement: (
-      <DeleteConfirmDialog
-        title="প্রশ্নব্যাংক ডিলিট নিশ্চিতকরণ"
-        description="আপনি কি নিশ্চিত যে এই প্রশ্নব্যাংকটি ডিলিট করতে চান? এর ভিতরের সব বিষয়, অধ্যায় এবং প্রশ্ন মুছে যাবে!"
-        onConfirm={async () => {
-          await deleteContainerAction(qb.id);
-          router.refresh();
-        }}
-        trigger={
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-            className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
-          >
-            <Trash2 className="size-3.5" />
-            <span>ডিলিট</span>
-          </Button>
-        }
-      />
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setEditingQb(qb);
+          }}
+          className="text-primary hover:bg-primary/10 gap-1 rounded-xl text-xs cursor-pointer"
+        >
+          <Edit className="size-3.5" />
+          <span>এডিট</span>
+        </Button>
+        <DeleteConfirmDialog
+          title="প্রশ্নব্যাংক ডিলিট নিশ্চিতকরণ"
+          description="আপনি কি নিশ্চিত যে এই প্রশ্নব্যাংকটি ডিলিট করতে চান? এর ভিতরের সব বিষয়, অধ্যায় এবং প্রশ্ন মুছে যাবে!"
+          onConfirm={async () => {
+            await deleteContainerAction(qb.id);
+            router.refresh();
+          }}
+          trigger={
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"
+            >
+              <Trash2 className="size-3.5" />
+              <span>ডিলিট</span>
+            </Button>
+          }
+        />
+      </div>
     ),
   }));
+
 
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-12 pt-2 md:py-8 gap-6">
@@ -108,6 +126,28 @@ export function AdminContainersManager({
           onCancel={() => setIsCreateOpen(false)}
         />
       </ResponsiveDialog>
+
+      <ResponsiveDialog
+        open={Boolean(editingQb)}
+        onOpenChange={(open) => {
+          if (!open) setEditingQb(null);
+        }}
+        title="প্রশ্নব্যাংক এডিট করুন"
+        description="প্রশ্নব্যাংকের শিরোনাম, slug ও বিবরণ পরিবর্তন করুন।"
+        className="sm:max-w-lg"
+      >
+        {editingQb && (
+          <EditQuestionBankForm
+            qb={editingQb}
+            onSuccess={() => {
+              setEditingQb(null);
+              router.refresh();
+            }}
+            onCancel={() => setEditingQb(null)}
+          />
+        )}
+      </ResponsiveDialog>
     </div>
   );
 }
+
