@@ -5,12 +5,15 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
   batchExams,
+  cqParts,
   examQuestions,
   examSubmissions,
   exams,
   mcqOptions,
   questions,
 } from "@/db/schema";
+import type { ExamDetail } from "@/types";
+
 
 
 
@@ -267,6 +270,31 @@ export async function importQuestionsDirectlyToExamAction(
 
             await tx.insert(mcqOptions).values(optionsToInsert);
           }
+        } else if (resolvedType === "cq") {
+          const rawParts = item.cqParts || item.cq_parts || item.parts || [];
+          if (Array.isArray(rawParts) && rawParts.length > 0) {
+            const defaultKeys: Array<"a" | "b" | "c" | "d"> = ["a", "b", "c", "d"];
+            const partsToInsert = rawParts.map((pt: any, idx: number) => ({
+              questionId: newQuestion.id,
+              partKey: (pt.partKey || pt.part_key || defaultKeys[idx] || "a") as
+                | "a"
+                | "b"
+                | "c"
+                | "d",
+              questionText: (
+                pt.questionText ||
+                pt.question_text ||
+                pt.text ||
+                ""
+              ).trim(),
+              answerText:
+                (pt.answerText || pt.answer_text || pt.answer || "").trim() ||
+                null,
+              marks: typeof pt.marks === "number" ? pt.marks : idx + 1,
+              orderNo: idx + 1,
+            }));
+            await tx.insert(cqParts).values(partsToInsert);
+          }
         }
 
         // Add to Exam Questions
@@ -276,6 +304,7 @@ export async function importQuestionsDirectlyToExamAction(
           orderNo: nextOrder++,
           marks,
         });
+
 
         count++;
       }

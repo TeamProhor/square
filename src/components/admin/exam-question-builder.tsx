@@ -7,7 +7,9 @@ import {
   Add,
   ArrowLeft2,
   Category,
+  DocumentDownload,
   Eye,
+  FileDown,
   Flash,
   Search,
   TaskSquare,
@@ -185,37 +187,71 @@ export function ExamQuestionBuilder({
     router.refresh();
   }
 
-  // JSON Import Handler
+  // JSON / CSV Import Handler
   async function handleJsonImport(e: React.FormEvent) {
     e.preventDefault();
     setJsonError(null);
 
-    let parsed: any;
-    try {
-      parsed = JSON.parse(jsonText);
-    } catch {
-      setJsonError("ভুল JSON ফরম্যাট! দয়া করে সঠিক ভ্যালিড JSON পেস্ট করুন।");
+    const trimmed = jsonText.trim();
+    if (!trimmed) {
+      setJsonError("দয়া করে JSON অথবা CSV ডেটা পেস্ট করুন।");
       return;
     }
 
     let list: any[] = [];
-    if (Array.isArray(parsed)) {
-      list = parsed;
-    } else if (parsed && typeof parsed === "object") {
-      if (Array.isArray(parsed.questions)) {
-        list = parsed.questions;
-      } else if (Array.isArray(parsed.data)) {
-        list = parsed.data;
-      } else {
-        list = [parsed];
+
+    // Check if input is CSV format
+    if (!trimmed.startsWith("[") && !trimmed.startsWith("{") && trimmed.includes(",")) {
+      try {
+        const { parseQuestionsCsv } = await import("@/lib/csv-parser");
+        const parsedCsv = parseQuestionsCsv(trimmed);
+        if (parsedCsv && parsedCsv.length > 0) {
+          list = parsedCsv;
+        }
+      } catch {
+        // fallback to json parser
       }
     }
 
     if (!list.length) {
-      setJsonError("JSON-এ কোনো প্রশ্ন পাওয়া যায়নি।");
-      return;
+      let parsed: any;
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        // Try CSV fallback
+        try {
+          const { parseQuestionsCsv } = await import("@/lib/csv-parser");
+          const parsedCsv = parseQuestionsCsv(trimmed);
+          if (parsedCsv && parsedCsv.length > 0) {
+            list = parsedCsv;
+          } else {
+            throw new Error();
+          }
+        } catch {
+          setJsonError("ভুল JSON বা CSV ফরম্যাট! দয়া করে সঠিক ভ্যালিড JSON অথবা CSV পেস্ট করুন।");
+          return;
+        }
+      }
+
+      if (parsed) {
+        if (Array.isArray(parsed)) {
+          list = parsed;
+        } else if (parsed && typeof parsed === "object") {
+          if (Array.isArray(parsed.questions)) {
+            list = parsed.questions;
+          } else if (Array.isArray(parsed.data)) {
+            list = parsed.data;
+          } else {
+            list = [parsed];
+          }
+        }
+      }
     }
 
+    if (!list.length) {
+      setJsonError("ফাইল বা টেক্সটে কোনো প্রশ্ন পাওয়া যায়নি।");
+      return;
+    }
 
     setJsonImporting(true);
     const res = await importQuestionsDirectlyToExamAction(
@@ -233,6 +269,7 @@ export function ExamQuestionBuilder({
       setJsonError(res.error || "প্রশ্ন ইমপোর্ট করতে ব্যর্থ হয়েছে।");
     }
   }
+
 
   const totalCalculatedMarks = exam.examQuestions.reduce(
     (acc, curr) => acc + (curr.marks || 1),
@@ -572,13 +609,13 @@ export function ExamQuestionBuilder({
         </div>
       </div>
 
-      {/* JSON Import Dialog */}
+      {/* JSON / CSV Import Dialog */}
       <ResponsiveDialog
         open={jsonModalOpen}
         onOpenChange={setJsonModalOpen}
-        title="সরাসরি JSON প্রশ্ন ইনপুট ও এক্সামে যুক্ত করুন"
-        description="JSON ফরম্যাটে প্রশ্নের অ্যারে পেস্ট করে এক ক্লিকে প্রশ্ন তৈরি ও এই পরীক্ষায় যোগ করুন।"
-        className="sm:max-w-[620px]"
+        title="সরাসরি JSON বা CSV প্রশ্ন ইনপুট ও এক্সামে যুক্ত করুন"
+        description="JSON বা CSV ফরম্যাটে প্রশ্ন পেস্ট করে অথবা ফাইল আপলোড করে এক ক্লিকে প্রশ্ন তৈরি ও এই পরীক্ষায় যোগ করুন।"
+        className="sm:max-w-[640px]"
       >
         <form onSubmit={handleJsonImport} className="space-y-4 py-2">
           {jsonError && (
@@ -604,47 +641,123 @@ export function ExamQuestionBuilder({
             </select>
           </div>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="json-input">JSON ডেটা পেস্ট করুন *</Label>
-              <button
-                type="button"
-                onClick={() => {
-                  setJsonText(
-                    JSON.stringify(
-                      [
-                        {
-                          questionText: "ভেক্টর রাশির ডট গুণনের মান সর্বোচ্চ কখন হয়?",
-                          type: "mcq",
-                          standard: "HSC",
-                          source: "Board Exam",
-                          marks: 1,
-                          explanation: "যখন মধ্যবর্তী কোণ 0 ডিগ্রি হয় তখন cos(0) = 1।",
-                          mcqOptions: [
-                            { optionText: "0° কোণে", isCorrect: true },
-                            { optionText: "90° কোণে", isCorrect: false },
-                            { optionText: "180° কোণে", isCorrect: false },
-                            { optionText: "45° কোণে", isCorrect: false },
-                          ],
-                        },
-                      ],
-                      null,
-                      2,
-                    ),
-                  );
+          {/* File Upload Zone */}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-bold">ফাইল আপলোড (.json / .csv)</Label>
+            <div className="border border-dashed border-border/80 hover:border-primary/50 rounded-2xl p-3 flex items-center justify-between gap-3 bg-muted/15 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="size-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <FileDown className="size-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-foreground">
+                    কম্পিউটার থেকে ফাইল সিলেক্ট করুন
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    .json বা .csv ফাইল সমর্থিত
+                  </span>
+                </div>
+              </div>
+
+              <input
+                type="file"
+                id="exam-file-input"
+                accept=".json,.csv,application/json,text/csv"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const fileName = file.name.toLowerCase();
+                  const reader = new FileReader();
+                  reader.onload = async (event) => {
+                    const content = event.target?.result as string;
+                    if (!content) return;
+                    if (fileName.endsWith(".csv") || file.type.includes("csv")) {
+                      const { parseQuestionsCsv } = await import("@/lib/csv-parser");
+                      const parsedCsv = parseQuestionsCsv(content);
+                      if (parsedCsv && parsedCsv.length > 0) {
+                        setJsonText(JSON.stringify(parsedCsv, null, 2));
+                      } else {
+                        setJsonText(content);
+                      }
+                    } else {
+                      setJsonText(content);
+                    }
+                  };
+                  reader.readAsText(file);
                 }}
-                className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                className="hidden"
+              />
+
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => document.getElementById("exam-file-input")?.click()}
+                className="rounded-xl text-xs font-bold shrink-0 gap-1.5 h-8"
               >
-                নমুনা ফরম্যাট বসান
-              </button>
+                <DocumentDownload className="size-3.5" />
+                <span>ফাইল সিলেক্ট</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between flex-wrap gap-1">
+              <Label htmlFor="json-input">অথবা JSON / CSV ডেটা পেস্ট করুন *</Label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setJsonText(
+                      JSON.stringify(
+                        [
+                          {
+                            questionText: "ভেক্টর রাশির ডট গুণনের মান সর্বোচ্চ কখন হয়?",
+                            type: "mcq",
+                            standard: "HSC",
+                            source: "Board Exam",
+                            marks: 1,
+                            explanation: "যখন মধ্যবর্তী কোণ 0 ডিগ্রি হয় তখন cos(0) = 1।",
+                            mcqOptions: [
+                              { optionText: "0° কোণে", isCorrect: true },
+                              { optionText: "90° কোণে", isCorrect: false },
+                              { optionText: "180° কোণে", isCorrect: false },
+                              { optionText: "45° কোণে", isCorrect: false },
+                            ],
+                          },
+                        ],
+                        null,
+                        2,
+                      ),
+                    );
+                  }}
+                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                >
+                  JSON নমুনা
+                </button>
+                <span className="text-muted-foreground text-[10px]">•</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setJsonText(
+                      `questions,option1,option2,option3,option4,answer,explanation,type,section
+"লাইসোসোম প্রথম কে আবিষ্কার করেন?","Robert Brown","De Duve","Robert Hook","Camilo Golgi",2,"ডি ডুভ ১৯৫৫ সালে লাইসোসোম আবিষ্কার করেন।",mcq,Biology
+"কোষের DNA তে নাইট্রোজেনাস ক্ষারগুলো কীভাবে সজ্জিত থাকে?","A=T এবং G≡C","A=T এবং C-G","A=G এবং C-T","C=T এবং A≡G",1,"DNA এর ক্ষারগুলো A=T ও G≡C দ্বারা যুক্ত থাকে।",mcq,Biology`,
+                    );
+                  }}
+                  className="text-[11px] font-bold text-primary hover:underline cursor-pointer"
+                >
+                  CSV নমুনা
+                </button>
+              </div>
             </div>
             <Textarea
               id="json-input"
               value={jsonText}
               onChange={(e) => setJsonText(e.target.value)}
-              placeholder="[ { questionText: '...', type: 'mcq', mcqOptions: [...] } ]"
+              placeholder="JSON অ্যারে অথবা CSV ডেটা এখানে পেস্ট করুন..."
               required
-              className="font-mono text-xs min-h-[220px] rounded-xl"
+              className="font-mono text-xs min-h-[200px] rounded-xl"
             />
           </div>
 
@@ -661,7 +774,7 @@ export function ExamQuestionBuilder({
             <Button
               type="submit"
               disabled={jsonImporting}
-              className="rounded-xl font-bold"
+              className="rounded-xl font-bold cursor-pointer"
             >
               {jsonImporting ? (
                 <>
@@ -674,6 +787,7 @@ export function ExamQuestionBuilder({
           </div>
         </form>
       </ResponsiveDialog>
+
     </div>
   );
 }

@@ -12,6 +12,12 @@ import type { BatchDetail } from "@/types";
 
 export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
   const details = (batch as any).details || {};
+  const curriculumObj =
+    details.curriculum &&
+    typeof details.curriculum === "object" &&
+    !Array.isArray(details.curriculum)
+      ? details.curriculum
+      : {};
 
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -21,12 +27,12 @@ export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
   const [name, setName] = useState(batch.name || "");
   const [slug, setSlug] = useState(batch.slug || "");
   const [subtitle, setSubtitle] = useState((batch as any).subtitle || "");
-  const [hscBatch, setHscBatch] = useState(batch.hscBatch || "HSC 26");
-  const [price, setPrice] = useState(batch.price || 0);
+  const [hscBatch, setHscBatch] = useState((batch as any).hscBatch || "HSC 26");
+  const [price, setPrice] = useState((batch as any).price || 0);
   const [originalPrice, setOriginalPrice] = useState<number | string>(
-    batch.originalPrice || "",
+    (batch as any).originalPrice || "",
   );
-  const [image, setImage] = useState(batch.image || "");
+  const [image, setImage] = useState((batch as any).image || "");
   const [badge, setBadge] = useState((batch as any).badge || "স্পেশাল ব্যাচ");
   const [description, setDescription] = useState(batch.description || "");
   const [isPublished, setIsPublished] = useState(
@@ -34,12 +40,23 @@ export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
   );
   const [isActive, setIsActive] = useState(batch.isActive ?? true);
 
+  // Course Duration, Rating & Rating Count
+  const [duration, setDuration] = useState(
+    curriculumObj.duration || (details as any).duration || "১ বছর কমপ্লিট এক্সেস",
+  );
+  const [rating, setRating] = useState(
+    curriculumObj.rating || (details as any).rating || "5.0",
+  );
+  const [ratingCount, setRatingCount] = useState(
+    curriculumObj.ratingCount || (details as any).ratingCount || "50+",
+  );
+
   // Details
   const [routinePdfUrl, setRoutinePdfUrl] = useState(
-    details.routinePdfUrl || details.routineUrl || "",
+    details.routinePdfUrl || details.routineUrl || curriculumObj.routinePdfUrl || "",
   );
   const [telegramGroupUrl, setTelegramGroupUrl] = useState(
-    details.telegramGroupUrl || "",
+    details.telegramGroupUrl || curriculumObj.telegramGroupUrl || "",
   );
 
   // Dynamic Lists
@@ -50,7 +67,13 @@ export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
 
   const [instructors, setInstructors] = useState<
     Array<{ name: string; role: string; institution: string }>
-  >(Array.isArray(details.instructors) ? details.instructors : []);
+  >(
+    Array.isArray(details.instructors)
+      ? details.instructors
+      : Array.isArray(details.mentorIds)
+        ? details.mentorIds
+        : [],
+  );
   const [newInstructorName, setNewInstructorName] = useState("");
   const [newInstructorRole, setNewInstructorRole] = useState("");
   const [newInstructorInst, setNewInstructorInst] = useState("");
@@ -128,6 +151,9 @@ export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
       description,
       isPublished,
       isActive,
+      duration: duration || null,
+      rating: rating || null,
+      ratingCount: ratingCount || null,
       features,
       instructors,
       faqs,
@@ -286,6 +312,41 @@ export function BatchSettingsTab({ batch }: { batch: BatchDetail }) {
             required
             className="rounded-xl min-h-[90px]"
           />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="duration">কোর্সের মেয়াদ / ডিউরেশন</Label>
+            <Input
+              id="duration"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              placeholder="e.g. ১ বছর কমপ্লিট এক্সেস"
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="rating">স্টার রেটিং (Rating)</Label>
+            <Input
+              id="rating"
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              placeholder="e.g. 5.0"
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="ratingCount">শিক্ষার্থী / রিভিউ সংখ্যা</Label>
+            <Input
+              id="ratingCount"
+              value={ratingCount}
+              onChange={(e) => setRatingCount(e.target.value)}
+              placeholder="e.g. 50+ বা ১০০+ শিক্ষার্থী"
+              className="rounded-xl"
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

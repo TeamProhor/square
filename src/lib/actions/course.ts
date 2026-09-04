@@ -27,13 +27,61 @@ export async function getCourses(batch?: string) {
   });
 
   return results
-    .map((b) => ({
-      ...b,
-      ...(b.details || {}),
-      title: b.name,
-      name: b.name,
-      details: undefined,
-    }))
+    .map((b) => {
+      const details = b.details as any;
+      const curriculumObj =
+        details?.curriculum &&
+        typeof details.curriculum === "object" &&
+        !Array.isArray(details.curriculum)
+          ? details.curriculum
+          : {};
+      const instructors = Array.isArray(details?.mentorIds)
+        ? details.mentorIds
+        : Array.isArray(details?.instructors)
+          ? details.instructors
+          : [];
+      const features = Array.isArray(details?.features) ? details.features : [];
+      const faqs = Array.isArray(details?.faqs) ? details.faqs : [];
+      const duration =
+        curriculumObj.duration || details?.duration || "১ বছর কমপ্লিট এক্সেস";
+      const rating = curriculumObj.rating || details?.rating || "5.0";
+      const ratingCount =
+        curriculumObj.ratingCount || details?.ratingCount || "50+";
+      const routinePdfUrl =
+        details?.routineUrl ||
+        curriculumObj.routinePdfUrl ||
+        details?.routinePdfUrl ||
+        "";
+      const telegramGroupUrl =
+        curriculumObj.telegramGroupUrl || details?.telegramGroupUrl || "";
+
+      return {
+        ...b,
+        title: b.name,
+        name: b.name,
+        features,
+        instructors,
+        mentorIds: instructors,
+        faqs,
+        duration,
+        rating,
+        ratingCount,
+        routinePdfUrl,
+        telegramGroupUrl,
+        details: {
+          ...details,
+          features,
+          instructors,
+          mentorIds: instructors,
+          faqs,
+          duration,
+          rating,
+          ratingCount,
+          routinePdfUrl,
+          telegramGroupUrl,
+        },
+      };
+    })
     .sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
 }
 
@@ -47,13 +95,61 @@ export async function getFeaturedCourses() {
     },
   });
 
-  return results.map((b) => ({
-    ...b,
-    ...(b.details || {}),
-    title: b.name,
-    name: b.name,
-    details: undefined,
-  }));
+  return results.map((b) => {
+    const details = b.details as any;
+    const curriculumObj =
+      details?.curriculum &&
+      typeof details.curriculum === "object" &&
+      !Array.isArray(details.curriculum)
+        ? details.curriculum
+        : {};
+    const instructors = Array.isArray(details?.mentorIds)
+      ? details.mentorIds
+      : Array.isArray(details?.instructors)
+        ? details.instructors
+        : [];
+    const features = Array.isArray(details?.features) ? details.features : [];
+    const faqs = Array.isArray(details?.faqs) ? details.faqs : [];
+    const duration =
+      curriculumObj.duration || details?.duration || "১ বছর কমপ্লিট এক্সেস";
+    const rating = curriculumObj.rating || details?.rating || "5.0";
+    const ratingCount =
+      curriculumObj.ratingCount || details?.ratingCount || "50+";
+    const routinePdfUrl =
+      details?.routineUrl ||
+      curriculumObj.routinePdfUrl ||
+      details?.routinePdfUrl ||
+      "";
+    const telegramGroupUrl =
+      curriculumObj.telegramGroupUrl || details?.telegramGroupUrl || "";
+
+    return {
+      ...b,
+      title: b.name,
+      name: b.name,
+      features,
+      instructors,
+      mentorIds: instructors,
+      faqs,
+      duration,
+      rating,
+      ratingCount,
+      routinePdfUrl,
+      telegramGroupUrl,
+      details: {
+        ...details,
+        features,
+        instructors,
+        mentorIds: instructors,
+        faqs,
+        duration,
+        rating,
+        ratingCount,
+        routinePdfUrl,
+        telegramGroupUrl,
+      },
+    };
+  });
 }
 
 export async function getUserEnrollments(userId: string) {
@@ -199,11 +295,59 @@ export async function getCourseWithDetailsBySlug(slug: string) {
     with: { details: true },
   });
   if (!b) return null;
+
+  const details = b.details as any;
+  const curriculumObj =
+    details?.curriculum &&
+    typeof details.curriculum === "object" &&
+    !Array.isArray(details.curriculum)
+      ? details.curriculum
+      : {};
+
+  const instructors = Array.isArray(details?.mentorIds)
+    ? details.mentorIds
+    : Array.isArray(details?.instructors)
+      ? details.instructors
+      : [];
+  const features = Array.isArray(details?.features) ? details.features : [];
+  const faqs = Array.isArray(details?.faqs) ? details.faqs : [];
+  const duration =
+    curriculumObj.duration || details?.duration || "১ বছর কমপ্লিট এক্সেস";
+  const rating = curriculumObj.rating || details?.rating || "5.0";
+  const ratingCount =
+    curriculumObj.ratingCount || details?.ratingCount || "50+";
+  const routinePdfUrl =
+    details?.routineUrl ||
+    curriculumObj.routinePdfUrl ||
+    details?.routinePdfUrl ||
+    "";
+  const telegramGroupUrl =
+    curriculumObj.telegramGroupUrl || details?.telegramGroupUrl || "";
+
   return {
     ...b,
-    ...(b.details || {}),
     title: b.name,
     name: b.name,
-    details: undefined,
+    features,
+    instructors,
+    mentorIds: instructors,
+    faqs,
+    duration,
+    rating,
+    ratingCount,
+    routinePdfUrl,
+    telegramGroupUrl,
+    details: {
+      ...details,
+      features,
+      instructors,
+      mentorIds: instructors,
+      faqs,
+      duration,
+      rating,
+      ratingCount,
+      routinePdfUrl,
+      telegramGroupUrl,
+    },
   };
 }

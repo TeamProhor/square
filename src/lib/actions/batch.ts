@@ -116,13 +116,16 @@ export async function updateBatchDetailsAction(
     isPublished?: boolean;
     isActive?: boolean;
     features?: string[];
-    curriculum?: any[];
+    curriculum?: any;
     instructors?: Array<{ name: string; role: string; institution: string }>;
     faqs?: Array<{ question: string; answer: string }>;
     routineUrl?: string | null;
     routinePdfUrl?: string | null;
     telegramGroupUrl?: string | null;
     demoVideoUrl?: string | null;
+    duration?: string | null;
+    rating?: string | null;
+    ratingCount?: string | null;
   },
 ) {
   try {
@@ -152,24 +155,67 @@ export async function updateBatchDetailsAction(
         where: eq(batchDetails.batchId, batchId),
       });
 
+      const existingCurriculumObj =
+        existingDetails?.curriculum &&
+        typeof existingDetails.curriculum === "object" &&
+        !Array.isArray(existingDetails.curriculum)
+          ? (existingDetails.curriculum as Record<string, any>)
+          : {};
+
+      const curriculumData = {
+        ...existingCurriculumObj,
+        duration:
+          payload.duration !== undefined
+            ? payload.duration
+            : existingCurriculumObj.duration || "১ বছর কমপ্লিট এক্সেস",
+        rating:
+          payload.rating !== undefined
+            ? payload.rating
+            : existingCurriculumObj.rating || "5.0",
+        ratingCount:
+          payload.ratingCount !== undefined
+            ? payload.ratingCount
+            : existingCurriculumObj.ratingCount || "50+",
+        routinePdfUrl:
+          payload.routinePdfUrl !== undefined
+            ? payload.routinePdfUrl
+            : existingCurriculumObj.routinePdfUrl || null,
+        telegramGroupUrl:
+          payload.telegramGroupUrl !== undefined
+            ? payload.telegramGroupUrl
+            : existingCurriculumObj.telegramGroupUrl || null,
+      };
+
+      const finalInstructors =
+        payload.instructors !== undefined
+          ? payload.instructors
+          : Array.isArray(existingDetails?.mentorIds)
+            ? existingDetails.mentorIds
+            : [];
+
       const detailsData: Record<string, any> = {
         updatedAt: new Date(),
+        features:
+          payload.features !== undefined
+            ? payload.features
+            : existingDetails?.features || [],
+        mentorIds: finalInstructors,
+        faqs:
+          payload.faqs !== undefined
+            ? payload.faqs
+            : existingDetails?.faqs || [],
+        curriculum: curriculumData,
+        routineUrl:
+          payload.routinePdfUrl !== undefined
+            ? payload.routinePdfUrl
+            : payload.routineUrl !== undefined
+              ? payload.routineUrl
+              : existingDetails?.routineUrl || null,
+        demoVideoUrl:
+          payload.demoVideoUrl !== undefined
+            ? payload.demoVideoUrl
+            : existingDetails?.demoVideoUrl || null,
       };
-      if (payload.features !== undefined)
-        detailsData.features = payload.features;
-      if (payload.curriculum !== undefined)
-        detailsData.curriculum = payload.curriculum;
-      if (payload.faqs !== undefined) detailsData.faqs = payload.faqs;
-      if (payload.instructors !== undefined)
-        detailsData.instructors = payload.instructors;
-      if (payload.routineUrl !== undefined)
-        detailsData.routineUrl = payload.routineUrl;
-      if (payload.routinePdfUrl !== undefined)
-        detailsData.routinePdfUrl = payload.routinePdfUrl;
-      if (payload.telegramGroupUrl !== undefined)
-        detailsData.telegramGroupUrl = payload.telegramGroupUrl;
-      if (payload.demoVideoUrl !== undefined)
-        detailsData.demoVideoUrl = payload.demoVideoUrl;
 
       if (existingDetails) {
         await tx
@@ -180,13 +226,12 @@ export async function updateBatchDetailsAction(
         await tx.insert(batchDetails).values({
           id: nanoid(),
           batchId,
-          features: payload.features || [],
-          curriculum: payload.curriculum || [],
-          mentorIds: [],
-          faqs: payload.faqs || [],
-          routineUrl: payload.routineUrl || null,
-          demoVideoUrl: payload.demoVideoUrl || null,
-          ...detailsData,
+          features: detailsData.features,
+          curriculum: detailsData.curriculum,
+          mentorIds: detailsData.mentorIds,
+          faqs: detailsData.faqs,
+          routineUrl: detailsData.routineUrl,
+          demoVideoUrl: detailsData.demoVideoUrl,
         });
       }
     });
@@ -196,6 +241,9 @@ export async function updateBatchDetailsAction(
     if (payload.slug) {
       revalidatePath(`/courses/${payload.slug}`);
     }
+    revalidatePath("/courses");
+    revalidatePath("/");
+    revalidatePath("/my-courses");
     return { success: true };
   } catch (error: unknown) {
     return {
@@ -236,6 +284,52 @@ export async function getBatchDetailAction(id: string) {
     });
     if (!batch) return { success: false, error: "Batch not found" };
 
+    const rawDetails = (batch.details || {}) as any;
+    const curriculumObj =
+      rawDetails.curriculum &&
+      typeof rawDetails.curriculum === "object" &&
+      !Array.isArray(rawDetails.curriculum)
+        ? rawDetails.curriculum
+        : {};
+
+    const instructors = Array.isArray(rawDetails.mentorIds)
+      ? rawDetails.mentorIds
+      : Array.isArray(rawDetails.instructors)
+        ? rawDetails.instructors
+        : [];
+    const features = Array.isArray(rawDetails.features)
+      ? rawDetails.features
+      : [];
+    const faqs = Array.isArray(rawDetails.faqs) ? rawDetails.faqs : [];
+    const duration =
+      curriculumObj.duration ||
+      rawDetails.duration ||
+      "১ বছর কমপ্লিট এক্সেস";
+    const rating = curriculumObj.rating || rawDetails.rating || "5.0";
+    const ratingCount =
+      curriculumObj.ratingCount || rawDetails.ratingCount || "50+";
+    const routinePdfUrl =
+      rawDetails.routineUrl ||
+      curriculumObj.routinePdfUrl ||
+      rawDetails.routinePdfUrl ||
+      "";
+    const telegramGroupUrl =
+      curriculumObj.telegramGroupUrl || rawDetails.telegramGroupUrl || "";
+
+    const normalizedDetails = {
+      ...rawDetails,
+      instructors,
+      mentorIds: instructors,
+      features,
+      faqs,
+      duration,
+      rating,
+      ratingCount,
+      routinePdfUrl,
+      telegramGroupUrl,
+      routineUrl: routinePdfUrl,
+    };
+
     const memberUserIds = batch.members.map((m) => m.userId);
     let enrollmentRequests: (typeof batchEnrollmentRequests.$inferSelect)[] =
       [];
@@ -266,6 +360,7 @@ export async function getBatchDetailAction(id: string) {
       success: true,
       data: {
         ...batch,
+        details: normalizedDetails,
         members: membersWithRequests,
       },
     };

@@ -55,16 +55,44 @@ export default async function CourseDetailPage({
     originalPrice: courseWithDetails.originalPrice,
     image: courseWithDetails.image,
     badge: courseWithDetails.badge || "স্পেশাল ব্যাচ",
-    routinePdfUrl: courseWithDetails.details?.routinePdfUrl,
+    duration:
+      courseWithDetails.duration ||
+      courseWithDetails.details?.duration ||
+      "১ বছর কমপ্লিট এক্সেস",
+    rating:
+      courseWithDetails.rating ||
+      courseWithDetails.details?.rating ||
+      "5.0",
+    ratingCount:
+      courseWithDetails.ratingCount ||
+      courseWithDetails.details?.ratingCount ||
+      "50+",
+    routinePdfUrl:
+      courseWithDetails.routinePdfUrl ||
+      courseWithDetails.details?.routinePdfUrl ||
+      courseWithDetails.details?.routineUrl,
     telegramGroupUrl:
-      courseWithDetails.details?.telegramGroupUrl || "https://t.me/shu_yaib",
-    features: courseWithDetails.details?.features || [],
-    instructors: courseWithDetails.details?.instructors || [],
+      courseWithDetails.telegramGroupUrl ||
+      courseWithDetails.details?.telegramGroupUrl ||
+      "https://t.me/shu_yaib",
+    features:
+      courseWithDetails.features ||
+      courseWithDetails.details?.features ||
+      [],
+    instructors:
+      courseWithDetails.instructors ||
+      courseWithDetails.details?.instructors ||
+      courseWithDetails.details?.mentorIds ||
+      [],
     modules:
+      courseWithDetails.modules ||
       courseWithDetails.details?.modules ||
       courseWithDetails.details?.curriculum ||
       [],
-    faqs: courseWithDetails.details?.faqs || [],
+    faqs:
+      courseWithDetails.faqs ||
+      courseWithDetails.details?.faqs ||
+      [],
   };
 
   let enrollmentStatus = "none";
@@ -136,7 +164,7 @@ export default async function CourseDetailPage({
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/50">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center text-[11px] font-bold bg-primary/10 text-primary px-3 py-1 rounded-full border border-primary/20">
-                    ● ১ বছর কমপ্লিট এক্সেস
+                    ● {course.duration}
                   </span>
                   <span className="inline-flex items-center text-[11px] font-bold bg-muted text-foreground/80 px-3 py-1 rounded-full border border-border">
                     {course.hscBatch || "এডমিশন স্পেশাল"}
@@ -147,7 +175,7 @@ export default async function CourseDetailPage({
                 <div className="flex items-center gap-2 bg-muted/50 px-3 py-1 rounded-full border border-border/50">
                   <div className="flex items-center text-amber-500 font-extrabold text-xs gap-1">
                     <Star className="size-3.5 fill-current" />
-                    <span>5.0</span>
+                    <span>{course.rating}</span>
                   </div>
                   <div className="flex -space-x-2 overflow-hidden items-center ml-1">
                     <div className="inline-block size-5 rounded-full ring-2 ring-background bg-muted-foreground/40 text-[8px] font-bold text-background flex items-center justify-center">
@@ -160,7 +188,7 @@ export default async function CourseDetailPage({
                       S
                     </div>
                     <div className="inline-block size-5 rounded-full ring-2 ring-background bg-primary text-[8px] font-bold text-primary-foreground flex items-center justify-center">
-                      50+
+                      {course.ratingCount}
                     </div>
                   </div>
                 </div>

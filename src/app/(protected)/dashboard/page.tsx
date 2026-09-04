@@ -16,11 +16,13 @@ import { db } from "@/db";
 import {
   batchEnrollments,
   batchExams,
+  batchMembers,
   batches,
   examRoutines,
   exams,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
+
 
 export const dynamic = "force-dynamic";
 
@@ -35,24 +37,49 @@ export default async function DashboardPage() {
     orderBy: (containers, { asc }) => [asc(containers.createdAt)],
   });
 
-  // 2. Fetch User's Enrolled Courses
+  // 2. Fetch User's Enrolled Batches (from both active enrollments & batch memberships)
+  let userEnrolledBatchIds: string[] = [];
   let userEnrolledCourses: (typeof batches.$inferSelect)[] = [];
+
   if (userId) {
-    const enrollments = await db
-      .select({
-        id: batchEnrollments.id,
-        status: batchEnrollments.status,
-        enrolledAt: batchEnrollments.enrolledAt,
-        course: batches,
-      })
-      .from(batchEnrollments)
-      .innerJoin(batches, eq(batchEnrollments.batchId, batches.id))
-      .where(eq(batchEnrollments.userId, userId));
+    const [enrollments, memberships] = await Promise.all([
+      db
+        .select({
+          course: batches,
+        })
+        .from(batchEnrollments)
+        .innerJoin(batches, eq(batchEnrollments.batchId, batches.id))
+        .where(
+          and(
+            eq(batchEnrollments.userId, userId),
+            eq(batchEnrollments.status, "active"),
+          ),
+        ),
+      db
+        .select({
+          course: batches,
+        })
+        .from(batchMembers)
+        .innerJoin(batches, eq(batchMembers.batchId, batches.id))
+        .where(
+          and(
+            eq(batchMembers.userId, userId),
+            eq(batchMembers.status, "active"),
+          ),
+        ),
+    ]);
 
-    userEnrolledCourses = enrollments.map((e) => e.course);
+    const courseMap = new Map<string, typeof batches.$inferSelect>();
+    for (const e of enrollments) {
+      if (e.course) courseMap.set(e.course.id, e.course);
+    }
+    for (const m of memberships) {
+      if (m.course) courseMap.set(m.course.id, m.course);
+    }
+
+    userEnrolledCourses = Array.from(courseMap.values());
+    userEnrolledBatchIds = Array.from(courseMap.keys());
   }
-
-  const userEnrolledBatchIds = userEnrolledCourses.map((c) => c.id);
 
   // 3. If user has no enrollments, fetch popular batches to show
   const featuredCourses =
@@ -64,7 +91,7 @@ export default async function DashboardPage() {
           .where(eq(batches.isPublished, true))
           .limit(3);
 
-  // 4. Fetch Upcoming / Live Exams (Only for user's enrolled batches, or public practice tests)
+  // 4. Fetch Upcoming / Live Exams (Only for user's enrolled batches; if not enrolled in any course, do NOT show course batch exams)
   let liveExams: (typeof exams.$inferSelect)[] = [];
   if (userEnrolledBatchIds.length > 0) {
     const studentBatchExams = await db.query.batchExams.findMany({
@@ -79,12 +106,22 @@ export default async function DashboardPage() {
       .map((be) => be.exam)
       .filter((e): e is typeof exams.$inferSelect => Boolean(e && e.isPublished));
   } else {
-    liveExams = await db
+    // If student is NOT enrolled in any course, only show standalone public practice exams that are NOT assigned to any batch
+    const allAssignedBatchExams = await db
+      .select({ examId: batchExams.examId })
+      .from(batchExams);
+    const assignedExamIds = allAssignedBatchExams.map((be) => be.examId);
+
+    const basePracticeExams = await db
       .select()
       .from(exams)
       .where(and(eq(exams.isPublished, true), eq(exams.type, "practice")))
       .orderBy(desc(exams.createdAt))
-      .limit(3);
+      .limit(6);
+
+    liveExams = basePracticeExams
+      .filter((e) => !assignedExamIds.includes(e.id))
+      .slice(0, 3);
   }
 
   // 5. Fetch Upcoming Routines (Only for user's enrolled batches)
@@ -97,6 +134,7 @@ export default async function DashboardPage() {
       .orderBy(desc(examRoutines.examDate))
       .limit(3);
   }
+
 
   const toBanglaDigits = (str: string | number) => {
     const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Chart, FileDown, Send, User } from "@/components/icons";
+import { BookOpen, Calendar, Chart, FileDown, Send, User } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 
 import { useSession } from "@/lib/auth-client";
@@ -104,6 +104,18 @@ export function LandingFooter() {
               সহায়ক রিসোর্স
             </h4>
             <ul className="space-y-3 text-muted-foreground text-xs font-semibold">
+              <li>
+                <Link
+                  href="/free-exam"
+                  className="hover:text-foreground flex items-center gap-2.5 transition-colors"
+                >
+                  <BookOpen
+                    data-icon="inline-start"
+                    className="size-3.5 text-violet-500"
+                  />
+                  <span>সবার জন্য উন্মুক্ত ফ্রি এক্সাম</span>
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/pdf"

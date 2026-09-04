@@ -400,6 +400,8 @@ export interface LeaderboardEntry {
   readonly userName: string;
   readonly userImage?: string | null;
   readonly userEmail?: string | null;
+  readonly college?: string | null;
+  readonly hscBatch?: string | null;
   readonly score: string;
   readonly totalMarks: number;
   readonly timeTakenSeconds: number;

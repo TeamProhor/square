@@ -36,7 +36,7 @@ const services: readonly ServiceItem[] = [
   },
   {
     title: "ফ্রী এক্সাম",
-    href: "/qb",
+    href: "/free-exam",
     icon: FileText,
     bgClass: "bg-violet-500/10 dark:bg-violet-500/20",
     textClass: "text-violet-600 dark:text-violet-400",

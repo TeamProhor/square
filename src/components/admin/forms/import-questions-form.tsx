@@ -402,10 +402,21 @@ export function ImportQuestionsForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const fileName = file.name.toLowerCase();
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const content = event.target?.result as string;
-      if (content) {
+      if (!content) return;
+
+      if (fileName.endsWith(".csv") || file.type.includes("csv")) {
+        const { parseQuestionsCsv } = await import("@/lib/csv-parser");
+        const parsedCsv = parseQuestionsCsv(content);
+        if (parsedCsv && parsedCsv.length > 0) {
+          setJsonText(JSON.stringify(parsedCsv, null, 2));
+        } else {
+          setJsonText(content);
+        }
+      } else {
         setJsonText(content);
       }
     };
@@ -418,34 +429,62 @@ export function ImportQuestionsForm({
       return { isValid: false, errors: [], questions: [], summary: null };
     }
 
-    const cleaned = cleanJsonInput(trimmed);
-    if (!cleaned) {
-      return { isValid: false, errors: [], questions: [], summary: null };
+    let parsed: unknown;
+
+    // Check if input is CSV format (e.g. starts with questions, or contains comma separated header)
+    if (!trimmed.startsWith("[") && !trimmed.startsWith("{") && trimmed.includes(",")) {
+      try {
+        const { parseQuestionsCsv } = require("@/lib/csv-parser");
+        const parsedCsv = parseQuestionsCsv(trimmed);
+        if (parsedCsv && parsedCsv.length > 0) {
+          parsed = parsedCsv;
+        }
+      } catch {
+        // fallback to json cleaner
+      }
     }
 
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "অবৈধ JSON বিন্যাস";
-      return {
-        isValid: false,
-        errors: [`ইনভ্যালিড JSON ফরম্যাট: ${msg}`],
-        questions: [],
-        summary: null,
-      };
+    if (!parsed) {
+      const cleaned = cleanJsonInput(trimmed);
+      if (!cleaned) {
+        return { isValid: false, errors: [], questions: [], summary: null };
+      }
+
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch (err: unknown) {
+        // Try parsing as CSV before failing
+        try {
+          const { parseQuestionsCsv } = require("@/lib/csv-parser");
+          const parsedCsv = parseQuestionsCsv(trimmed);
+          if (parsedCsv && parsedCsv.length > 0) {
+            parsed = parsedCsv;
+          } else {
+            throw err;
+          }
+        } catch {
+          const msg = err instanceof Error ? err.message : "অবৈধ JSON বা CSV বিন্যাস";
+          return {
+            isValid: false,
+            errors: [`ইনভ্যালিড ফরম্যাট (JSON/CSV): ${msg}`],
+            questions: [],
+            summary: null,
+          };
+        }
+      }
     }
 
     if (!Array.isArray(parsed)) {
       return {
         isValid: false,
         errors: [
-          "JSON ডেটা একটি অ্যারে (Array) হতে হবে, যেমন: [ { ... }, { ... } ]",
+          "ডেটা একটি অ্যারে (Array) বা ভ্যালিড CSV ফাইল হতে হবে।",
         ],
         questions: [],
         summary: null,
       };
     }
+
 
     if (parsed.length === 0) {
       return {
@@ -679,10 +718,10 @@ export function ImportQuestionsForm({
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-bold text-foreground">
-              ফাইল আপলোড (.json)
+              ফাইল আপলোড (.json / .csv)
             </span>
             <span className="text-[11px] text-muted-foreground">
-              {"কম্পিউটার থেকে .json ফাইল সিলেক্ট করুন বা ড্রপ করুন"}
+              {"কম্পিউটার থেকে .json বা .csv ফাইল সিলেক্ট করুন বা ড্রপ করুন"}
             </span>
           </div>
         </div>
@@ -690,7 +729,7 @@ export function ImportQuestionsForm({
         <input
           type="file"
           id={fileInputId}
-          accept=".json,application/json"
+          accept=".json,.csv,application/json,text/csv"
           onChange={handleFileUpload}
           className="hidden"
         />
@@ -703,16 +742,16 @@ export function ImportQuestionsForm({
           className="rounded-xl text-xs font-bold shrink-0 gap-1.5"
         >
           <DocumentDownload className="size-3.5" />
-          <span>ফাইল সিলেক্ট</span>
+          <span>ফাইল সিলেক্ট (.json / .csv)</span>
         </Button>
       </div>
 
-      {/* JSON Paste / Editor Area */}
+      {/* JSON / CSV Paste / Editor Area */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
             <FileText className="size-3.5 text-primary" />
-            JSON পেস্ট করুন বা এডিট করুন:
+            JSON বা CSV পেস্ট করুন বা এডিট করুন:
           </span>
           {jsonText && (
             <button
@@ -724,6 +763,7 @@ export function ImportQuestionsForm({
             </button>
           )}
         </div>
+
         <Textarea
           rows={8}
           placeholder={`[

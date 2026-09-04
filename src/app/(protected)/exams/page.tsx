@@ -6,7 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getPublishedExams, getStudentExams } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
 
-export default async function ExamsBrowserPage() {
+export default async function ExamsBrowserPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string }>;
+}) {
+  const { tab } = (await searchParams) || {};
   const session = await auth.api.getSession({ headers: await headers() });
   const userId = session?.user?.id;
 
@@ -18,9 +23,11 @@ export default async function ExamsBrowserPage() {
   const batchExams = studentExamsRes.data || [];
   const practiceExams = publishedExamsRes.data || [];
 
+  const defaultTab = tab === "practice" || tab === "free" ? "practice" : "batch";
+
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto pb-16 sm:pb-24 pt-1 sm:pt-4 gap-4 sm:gap-6 px-2 sm:px-6">
-      <Tabs defaultValue="batch" className="w-full space-y-4 sm:space-y-6">
+      <Tabs defaultValue={defaultTab} className="w-full space-y-4 sm:space-y-6">
         <div className="w-full border-b pb-2 overflow-x-auto no-scrollbar -mx-2 px-2 sm:mx-0 sm:px-0">
           <TabsList className="flex items-center justify-start sm:justify-center gap-2 bg-transparent p-0 h-auto min-w-max">
             <TabsTrigger

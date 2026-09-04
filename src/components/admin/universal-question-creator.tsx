@@ -10,6 +10,7 @@ import {
   Copy,
   Danger,
   DocumentDownload,
+  FileText,
   Flash,
   Information,
   Lightbulb,
@@ -17,6 +18,7 @@ import {
   TaskSquare,
   TickCircle,
 } from "@/components/icons";
+import { parseQuestionsCsv } from "@/lib/csv-parser";
 import {
   Dialog,
   DialogContent,
@@ -200,6 +202,11 @@ export function UniversalQuestionCreator({
   }
 ]`;
 
+  // Clean CSV Sample
+  const cleanSampleCsv = `questions,option1,option2,option3,option4,answer,explanation
+"নিচের কোনটি ভেক্টর রাশি?","বেগ","দ্রুতি","কাজ","ক্ষমতা",1,"বেগ একটি ভেক্টর রাশি কারণ এর নির্দিষ্ট মান ও দিক উভয়ই বিদ্যমান।"
+"$$\\vec{A} = 2\\hat{i} + 3\\hat{j}$$ এবং $$\\vec{B} = 4\\hat{i} - \\hat{j}$$ হলে ভেক্টরদ্বয়ের ডট গুণন কত?","5","8","11","14",1,"$$\\vec{A} \\cdot \\vec{B} = (2 \\times 4) + (3 \\times -1) = 8 - 3 = 5$$"`;
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedStatus(label);
@@ -222,15 +229,56 @@ ${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
     copyToClipboard(promptText, "ai-prompt");
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      if (!content) return;
+
+      if (file.name.endsWith(".csv") || content.includes(",") && !content.trim().startsWith("[")) {
+        try {
+          const parsedCsv = parseQuestionsCsv(content);
+          if (parsedCsv.length > 0) {
+            setBulkJson(JSON.stringify(parsedCsv, null, 2));
+            setBulkImportStatus(`CSV ফাইল থেকে ${parsedCsv.length}টি প্রশ্ন লোড করা হয়েছে।`);
+          } else {
+            setBulkJson(content);
+          }
+        } catch {
+          setBulkJson(content);
+        }
+      } else {
+        setBulkJson(content);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
   const handleBulkImport = async () => {
     if (!selectedChapterId) {
       setBulkImportStatus("অনুগ্রহ করে আগে অধ্যায় নির্বাচন করুন।");
       return;
     }
+    const trimmed = bulkJson.trim();
+    if (!trimmed) {
+      setBulkImportStatus("প্রশ্ন বা ফাইল প্রদান করুন।");
+      return;
+    }
+
     try {
-      const parsed = JSON.parse(bulkJson);
+      let parsed: any[] = [];
+      if (trimmed.startsWith("[")) {
+        parsed = JSON.parse(trimmed);
+      } else {
+        parsed = parseQuestionsCsv(trimmed);
+      }
+
       if (!Array.isArray(parsed) || parsed.length === 0) {
-        setBulkImportStatus("JSON একটি অ্যারে (Array) হতে হবে।");
+        setBulkImportStatus("সঠিক JSON বা CSV ফরম্যাটে প্রশ্ন দিন।");
         return;
       }
 
@@ -252,7 +300,7 @@ ${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
       setBulkJson("");
       queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
     } catch (e: unknown) {
-      setBulkImportStatus(e instanceof Error ? e.message : "ভুল JSON ফরম্যাট");
+      setBulkImportStatus(e instanceof Error ? e.message : "ভুল JSON বা CSV ফরম্যাট");
     }
   };
 
@@ -580,11 +628,23 @@ ${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
               </div>
             </div>
 
-            {/* JSON Input Area */}
+            {/* JSON / CSV Input Area */}
             <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs font-bold">JSON ডেটা পেস্ট করুন</Label>
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
+                  <Label className="text-xs font-bold">JSON বা CSV ডেটা পেস্ট করুন</Label>
+                  <label className="cursor-pointer inline-flex items-center gap-1 text-[11px] font-bold text-primary bg-primary/10 hover:bg-primary/20 px-2 py-1 rounded-lg transition-colors">
+                    <FileText className="size-3" />
+                    <span>ফাইল আপলোড (.json, .csv)</span>
+                    <input
+                      type="file"
+                      accept=".json,.csv"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                  </label>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={() => {
@@ -593,7 +653,18 @@ ${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
                     }}
                     className="text-[11px] text-primary hover:underline font-bold cursor-pointer"
                   >
-                    MCQ নমুনা লোড
+                    MCQ JSON
+                  </button>
+                  <span className="text-muted-foreground text-[11px]">•</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setType("mcq");
+                      setBulkJson(cleanSampleCsv);
+                    }}
+                    className="text-[11px] text-primary hover:underline font-bold cursor-pointer"
+                  >
+                    CSV নমুনা
                   </button>
                   <span className="text-muted-foreground text-[11px]">•</span>
                   <button
@@ -604,7 +675,7 @@ ${type === "mcq" ? cleanSampleMcqJson : cleanSampleCqJson}`;
                     }}
                     className="text-[11px] text-primary hover:underline font-bold cursor-pointer"
                   >
-                    CQ নমুনা লোড
+                    CQ JSON
                   </button>
                 </div>
               </div>

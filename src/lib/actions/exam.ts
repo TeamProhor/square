@@ -20,11 +20,21 @@ import type { ExamDetail, ExamSubmission, LeaderboardEntry } from "@/types";
  */
 export async function getPublishedExams() {
   try {
+    const allAssignedBatchExams = await db
+      .select({ examId: batchExams.examId })
+      .from(batchExams);
+    const assignedExamIds = allAssignedBatchExams.map((be) => be.examId);
+
     const list = await db.query.exams.findMany({
       where: and(eq(exams.isPublished, true), eq(exams.type, "practice")),
       orderBy: [desc(exams.createdAt)],
     });
-    return { success: true, data: list as ExamDetail[] };
+
+    const unassignedPracticeExams = list.filter(
+      (e) => !assignedExamIds.includes(e.id),
+    );
+
+    return { success: true, data: unassignedPracticeExams as ExamDetail[] };
   } catch (error: unknown) {
     return {
       success: false,
@@ -36,6 +46,7 @@ export async function getPublishedExams() {
     };
   }
 }
+
 
 /**
  * Get full exam details including questions and options for taking the exam.
