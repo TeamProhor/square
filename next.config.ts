@@ -20,13 +20,18 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;",
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' ws: wss: https:;",
           },
         ],
       },
     ];
   },
-  allowedDevOrigins: ["127.0.0.1", "79.143.185.101"],
+  allowedDevOrigins: [
+    "127.0.0.1",
+    "localhost",
+    "79.143.185.101",
+    "*.cloudworkstations.dev",
+  ],
   reactCompiler: true,
   images: {
     formats: ["image/avif", "image/webp"],
