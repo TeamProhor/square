@@ -39,12 +39,9 @@ export default function NewExamPage() {
     const title = formData.get("title") as string;
     const slug = formData.get("slug") as string;
     const description = formData.get("description") as string;
-    const type = formData.get("type") as
-      | "practice"
-      | "chapter_test"
-      | "weekly"
-      | "model_test"
-      | "live_contest";
+    const isFreeExam = formData.get("isFreeExam") === "true";
+    const batchId = (formData.get("batchId") as string) || null;
+    const type = isFreeExam || !batchId ? "practice" : "chapter_test";
     const durationMinutes = parseInt(
       formData.get("durationMinutes") as string,
       10,
@@ -54,7 +51,6 @@ export default function NewExamPage() {
     const showResultImmediately =
       formData.get("showResultImmediately") === "true";
     const isPublished = formData.get("isPublished") === "true";
-    const batchId = (formData.get("batchId") as string) || null;
 
     const createdBy = user?.id || "admin";
 
@@ -159,24 +155,7 @@ export default function NewExamPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label htmlFor="type" className="text-sm font-medium">
-              ধরন
-            </label>
-            <select
-              id="type"
-              name="type"
-              required
-              className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="practice">Practice (Public)</option>
-              <option value="chapter_test">Chapter Test</option>
-              <option value="weekly">Weekly</option>
-              <option value="model_test">Model Test</option>
-              <option value="live_contest">Live Contest</option>
-            </select>
-          </div>
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-2">
             <label htmlFor="durationMinutes" className="text-sm font-medium">
               সময় (মিনিট)
@@ -191,9 +170,6 @@ export default function NewExamPage() {
               className="rounded-xl"
             />
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <label htmlFor="totalMarks" className="text-sm font-medium">
               মোট মার্কস
@@ -223,14 +199,24 @@ export default function NewExamPage() {
           </div>
         </div>
 
-        <div className="flex gap-4 p-4 border rounded-xl bg-muted/50 mt-2">
+        <div className="flex flex-wrap gap-4 p-4 border rounded-xl bg-muted/50 mt-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="isFreeExam"
+              value="true"
+              defaultChecked
+              className="size-4 rounded accent-primary"
+            />
+            <span className="text-sm font-medium">ফ্রি এক্সাম (সবার জন্য উন্মুক্ত)</span>
+          </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               name="showResultImmediately"
               value="true"
               defaultChecked
-              className="size-4"
+              className="size-4 rounded accent-primary"
             />
             <span className="text-sm font-medium">সাথেই রেজাল্ট দেখান</span>
           </label>
@@ -239,7 +225,8 @@ export default function NewExamPage() {
               type="checkbox"
               name="isPublished"
               value="true"
-              className="size-4"
+              defaultChecked
+              className="size-4 rounded accent-primary"
             />
             <span className="text-sm font-medium">পাবলিশ করুন (Published)</span>
           </label>

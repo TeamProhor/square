@@ -32,16 +32,15 @@ export function EditExamForm({ exam, onSuccess }: EditExamFormProps) {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
+    const isFreeExam = formData.get("isFreeExam") === "true";
+    const type = (isFreeExam ? "practice" : "chapter_test") as
+      | "practice"
+      | "chapter_test";
     const data = {
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
       description: formData.get("description") as string,
-      type: formData.get("type") as
-        | "practice"
-        | "chapter_test"
-        | "weekly"
-        | "model_test"
-        | "live_contest",
+      type,
       durationMinutes: parseInt(formData.get("durationMinutes") as string, 10),
       totalMarks: parseInt(formData.get("totalMarks") as string, 10),
       negativeMarking: formData.get("negativeMarking") as string,
@@ -202,25 +201,7 @@ function ExamFormFields({
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="type" className="text-sm font-medium">
-            পরীক্ষার ধরন (Type)
-          </label>
-          <select
-            id="type"
-            name="type"
-            defaultValue={exam.type}
-            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="practice">Practice Exam</option>
-            <option value="chapter_test">Chapter Test</option>
-            <option value="weekly">Weekly Exam</option>
-            <option value="model_test">Model Test</option>
-            <option value="live_contest">Live Contest</option>
-          </select>
-        </div>
-
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="space-y-2">
           <label htmlFor="durationMinutes" className="text-sm font-medium">
             সময় (মিনিট)
@@ -262,17 +243,27 @@ function ExamFormFields({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-4 p-4 border rounded-xl bg-muted/50 mt-2">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            name="isFreeExam"
+            value="true"
+            defaultChecked={exam.type === "practice"}
+            className="size-4 rounded accent-primary"
+          />
+          <span className="text-sm font-medium">ফ্রি এক্সাম (সবার জন্য উন্মুক্ত)</span>
+        </label>
         <label className="flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             name="showResultImmediately"
             value="true"
             defaultChecked={exam.showResultImmediately}
-            className="size-4"
+            className="size-4 rounded accent-primary"
           />
           <span className="text-sm font-medium">
-            পরীক্ষা শেষ হওয়ার সাথে সাথে রেজাল্ট দেখাবে
+            সাথেই রেজাল্ট দেখান
           </span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
@@ -281,7 +272,7 @@ function ExamFormFields({
             name="isPublished"
             value="true"
             defaultChecked={exam.isPublished}
-            className="size-4"
+            className="size-4 rounded accent-primary"
           />
           <span className="text-sm font-medium">পাবলিশ করুন (Published)</span>
         </label>
