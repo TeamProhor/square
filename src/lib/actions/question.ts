@@ -2,7 +2,9 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { db } from "@/db";
+import { auth } from "@/lib/auth";
 import {
   containers,
   cqParts,
@@ -37,11 +39,18 @@ export async function createContainerAction(
 
 export async function deleteContainerAction(id: string) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (session?.user?.role !== "admin") {
+      return { error: "শুধুমাত্র অ্যাডমিন এক্সেস প্রয়োজন।" };
+    }
+
     await db.delete(containers).where(eq(containers.id, id));
     revalidatePath("/admin/qb");
+    revalidatePath("/qb", "layout");
     revalidatePath("/qb");
     return { success: true };
   } catch (error: unknown) {
+    console.error("Error deleting container:", error);
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete container",
@@ -320,6 +329,7 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
         .insert(questions)
         .values({
           subitemId: payload.chapterId,
+          topicId: payload.topicId || null,
           type: payload.type,
           source: payload.source || "custom",
           standard:
@@ -362,6 +372,7 @@ export async function createQuestionAction(payload: CreateQuestionPayload) {
     });
 
     revalidatePath("/admin/qb");
+    revalidatePath("/qb", "layout");
     return { success: true, questionId };
   } catch (error: unknown) {
     return {
@@ -379,6 +390,7 @@ export async function updateQuestionAction(
     await db.transaction(async (tx) => {
       const updateData: Record<string, unknown> = {};
       if (payload.type !== undefined) updateData.type = payload.type;
+      if (payload.topicId !== undefined) updateData.topicId = payload.topicId || null;
       if (payload.source !== undefined)
         updateData.source = payload.source || "custom";
       if (payload.standard !== undefined)
@@ -592,13 +604,25 @@ export async function importQuestionsAction(
 }
 
 export async function getQuestionsAdminAction(filters?: {
+  chapterId?: string;
+  topicId?: string;
   subjectId?: string;
   type?: string;
 }) {
   try {
     const list = await db.query.questions.findMany({
-      where: (questions, { and, eq }) => {
+      where: (questions, { and, eq, isNull }) => {
         const conditions = [];
+        if (filters?.chapterId) {
+          conditions.push(eq(questions.subitemId, filters.chapterId));
+        }
+        if (filters?.topicId) {
+          if (filters.topicId === "unassigned") {
+            conditions.push(isNull(questions.topicId));
+          } else {
+            conditions.push(eq(questions.topicId, filters.topicId));
+          }
+        }
         if (filters?.type) {
           conditions.push(eq(questions.type, filters.type as "mcq" | "cq"));
         }
@@ -607,6 +631,7 @@ export async function getQuestionsAdminAction(filters?: {
       with: {
         mcqOptions: true,
         cqParts: true,
+        topic: true,
       },
       orderBy: (questions, { desc }) => [desc(questions.createdAt)],
     });

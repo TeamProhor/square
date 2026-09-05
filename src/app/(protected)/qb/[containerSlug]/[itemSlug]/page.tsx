@@ -1,10 +1,15 @@
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
+import { QbAccessRestrictedCard } from "@/components/qb/QbAccessRestrictedCard";
 import { db } from "@/db";
-import { containers, items, subitems } from "@/db/schema";
-import type { Subitem } from "@/types";
+import { items, subitems } from "@/db/schema";
+import { checkQbContainerAccess } from "@/lib/actions/qb-access";
+import { auth } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 
 export default async function QbChaptersPage({
   params,
@@ -12,16 +17,40 @@ export default async function QbChaptersPage({
   readonly params: Promise<{ containerSlug: string; itemSlug: string }>;
 }): Promise<ReactElement> {
   const { containerSlug, itemSlug } = await params;
+  const session = await auth.api.getSession({ headers: await headers() });
+  const userId = session?.user?.id;
 
-  const qb = await db.query.containers.findFirst({
-    where: eq(containers.slug, containerSlug),
-  });
+  const accessInfo = await checkQbContainerAccess(containerSlug, userId);
+  if (!accessInfo.exists || !accessInfo.container) {
+    notFound();
+  }
+
+  const qb = accessInfo.container;
+
+  // Access check
+  if (!accessInfo.hasAccess) {
+    return (
+      <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">
+        <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-muted-foreground mb-4">
+          <Link href="/qb" className="hover:text-primary transition-colors">
+            প্রশ্নব্যাংক
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{qb.title}</span>
+        </div>
+        <QbAccessRestrictedCard
+          title={qb.title}
+          assignedBatches={accessInfo.assignedBatches}
+        />
+      </div>
+    );
+  }
 
   const subject = await db.query.items.findFirst({
     where: eq(items.slug, itemSlug),
   });
 
-  if (!qb || !subject) notFound();
+  if (!subject) notFound();
 
   const chapterList = await db.query.subitems.findMany({
     where: eq(subitems.itemId, subject.id),

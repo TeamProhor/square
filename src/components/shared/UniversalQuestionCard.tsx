@@ -183,44 +183,44 @@ export function UniversalQuestionCard({
               }
 
               // Evaluated Mode (shows correct/incorrect)
+              const isRevealedCorrect =
+                (showCorrectAnswer || isAnswered) && isCorrect;
+              const isRevealedWrong = isAnswered && isSelected && !isCorrect;
+              const isRevealedInactive =
+                (showCorrectAnswer || isAnswered) && !isCorrect && !isSelected;
+
               return (
                 <button
                   type="button"
                   key={opt.id}
-                  disabled={isAnswered || disableOptionChange}
+                  disabled={
+                    showCorrectAnswer || isAnswered || disableOptionChange
+                  }
                   onClick={() => onSelectOption?.(question.id, opt.id)}
                   className={cn(
                     "p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm flex items-center gap-2.5 sm:gap-3 border text-left w-full transition-all active:scale-[0.99]",
-                    !isAnswered &&
+                    !showCorrectAnswer &&
+                      !isAnswered &&
                       "bg-muted/30 hover:bg-muted/70 hover:border-primary/40 text-foreground border-border/50 cursor-pointer",
-                    isAnswered &&
-                      isCorrect &&
+                    isRevealedCorrect &&
                       "bg-emerald-500/15 border-emerald-500/50 text-emerald-700 dark:text-emerald-400 font-semibold shadow-xs",
-                    isAnswered &&
-                      isSelected &&
-                      !isCorrect &&
+                    isRevealedWrong &&
                       "bg-destructive/15 border-destructive/50 text-destructive font-semibold",
-                    isAnswered &&
-                      !isSelected &&
-                      !isCorrect &&
+                    isRevealedInactive &&
                       "bg-muted/20 text-muted-foreground border-border/30 opacity-70",
                   )}
                 >
                   <span
                     className={cn(
                       "size-6 sm:size-7 rounded-full flex items-center justify-center font-bold text-[11px] sm:text-xs shrink-0 border transition-colors",
-                      !isAnswered &&
+                      !showCorrectAnswer &&
+                        !isAnswered &&
                         "bg-background text-foreground border-border",
-                      isAnswered &&
-                        isCorrect &&
+                      isRevealedCorrect &&
                         "bg-emerald-500 text-white border-emerald-500",
-                      isAnswered &&
-                        isSelected &&
-                        !isCorrect &&
+                      isRevealedWrong &&
                         "bg-destructive text-white border-destructive",
-                      isAnswered &&
-                        !isSelected &&
-                        !isCorrect &&
+                      isRevealedInactive &&
                         "bg-muted text-muted-foreground border-border/40",
                     )}
                   >
@@ -246,6 +246,14 @@ export function UniversalQuestionCard({
       {type === "cq" && (question.cq_parts || question.cqParts) && (
         <Accordion
           type="multiple"
+          defaultValue={
+            showCorrectAnswer || isSolutionOpen
+              ? ((question.cq_parts || question.cqParts) ?? []).map(
+                  (p: CQPart) => p.id,
+                )
+              : undefined
+          }
+          key={`${question.id}-${Boolean(showCorrectAnswer)}-${Boolean(isSolutionOpen)}`}
           className="w-full flex flex-col gap-2 sm:gap-2.5 mt-3"
         >
           {[...((question.cq_parts || question.cqParts) ?? [])]

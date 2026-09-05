@@ -288,6 +288,7 @@ export type QuestionStandard = (typeof QUESTION_STANDARDS)[number];
 export interface CreateQuestionPayload {
   readonly subjectId: string;
   readonly chapterId: string;
+  readonly topicId?: string | null;
   readonly type: "mcq" | "cq";
   readonly source?: QuestionSource | string;
   readonly standard?: QuestionStandard | string;

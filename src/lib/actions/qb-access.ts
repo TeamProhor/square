@@ -53,7 +53,10 @@ export async function setBatchQbAccess(
 
     try {
       revalidatePath(`/admin/batches/${batchId}`);
+      revalidatePath("/admin/batches");
+      revalidatePath("/qb", "layout");
       revalidatePath("/qb");
+      revalidatePath("/");
     } catch (e) {
       console.warn("Revalidation warning:", e);
     }
@@ -64,6 +67,69 @@ export async function setBatchQbAccess(
     return {
       success: false,
       message: error instanceof Error ? error.message : "অ্যাক্সেস আপডেট করতে সমস্যা হয়েছে।",
+    };
+  }
+}
+
+export async function toggleBatchContainerAccess(
+  batchId: string,
+  containerId: string,
+  enabled: boolean,
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (session?.user?.role !== "admin") {
+      return { success: false, message: "শুধুমাত্র অ্যাডমিন এক্সেস প্রয়োজন।" };
+    }
+
+    if (enabled) {
+      // Check if already assigned
+      const existing = await db
+        .select({ id: batchQbAccess.id })
+        .from(batchQbAccess)
+        .where(
+          and(
+            eq(batchQbAccess.batchId, batchId),
+            eq(batchQbAccess.containerId, containerId),
+          ),
+        );
+
+      if (existing.length === 0) {
+        await db.insert(batchQbAccess).values({
+          batchId,
+          containerId,
+        });
+      }
+    } else {
+      await db
+        .delete(batchQbAccess)
+        .where(
+          and(
+            eq(batchQbAccess.batchId, batchId),
+            eq(batchQbAccess.containerId, containerId),
+          ),
+        );
+    }
+
+    try {
+      revalidatePath(`/admin/batches/${batchId}`);
+      revalidatePath("/admin/batches");
+      revalidatePath("/qb", "layout");
+      revalidatePath("/qb");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
+
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error toggling batch QB access:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "অ্যাক্সেস পরিবর্তন করতে সমস্যা হয়েছে।",
     };
   }
 }
@@ -186,10 +252,17 @@ export async function getUserQbContainers(userId?: string) {
         hscBatch: ba.batch.hscBatch,
       })) || [];
 
-      const hasBatchAccess =
-        isAdmin ||
-        c.isPublic ||
-        assignedBatches.some((b) => userBatchIds.includes(b.id));
+      const isEnrolled = assignedBatches.some((b) => userBatchIds.includes(b.id));
+      const hasBatchAccess = isAdmin || c.isPublic || isEnrolled;
+
+      let accessType: "public" | "enrolled" | "admin" | "restricted" = "restricted";
+      if (c.isPublic) {
+        accessType = "public";
+      } else if (isEnrolled) {
+        accessType = "enrolled";
+      } else if (isAdmin) {
+        accessType = "admin";
+      }
 
       const totalQuestionsCount = (c.items || []).reduce(
         (acc, it) =>
@@ -210,6 +283,9 @@ export async function getUserQbContainers(userId?: string) {
         itemsCount: c.items?.length || 0,
         questionsCount: totalQuestionsCount,
         hasAccess: hasBatchAccess,
+        isEnrolled,
+        isAdmin,
+        accessType,
         assignedBatches,
       };
     });
@@ -232,7 +308,7 @@ export async function checkQbContainerAccess(containerSlug: string, userId?: str
       },
     });
 
-    if (!container) return { exists: false, hasAccess: false, container: null, assignedBatches: [] };
+    if (!container) return { exists: false, hasAccess: false, accessType: "restricted" as const, container: null, assignedBatches: [] };
 
     const assignedBatches = container.batchAccess?.map((ba) => ({
       id: ba.batch.id,
@@ -241,35 +317,43 @@ export async function checkQbContainerAccess(containerSlug: string, userId?: str
       hscBatch: ba.batch.hscBatch,
     })) || [];
 
+    let isAdmin = false;
+    if (userId) {
+      const session = await auth.api.getSession({ headers: await headers() });
+      isAdmin = session?.user?.role === "admin";
+    }
+
     if (container.isPublic) {
-      return { exists: true, hasAccess: true, container, assignedBatches };
+      return { exists: true, hasAccess: true, accessType: "public" as const, container, assignedBatches };
     }
 
-    if (!userId) {
-      return { exists: true, hasAccess: false, container, assignedBatches };
+    let userBatchIds: string[] = [];
+    if (userId) {
+      const enrollments = await db
+        .select({ batchId: batchEnrollments.batchId })
+        .from(batchEnrollments)
+        .where(
+          and(
+            eq(batchEnrollments.userId, userId),
+            eq(batchEnrollments.status, "active"),
+          ),
+        );
+      userBatchIds = enrollments.map((e) => e.batchId);
     }
 
-    const session = await auth.api.getSession({ headers: await headers() });
-    if (session?.user?.role === "admin") {
-      return { exists: true, hasAccess: true, container, assignedBatches };
+    const isEnrolled = assignedBatches.some((b) => userBatchIds.includes(b.id));
+    const hasAccess = isAdmin || isEnrolled;
+
+    let accessType: "public" | "enrolled" | "admin" | "restricted" = "restricted";
+    if (isEnrolled) {
+      accessType = "enrolled";
+    } else if (isAdmin) {
+      accessType = "admin";
     }
 
-    const enrollments = await db
-      .select({ batchId: batchEnrollments.batchId })
-      .from(batchEnrollments)
-      .where(
-        and(
-          eq(batchEnrollments.userId, userId),
-          eq(batchEnrollments.status, "active"),
-        ),
-      );
-
-    const userBatchIds = enrollments.map((e) => e.batchId);
-    const hasAccess = assignedBatches.some((b) => userBatchIds.includes(b.id));
-
-    return { exists: true, hasAccess, container, assignedBatches };
+    return { exists: true, hasAccess, accessType, isEnrolled, isAdmin, container, assignedBatches };
   } catch (error) {
     console.error("Error checking QB container access:", error);
-    return { exists: false, hasAccess: false, container: null, assignedBatches: [] };
+    return { exists: false, hasAccess: false, accessType: "restricted" as const, container: null, assignedBatches: [] };
   }
 }

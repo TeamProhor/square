@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EditChapterForm } from "@/components/admin/forms/edit-chapter-form";
 import { NewChapterForm } from "@/components/admin/forms/new-chapter-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
@@ -17,6 +17,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteSubitemAction as deleteChapterAction } from "@/lib/actions/question";
+import { toast } from "sonner";
 import type { Container, Item, Subitem } from "@/types";
 
 interface AdminSubitemsManagerProps {
@@ -31,10 +32,30 @@ export function AdminSubitemsManager({
   initialChapters,
 }: AdminSubitemsManagerProps) {
   const router = useRouter();
+  const [chapters, setChapters] = useState<readonly Subitem[]>(initialChapters);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Subitem | null>(null);
 
-  const items: QuickListItem[] = initialChapters.map((ch: Subitem) => ({
+  useEffect(() => {
+    setChapters(initialChapters);
+  }, [initialChapters]);
+
+  const handleDeleteChapter = async (chapterId: string) => {
+    try {
+      const res = await deleteChapterAction(chapterId, qb.slug, subject.slug);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        setChapters((prev) => prev.filter((ch) => ch.id !== chapterId));
+        toast.success("অধ্যায়টি সফলভাবে ডিলিট করা হয়েছে");
+        router.refresh();
+      }
+    } catch {
+      toast.error("অধ্যায় ডিলিট করতে সমস্যা হয়েছে");
+    }
+  };
+
+  const items: QuickListItem[] = chapters.map((ch: Subitem) => ({
     href: `/admin/qb/${qb.slug}/${subject.slug}/${ch.slug}`,
     title: ch.name,
     description: (
@@ -57,12 +78,11 @@ export function AdminSubitemsManager({
       </span>
     ) : undefined,
     rightElement: (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) => {
-            e.preventDefault();
             e.stopPropagation();
             setEditingChapter(ch);
           }}
@@ -74,16 +94,12 @@ export function AdminSubitemsManager({
         <DeleteConfirmDialog
           title="অধ্যায় ডিলিট নিশ্চিতকরণ"
           description={`আপনি কি নিশ্চিতভাবে "${ch.name}" অধ্যায়টি ডিলিট করতে চান? এর ভিতরের সব টপিক ও প্রশ্ন মুছে যাবে!`}
-          onConfirm={async () => {
-            await deleteChapterAction(ch.id, qb.slug, subject.slug);
-            router.refresh();
-          }}
+          onConfirm={() => handleDeleteChapter(ch.id)}
           trigger={
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
               }}
               className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"

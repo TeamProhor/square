@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { EditQuestionForm } from "@/components/admin/forms/edit-question-form";
 import { ImportQuestionsForm } from "@/components/admin/forms/import-questions-form";
 import { NewQuestionForm } from "@/components/admin/forms/new-question-form";
@@ -9,6 +10,7 @@ import {
   ArrowRight2,
   Edit,
   FileDown,
+  Search,
   TaskSquare,
   Trash2,
 } from "@/components/icons";
@@ -16,6 +18,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { UniversalQuestionCard } from "@/components/shared/UniversalQuestionCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
@@ -25,6 +28,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useAdminQuestions, useDeleteQuestion } from "@/hooks/use-admin-qb";
 import type { Question } from "@/types";
@@ -34,9 +44,12 @@ interface AdminQuestionsManagerProps {
   readonly subjectSlug: string;
   readonly subjectId: string;
   readonly chapterId: string;
-  readonly topicId?: string;
-  readonly topicName: string;
   readonly chapterSlug: string;
+  readonly chapterName?: string;
+  readonly topicId?: string;
+  readonly topicName?: string;
+  readonly topics?: readonly { id: string; name: string; slug: string }[];
+  readonly hideBreadcrumbs?: boolean;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -46,9 +59,12 @@ export function AdminQuestionsManager({
   subjectSlug,
   subjectId,
   chapterId,
+  chapterSlug,
+  chapterName,
   topicId,
   topicName,
-  chapterSlug,
+  topics = [],
+  hideBreadcrumbs = false,
 }: AdminQuestionsManagerProps) {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -59,17 +75,39 @@ export function AdminQuestionsManager({
   >({});
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
 
-  const { data: questions, isLoading } = useAdminQuestions({ subjectId });
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(
+    topicId || null,
+  );
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { data: questions, isLoading } = useAdminQuestions({
+    chapterId,
+    topicId: selectedTopic || undefined,
+    type: selectedType || undefined,
+  });
   const deleteMutation = useDeleteQuestion();
 
-  const totalQuestions = questions?.length ?? 0;
+  const filteredQuestions = useMemo(() => {
+    if (!questions) return [];
+    if (!searchQuery.trim()) return questions;
+    const q = searchQuery.toLowerCase().trim();
+    return questions.filter((item) => {
+      const text = (item.questionText || (item as any).question_text || "").toLowerCase();
+      const source = (item.source || "").toLowerCase();
+      return text.includes(q) || source.includes(q);
+    });
+  }, [questions, searchQuery]);
+
+  const totalQuestions = filteredQuestions.length;
   const totalPages = Math.ceil(totalQuestions / ITEMS_PER_PAGE);
 
-  // Keep currentPage in valid range if list changes
   const safeCurrentPage = Math.max(1, Math.min(currentPage, totalPages || 1));
   const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedQuestions =
-    questions?.slice(startIndex, startIndex + ITEMS_PER_PAGE) ?? [];
+  const paginatedQuestions = filteredQuestions.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
 
   const handleSelectOption = (questionId: string, optionId: string) => {
     setUserAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -80,6 +118,15 @@ export function AdminQuestionsManager({
       ...prev,
       [questionId]: !prev[questionId],
     }));
+  };
+
+  const handleDeleteQuestion = async (qId: string) => {
+    try {
+      await deleteMutation.mutateAsync(qId);
+      toast.success("প্রশ্নটি সফলভাবে ডিলিট করা হয়েছে");
+    } catch (err: any) {
+      toast.error(err.message || "প্রশ্ন ডিলিট করতে সমস্যা হয়েছে");
+    }
   };
 
   const getPageNumbers = (): (number | { key: string })[] => {
@@ -110,80 +157,176 @@ export function AdminQuestionsManager({
     ];
   };
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground flex-wrap">
-        <Link
-          href="/admin/qb"
-          className="hover:text-foreground transition-colors"
-        >
-          প্রশ্নব্যাংকসমূহ
-        </Link>
-        <ArrowRight2 className="size-3" />
-        <Link
-          href={`/admin/qb/${qbSlug}`}
-          className="hover:text-foreground transition-colors"
-        >
-          প্রশ্নব্যাংক
-        </Link>
-        <ArrowRight2 className="size-3" />
-        <Link
-          href={`/admin/qb/${qbSlug}/${subjectSlug}`}
-          className="hover:text-foreground transition-colors"
-        >
-          বিষয়
-        </Link>
-        <ArrowRight2 className="size-3" />
-        <Link
-          href={`/admin/qb/${qbSlug}/${subjectSlug}/${chapterSlug}`}
-          className="hover:text-foreground transition-colors"
-        >
-          অধ্যায়
-        </Link>
-        <ArrowRight2 className="size-3" />
-        <span className="text-foreground font-semibold">{topicName}</span>
-      </div>
+  const displayName = topicName || chapterName || "প্রশ্ন তালিকা";
 
+  return (
+    <div className="flex flex-col gap-5 w-full">
+      {!hideBreadcrumbs && (
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground flex-wrap">
+          <Link
+            href="/admin/qb"
+            className="hover:text-foreground transition-colors"
+          >
+            প্রশ্নব্যাংকসমূহ
+          </Link>
+          <ArrowRight2 className="size-3" />
+          <Link
+            href={`/admin/qb/${qbSlug}`}
+            className="hover:text-foreground transition-colors"
+          >
+            প্রশ্নব্যাংক
+          </Link>
+          <ArrowRight2 className="size-3" />
+          <Link
+            href={`/admin/qb/${qbSlug}/${subjectSlug}`}
+            className="hover:text-foreground transition-colors"
+          >
+            বিষয়
+          </Link>
+          <ArrowRight2 className="size-3" />
+          <Link
+            href={`/admin/qb/${qbSlug}/${subjectSlug}/${chapterSlug}`}
+            className="hover:text-foreground transition-colors"
+          >
+            {chapterName || "অধ্যায়"}
+          </Link>
+          {topicName && (
+            <>
+              <ArrowRight2 className="size-3" />
+              <span className="text-foreground font-semibold">{topicName}</span>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
-            {topicName} - প্রশ্ন তালিকা
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            এই টপিকের জন্য নতুন MCQ/CQ প্রশ্ন যোগ করুন, এডিট করুন বা বিদ্যমান প্রশ্ন ডিলিট
-            করুন।
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
+            {displayName} - প্রশ্ন ব্যবস্থাপনা
+          </h2>
+          <p className="text-muted-foreground text-xs sm:text-sm mt-0.5">
+            প্রশ্ন দেখুন, নতুন MCQ/CQ প্রশ্ন যোগ করুন, সংশোধন করুন বা ডিলিট করুন।
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             onClick={() => setIsImportOpen(true)}
-            className="rounded-xl gap-2 font-bold hover:border-primary/50"
+            className="rounded-xl gap-1.5 font-bold text-xs h-9"
           >
-            <FileDown className="size-4 text-primary" />
+            <FileDown className="size-3.5 text-primary" />
             <span>JSON থেকে ইমপোর্ট</span>
           </Button>
 
           <Button
             onClick={() => setIsCreateOpen(true)}
-            className="rounded-xl gap-2 font-bold"
+            className="rounded-xl gap-1.5 font-bold text-xs h-9 cursor-pointer"
           >
             + নতুন প্রশ্ন যোগ করুন
           </Button>
         </div>
       </div>
 
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-card p-3 rounded-2xl border border-border/70">
+        <div className="relative flex-1">
+          <Search className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="প্রশ্নের বিবরণ বা উৎস দিয়ে খুঁজুন..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="pl-9 h-9 text-xs rounded-xl bg-background"
+          />
+        </div>
+
+        {/* Topic filter (if chapter has topics and not viewing a fixed single topic) */}
+        {!topicId && topics.length > 0 && (
+          <div className="w-full sm:w-[200px]">
+            <Select
+              value={selectedTopic || "all"}
+              onValueChange={(val) => {
+                setSelectedTopic(val === "all" ? null : val);
+                setCurrentPage(1);
+              }}
+            >
+              <SelectTrigger className="h-9 rounded-xl text-xs bg-background">
+                <SelectValue placeholder="সকল টপিক" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">সকল টপিক</SelectItem>
+                {topics.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.name}
+                  </SelectItem>
+                ))}
+                <SelectItem value="unassigned">টপিক ছাড়া প্রশ্ন</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Type toggle */}
+        <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedType(null);
+              setCurrentPage(1);
+            }}
+            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              selectedType === null
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            সকল
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedType("mcq");
+              setCurrentPage(1);
+            }}
+            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              selectedType === "mcq"
+                ? "bg-background text-primary shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            MCQ
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedType("cq");
+              setCurrentPage(1);
+            }}
+            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              selectedType === "cq"
+                ? "bg-background text-primary shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            CQ
+          </button>
+        </div>
+      </div>
+
+      {/* Questions list */}
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <TaskSquare className="size-5 text-primary" /> মোট প্রশ্ন (
+          <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
+            <TaskSquare className="size-4 text-primary" /> মোট প্রশ্ন (
             {totalQuestions})
-          </h2>
+          </h3>
           {totalPages > 1 && (
             <span className="text-xs font-medium text-muted-foreground">
-              পৃষ্ঠা {safeCurrentPage} / {totalPages} (প্রতি পৃষ্ঠায় {ITEMS_PER_PAGE}
-              টি)
+              পৃষ্ঠা {safeCurrentPage} / {totalPages}
             </span>
           )}
         </div>
@@ -191,11 +334,14 @@ export function AdminQuestionsManager({
         {isLoading ? (
           <div className="p-12 flex flex-col items-center justify-center gap-3 text-muted-foreground bg-card border rounded-2xl">
             <Spinner className="size-6 text-primary" />
-            <span>প্রশ্ন লোড হচ্ছে...</span>
+            <span className="text-xs">প্রশ্ন লোড হচ্ছে...</span>
           </div>
         ) : totalQuestions === 0 ? (
-          <div className="p-12 text-center text-muted-foreground bg-card border rounded-2xl">
-            এই টপিকে কোনো প্রশ্ন পাওয়া যায়নি।
+          <div className="p-12 text-center text-muted-foreground bg-card border border-dashed rounded-2xl">
+            <p className="text-sm font-semibold">কোনো প্রশ্ন পাওয়া যায়নি।</p>
+            <p className="text-xs mt-1 text-muted-foreground/80">
+              উপরের &quot;+ নতুন প্রশ্ন যোগ করুন&quot; বাটনে ক্লিক করে প্রশ্ন যুক্ত করতে পারেন।
+            </p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -215,7 +361,7 @@ export function AdminQuestionsManager({
                         variant="ghost"
                         size="sm"
                         onClick={() => setEditingQuestion(q)}
-                        className="text-primary hover:bg-primary/10 gap-1.5 rounded-xl text-xs"
+                        className="text-primary hover:bg-primary/10 gap-1.5 rounded-xl text-xs cursor-pointer"
                       >
                         <Edit className="size-3.5" />
                         <span>এডিট</span>
@@ -223,7 +369,7 @@ export function AdminQuestionsManager({
                       <DeleteConfirmDialog
                         title="প্রশ্ন ডিলিট নিশ্চিতকরণ"
                         description="আপনি কি নিশ্চিতভাবে এই প্রশ্নটি ডিলিট করতে চান? এই কাজটি আর ফিরিয়ে আনা সম্ভব নয়।"
-                        onConfirm={() => deleteMutation.mutate(q.id)}
+                        onConfirm={() => handleDeleteQuestion(q.id)}
                         trigger={
                           <Button
                             variant="ghost"
@@ -324,8 +470,8 @@ export function AdminQuestionsManager({
       >
         <ImportQuestionsForm
           chapterId={chapterId}
-          topicId={topicId}
-          topicName={topicName}
+          topicId={selectedTopic || topicId || undefined}
+          topicName={displayName}
           onSuccess={() => setIsImportOpen(false)}
           onCancel={() => setIsImportOpen(false)}
         />
@@ -335,7 +481,7 @@ export function AdminQuestionsManager({
       <ResponsiveDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        title={`${topicName} এ নতুন প্রশ্ন`}
+        title={`${displayName} এ নতুন প্রশ্ন`}
         description="প্রশ্নের ধরন, বিবরণ ও উত্তর লিখুন।"
         className="sm:max-w-2xl"
       >

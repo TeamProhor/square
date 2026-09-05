@@ -6,9 +6,11 @@ import { Lock, SecurityCard, TaskSquare, TickCircle } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { toast } from "sonner";
 import {
   getBatchQbAccess,
   setBatchQbAccess,
+  toggleBatchContainerAccess,
 } from "@/lib/actions/qb-access";
 
 interface ContainerItem {
@@ -30,6 +32,7 @@ export function BatchQbAccessTab({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [togglingContainerId, setTogglingContainerId] = useState<string | null>(null);
 
   const { data: initialAccess = [], isLoading } = useQuery<string[]>({
     queryKey: ["batch-qb-access", batchId],
@@ -52,18 +55,45 @@ export function BatchQbAccessTab({
       queryClient.invalidateQueries({ queryKey: ["batch-qb-access", batchId] });
       setHasChanges(false);
       setSaveSuccess(true);
+      toast.success("সকল পরিবর্তন সফলভাবে সংরক্ষিত ও কার্যকর হয়েছে");
       setTimeout(() => setSaveSuccess(false), 3000);
+    },
+    onError: (err) => {
+      toast.error(err.message || "অ্যাক্সেস আপডেট করতে সমস্যা হয়েছে");
     },
   });
 
-  const handleToggle = (containerId: string) => {
-    const isSelected = selectedIds.includes(containerId);
-    const updated = isSelected
-      ? selectedIds.filter((id) => id !== containerId)
-      : [...selectedIds, containerId];
+  const handleToggle = async (containerId: string) => {
+    const isCurrentlyAssigned = selectedIds.includes(containerId);
+    const nextState = !isCurrentlyAssigned;
+    const updated = nextState
+      ? [...selectedIds, containerId]
+      : selectedIds.filter((id) => id !== containerId);
 
+    // Optimistic update
     setSelectedIds(updated);
-    setHasChanges(true);
+    setTogglingContainerId(containerId);
+
+    try {
+      const res = await toggleBatchContainerAccess(batchId, containerId, nextState);
+      if (!res.success) {
+        // Rollback
+        setSelectedIds(selectedIds);
+        toast.error(res.message || "অ্যাক্সেস পরিবর্তন করা যায়নি");
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["batch-qb-access", batchId] });
+        toast.success(
+          nextState
+            ? "প্রশ্নব্যাংক এক্সেস সফলভাবে চালু করা হয়েছে"
+            : "প্রশ্নব্যাংক এক্সেস সফলভাবে বন্ধ করা হয়েছে",
+        );
+      }
+    } catch {
+      setSelectedIds(selectedIds);
+      toast.error("সার্ভার ত্রুটি হয়েছে। পুনরায় চেষ্টা করুন।");
+    } finally {
+      setTogglingContainerId(null);
+    }
   };
 
   const handleSave = () => {
@@ -184,9 +214,13 @@ export function BatchQbAccessTab({
                   )}
                 </div>
 
-                <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                <div className="shrink-0 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {togglingContainerId === container.id && (
+                    <Spinner className="size-3.5 text-primary" />
+                  )}
                   <Switch
                     checked={isAssigned}
+                    disabled={togglingContainerId === container.id}
                     onCheckedChange={() => handleToggle(container.id)}
                   />
                 </div>

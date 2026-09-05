@@ -75,9 +75,11 @@ export default async function AdminQbQuestionsPage({
         subjectSlug={subject.slug}
         subjectId={subject.id}
         chapterId={chapter.id}
+        chapterName={chapter.name}
         topicId={topic.id}
         topicName={topic.name}
         chapterSlug={chapter.slug}
+        hideBreadcrumbs
       />
     </div>
   );

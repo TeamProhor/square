@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EditSubjectForm } from "@/components/admin/forms/edit-subject-form";
 import { NewSubjectForm } from "@/components/admin/forms/new-subject-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
@@ -17,6 +17,7 @@ import { ResponsiveDialog } from "@/components/responsive-dialog";
 import { DeleteConfirmDialog } from "@/components/shared/delete-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { deleteItemAction as deleteSubjectAction } from "@/lib/actions/question";
+import { toast } from "sonner";
 import type { Container, Item } from "@/types";
 
 interface AdminItemsManagerProps {
@@ -29,10 +30,30 @@ export function AdminItemsManager({
   initialSubjects,
 }: AdminItemsManagerProps) {
   const router = useRouter();
+  const [subjects, setSubjects] = useState<readonly Item[]>(initialSubjects);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState<Item | null>(null);
 
-  const items: QuickListItem[] = initialSubjects.map((sub: Item) => ({
+  useEffect(() => {
+    setSubjects(initialSubjects);
+  }, [initialSubjects]);
+
+  const handleDeleteSubject = async (subjectId: string) => {
+    try {
+      const res = await deleteSubjectAction(subjectId, qb.slug);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        setSubjects((prev) => prev.filter((sub) => sub.id !== subjectId));
+        toast.success("বিষয়টি সফলভাবে ডিলিট করা হয়েছে");
+        router.refresh();
+      }
+    } catch {
+      toast.error("বিষয় ডিলিট করতে সমস্যা হয়েছে");
+    }
+  };
+
+  const items: QuickListItem[] = subjects.map((sub: Item) => ({
     href: `/admin/qb/${qb.slug}/${sub.slug}`,
     title: sub.name,
     description: (
@@ -51,12 +72,11 @@ export function AdminItemsManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     rightElement: (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) => {
-            e.preventDefault();
             e.stopPropagation();
             setEditingSubject(sub);
           }}
@@ -68,16 +88,12 @@ export function AdminItemsManager({
         <DeleteConfirmDialog
           title="বিষয় ডিলিট নিশ্চিতকরণ"
           description={`আপনি কি নিশ্চিতভাবে "${sub.name}" বিষয়টি ডিলিট করতে চান? এর ভিতরের সব অধ্যায় ও প্রশ্ন মুছে যাবে!`}
-          onConfirm={async () => {
-            await deleteSubjectAction(sub.id, qb.slug);
-            router.refresh();
-          }}
+          onConfirm={() => handleDeleteSubject(sub.id)}
           trigger={
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
               }}
               className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"

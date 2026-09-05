@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { EditQuestionBankForm } from "@/components/admin/forms/edit-qb-form";
 import { NewQuestionBankForm } from "@/components/admin/forms/new-qb-form";
 import { QuickList, type QuickListItem } from "@/components/admin/quick-list";
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { deleteContainerAction } from "@/lib/actions/question";
 import type { Container } from "@/types";
 
+import { toast } from "sonner";
+
 interface AdminContainersManagerProps {
   readonly initialQbs: readonly Container[];
 }
@@ -21,10 +23,31 @@ export function AdminContainersManager({
   initialQbs,
 }: AdminContainersManagerProps) {
   const router = useRouter();
+  const [qbs, setQbs] = useState<readonly Container[]>(initialQbs);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingQb, setEditingQb] = useState<Container | null>(null);
 
-  const items: QuickListItem[] = initialQbs.map((qb: Container) => ({
+  // Sync initialQbs when prop updates
+  useEffect(() => {
+    setQbs(initialQbs);
+  }, [initialQbs]);
+
+  const handleDelete = async (containerId: string) => {
+    try {
+      const res = await deleteContainerAction(containerId);
+      if (res?.error) {
+        toast.error(res.error);
+      } else {
+        setQbs((prev) => prev.filter((q) => q.id !== containerId));
+        toast.success("প্রশ্নব্যাংক সফলভাবে মুছে ফেলা হয়েছে");
+        router.refresh();
+      }
+    } catch {
+      toast.error("প্রশ্নব্যাংক মুছতে সমস্যা হয়েছে।");
+    }
+  };
+
+  const items: QuickListItem[] = qbs.map((qb: Container) => ({
     href: `/admin/qb/${qb.slug}`,
     title: qb.title,
     icon: BookOpen,
@@ -47,12 +70,11 @@ export function AdminContainersManager({
       </div>
     ),
     rightElement: (
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
         <Button
           variant="ghost"
           size="sm"
           onClick={(e) => {
-            e.preventDefault();
             e.stopPropagation();
             setEditingQb(qb);
           }}
@@ -64,16 +86,12 @@ export function AdminContainersManager({
         <DeleteConfirmDialog
           title="প্রশ্নব্যাংক ডিলিট নিশ্চিতকরণ"
           description="আপনি কি নিশ্চিত যে এই প্রশ্নব্যাংকটি ডিলিট করতে চান? এর ভিতরের সব বিষয়, অধ্যায় এবং প্রশ্ন মুছে যাবে!"
-          onConfirm={async () => {
-            await deleteContainerAction(qb.id);
-            router.refresh();
-          }}
+          onConfirm={() => handleDelete(qb.id)}
           trigger={
             <Button
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.preventDefault();
                 e.stopPropagation();
               }}
               className="text-destructive hover:bg-destructive/10 gap-1 rounded-xl text-xs cursor-pointer"

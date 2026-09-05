@@ -11,6 +11,8 @@ import {
 import type { CreateQuestionPayload, ImportQuestionItem } from "@/types";
 
 export function useAdminQuestions(filters?: {
+  chapterId?: string;
+  topicId?: string;
   subjectId?: string;
   type?: string;
 }) {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactElement } from "react";
 import { ChapterQuestionsViewer } from "@/components/qb/ChapterQuestionsViewer";
+import { QbAccessRestrictedCard } from "@/components/qb/QbAccessRestrictedCard";
 import { db } from "@/db";
 import { containers, items, questions, subitems, topics } from "@/db/schema";
 import { checkQbContainerAccess } from "@/lib/actions/qb-access";
@@ -30,6 +31,25 @@ export default async function QbChapterPage({
   }
 
   const qb = accessInfo.container;
+
+  // Access check: if not accessible, show restricted card
+  if (!accessInfo.hasAccess) {
+    return (
+      <div className="flex flex-col w-full max-w-7xl mx-auto pb-8 pt-2 md:py-8">
+        <div className="flex items-center gap-2 text-xs md:text-sm font-medium text-muted-foreground mb-4">
+          <Link href="/qb" className="hover:text-primary transition-colors">
+            প্রশ্নব্যাংক
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{qb.title}</span>
+        </div>
+        <QbAccessRestrictedCard
+          title={qb.title}
+          assignedBatches={accessInfo.assignedBatches}
+        />
+      </div>
+    );
+  }
 
   const subject = await db.query.items.findFirst({
     where: eq(items.slug, itemSlug),
