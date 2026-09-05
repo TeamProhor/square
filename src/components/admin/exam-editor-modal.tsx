@@ -27,7 +27,7 @@ export function ExamEditorModal({
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   async function handleOpenChange(next: boolean) {
-    if (next && !exam) {
+    if (next) {
       setFetching(true);
       setFetchError(null);
       const res = await getExamWithQuestionsAdmin(examId);
@@ -38,6 +38,8 @@ export function ExamEditorModal({
         setFetchError(res.error || "পরীক্ষা লোড করতে ব্যর্থ হয়েছে");
         return; // don't open if fetch failed
       }
+    } else {
+      setExam(null);
     }
     setOpen(next);
   }

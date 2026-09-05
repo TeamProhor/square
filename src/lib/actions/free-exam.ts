@@ -36,7 +36,7 @@ export async function getPublicFreeExamsListAction(): Promise<{
 }> {
   try {
     const list = await db.query.exams.findMany({
-      where: eq(exams.isPublished, true),
+      where: and(eq(exams.isPublished, true), eq(exams.type, "practice")),
       orderBy: [desc(exams.createdAt)],
       with: {
         examQuestions: true,
@@ -78,7 +78,11 @@ export async function getPublicFreeExamsListAction(): Promise<{
 export async function getPublicFreeExamDetailsAction(slug: string) {
   try {
     const exam = await db.query.exams.findFirst({
-      where: and(eq(exams.slug, slug), eq(exams.isPublished, true)),
+      where: and(
+        eq(exams.slug, slug),
+        eq(exams.isPublished, true),
+        eq(exams.type, "practice"),
+      ),
       with: {
         examQuestions: true,
         submissions: {
@@ -114,7 +118,11 @@ export async function getPublicFreeExamDetailsAction(slug: string) {
 export async function getFreeExamQuestionsForTakingAction(slug: string) {
   try {
     const exam = await db.query.exams.findFirst({
-      where: and(eq(exams.slug, slug), eq(exams.isPublished, true)),
+      where: and(
+        eq(exams.slug, slug),
+        eq(exams.isPublished, true),
+        eq(exams.type, "practice"),
+      ),
       with: {
         examQuestions: {
           orderBy: (eqs, { asc }) => [asc(eqs.orderNo)],

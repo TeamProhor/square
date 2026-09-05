@@ -31,9 +31,20 @@ export function AdminContainersManager({
     text: "text-primary",
     iconBg: "bg-primary/10",
     extra: (
-      <span className="flex items-center gap-1 font-medium text-xs text-muted-foreground">
-        {qb.items?.[0]?.count ?? 0} টি বিষয়
-      </span>
+      <div className="flex items-center gap-2">
+        <span className="flex items-center gap-1 font-medium text-xs text-muted-foreground">
+          {qb.items?.[0]?.count ?? 0} টি বিষয়
+        </span>
+        <span
+          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+            qb.isPublic
+              ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+              : "bg-amber-500/10 text-amber-600 border border-amber-500/30"
+          }`}
+        >
+          {qb.isPublic ? "পাবলিক ও ফ্রি" : "ব্যাচ অ্যাক্সেস"}
+        </span>
+      </div>
     ),
     rightElement: (
       <div className="flex items-center gap-1">
