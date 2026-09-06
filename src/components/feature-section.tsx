@@ -161,7 +161,7 @@ function DashboardVisual() {
             আধুনিক ও গোছানো ইন্টারফেস
           </FeatureTitle>
           <FeatureDescription className="text-xs sm:text-sm">
-            প্রশ্নব্যাংক, পিডিএফ সাজেশন ও এক্সাম ক্যালেন্ডার এক ক্লিকেই ব্রাউজ করো।
+            প্রশ্নব্যাংক, পিডিএফ সাজেশন ও লাইভ এক্সাম এক ক্লিকেই ব্রাউজ করো।
           </FeatureDescription>
         </div>
       </div>

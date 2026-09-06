@@ -130,18 +130,6 @@ export function LandingFooter() {
               </li>
               <li>
                 <Link
-                  href="/calendar"
-                  className="hover:text-foreground flex items-center gap-2.5 transition-colors"
-                >
-                  <Calendar
-                    data-icon="inline-start"
-                    className="size-3.5 text-indigo-500"
-                  />
-                  <span>এইচএসসি ২০২৬ পরীক্ষার দিনপঞ্জি</span>
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/poll"
                   className="hover:text-foreground flex items-center gap-2.5 transition-colors"
                 >

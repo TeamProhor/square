@@ -9,11 +9,6 @@ export default async function AdminExamsPage() {
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto pb-12 pt-2 md:py-8 gap-6">
       <div className="flex items-center justify-end gap-3">
-        <Link href="/admin/exams/routines">
-          <Button variant="outline" className="rounded-xl">
-            রুটিন ক্যালেন্ডার
-          </Button>
-        </Link>
         <Link href="/admin/exams/new">
           <Button className="rounded-xl">+ নতুন পরীক্ষা</Button>
         </Link>

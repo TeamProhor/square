@@ -5,8 +5,7 @@ import Link from "next/link";
 import {
   ArrowRight2,
   BookOpen,
-  Calendar,
-  CalendarTick,
+  Lock,
   TaskSquare,
 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,9 @@ import {
   batchExams,
   batchMembers,
   batches,
-  examRoutines,
   exams,
 } from "@/db/schema";
+import { getUserQbContainers } from "@/lib/actions/qb-access";
 import { auth } from "@/lib/auth";
 
 
@@ -31,11 +30,13 @@ export default async function DashboardPage() {
   const user = session?.user;
   const userId = user?.id;
 
-  // 1. Fetch Question Banks
-  const containers = await db.query.containers.findMany({
-    limit: 4,
-    orderBy: (containers, { asc }) => [asc(containers.createdAt)],
-  });
+  // 1. Fetch Question Banks with real access status
+  const userContainers = await getUserQbContainers(userId);
+  const accessibleContainers = userContainers.filter((c) => c.hasAccess);
+  const displayContainers =
+    accessibleContainers.length > 0
+      ? accessibleContainers.slice(0, 4)
+      : userContainers.slice(0, 4);
 
   // 2. Fetch User's Enrolled Batches (from both active enrollments & batch memberships)
   let userEnrolledBatchIds: string[] = [];
@@ -124,18 +125,6 @@ export default async function DashboardPage() {
       .slice(0, 3);
   }
 
-  // 5. Fetch Upcoming Routines (Only for user's enrolled batches)
-  let upcomingRoutines: (typeof examRoutines.$inferSelect)[] = [];
-  if (userEnrolledBatchIds.length > 0) {
-    upcomingRoutines = await db
-      .select()
-      .from(examRoutines)
-      .where(inArray(examRoutines.batchId, userEnrolledBatchIds))
-      .orderBy(desc(examRoutines.examDate))
-      .limit(3);
-  }
-
-
   const toBanglaDigits = (str: string | number) => {
     const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
     return String(str).replace(
@@ -147,122 +136,62 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col w-full max-w-7xl mx-auto pb-16 pt-1 sm:pt-4 md:py-6 gap-6 sm:gap-8 px-2 sm:px-4 md:px-6">
 
-      {/* ─── Two-Column Section: Live Exams & Exam Schedule ──────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left Column: Live / Active Exams */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-              <h2 className="text-lg font-bold text-foreground">
-                চলমান পরীক্ষাসমূহ
-              </h2>
-            </div>
-            <Link
-              href="/exams"
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-            >
-              সকল পরীক্ষা <ArrowRight2 className="size-3" />
-            </Link>
+      {/* ─── Live / Active Exams Section ───────────────────────────────────── */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <h2 className="text-lg font-bold text-foreground">
+              চলমান পরীক্ষাসমূহ
+            </h2>
           </div>
-
-          <div className="flex flex-col gap-3">
-            {liveExams.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20 text-muted-foreground text-xs">
-                বর্তমানে কোনো প্রকাশিত পরীক্ষা নেই
-              </div>
-            ) : (
-              liveExams.map((exam) => (
-                <div
-                  key={exam.id}
-                  className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card hover:border-primary/40 transition-all shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
-                        {exam.type === "practice" ? "প্র্যাকটিস" : "মডেল টেস্ট"}
-                      </span>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        সময়: {toBanglaDigits(exam.durationMinutes)} মিনিট
-                      </span>
-                    </div>
-                    <h3 className="text-sm sm:text-base font-bold text-foreground truncate">
-                      {exam.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      মোট মার্কস: {toBanglaDigits(exam.totalMarks)} • নেগেটিভ:{" "}
-                      {toBanglaDigits(exam.negativeMarking)}
-                    </p>
-                  </div>
-
-                  <Button
-                    asChild
-                    size="sm"
-                    className="rounded-xl font-bold text-xs h-9 px-4 shrink-0 shadow-xs"
-                  >
-                    <Link href={`/exams/${exam.slug}`}>অংশ নিন</Link>
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
+          <Link
+            href="/exams"
+            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+          >
+            সকল পরীক্ষা <ArrowRight2 className="size-3" />
+          </Link>
         </div>
 
-        {/* Right Column: Upcoming Exam Routine */}
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Calendar className="size-4.5 text-primary" /> আসন্ন পরীক্ষার রুটিন
-            </h2>
-            <Link
-              href="/calendar"
-              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-            >
-              ক্যালেন্ডার <ArrowRight2 className="size-3" />
-            </Link>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {upcomingRoutines.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20 text-muted-foreground text-xs">
-                কোনো আসন্ন পরীক্ষার রুটিন যোগ করা হয়নি
-              </div>
-            ) : (
-              upcomingRoutines.map((routine) => (
-                <div
-                  key={routine.id}
-                  className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card shadow-2xs flex items-center justify-between gap-4"
-                >
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-primary">
-                        {routine.subject}
-                      </span>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        • {routine.examDate.toLocaleDateString("bn-BD")}
-                      </span>
-                    </div>
-                    <h3 className="text-sm sm:text-base font-bold text-foreground truncate">
-                      {routine.title}
-                    </h3>
-                    {routine.syllabus && (
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        সিলেবাস: {routine.syllabus}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="text-xs font-bold text-primary block">
-                      {toBanglaDigits(routine.totalMarks)} মার্কস
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {liveExams.length === 0 ? (
+            <div className="col-span-full p-8 text-center rounded-2xl border border-dashed border-border/80 bg-muted/20 text-muted-foreground text-xs">
+              বর্তমানে কোনো প্রকাশিত পরীক্ষা নেই
+            </div>
+          ) : (
+            liveExams.map((exam) => (
+              <div
+                key={exam.id}
+                className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card hover:border-primary/40 transition-all shadow-2xs flex flex-col justify-between gap-4"
+              >
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary">
+                      {exam.type === "practice" ? "প্র্যাকটিস" : "মডেল টেস্ট"}
                     </span>
-                    <span className="text-[11px] text-muted-foreground block">
-                      {toBanglaDigits(routine.durationMinutes)} মিনিট
+                    <span className="text-xs text-muted-foreground font-medium">
+                      সময়: {toBanglaDigits(exam.durationMinutes)} মিনিট
                     </span>
                   </div>
+                  <h3 className="text-sm sm:text-base font-bold text-foreground truncate">
+                    {exam.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    মোট মার্কস: {toBanglaDigits(exam.totalMarks)} • নেগেটিভ:{" "}
+                    {toBanglaDigits(exam.negativeMarking)}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
+
+                <Button
+                  asChild
+                  size="sm"
+                  className="rounded-xl font-bold text-xs h-9 px-4 w-full shadow-xs"
+                >
+                  <Link href={`/exams/${exam.slug}`}>অংশ নিন</Link>
+                </Button>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -345,7 +274,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* ─── Question Banks Quick Selector ────────────────────────────────────── */}
-      {containers.length > 0 && (
+      {displayContainers.length > 0 && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
@@ -365,11 +294,27 @@ export default async function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-            {containers.map((qb) => (
+            {displayContainers.map((qb) => (
               <Link href={`/qb/${qb.slug}`} key={qb.id} className="group">
-                <div className="rounded-2xl p-4 md:p-5 border border-border/70 bg-card hover:border-primary/50 shadow-2xs hover:shadow-md transition-all text-center flex flex-col items-center justify-center min-h-[105px] gap-1.5">
-                  <div className="size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <TaskSquare className="size-4" />
+                <div
+                  className={`rounded-2xl p-4 md:p-5 border transition-all text-center flex flex-col items-center justify-center min-h-[105px] gap-1.5 ${
+                    qb.hasAccess
+                      ? "border-border/70 bg-card hover:border-primary/50 shadow-2xs hover:shadow-md"
+                      : "border-dashed border-border/80 bg-muted/20 opacity-80 hover:opacity-100"
+                  }`}
+                >
+                  <div
+                    className={`size-8 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform ${
+                      qb.hasAccess
+                        ? "bg-primary/10 text-primary"
+                        : "bg-amber-500/10 text-amber-600"
+                    }`}
+                  >
+                    {qb.hasAccess ? (
+                      <TaskSquare className="size-4" />
+                    ) : (
+                      <Lock className="size-4" />
+                    )}
                   </div>
                   <span className="font-bold text-xs sm:text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">
                     {qb.title}

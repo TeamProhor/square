@@ -45,7 +45,9 @@ export default async function QbChapterPage({
         </div>
         <QbAccessRestrictedCard
           title={qb.title}
+          containerSlug={containerSlug}
           assignedBatches={accessInfo.assignedBatches}
+          isAdmin={accessInfo.isAdmin}
         />
       </div>
     );

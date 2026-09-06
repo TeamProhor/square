@@ -6,12 +6,14 @@ import { headers } from "next/headers";
 import { db } from "@/db";
 import {
   batchEnrollments,
+  batchMembers,
   batchQbAccess,
   batches,
   containers,
   items,
   questions,
   subitems,
+  user,
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
@@ -222,16 +224,14 @@ export async function getUserQbContainers(userId?: string) {
       orderBy: (containers, { asc }) => [asc(containers.createdAt)],
     });
 
-    // 2. Fetch user's active enrolled batches if logged in
+    // 2. Fetch user's active enrolled batches from both enrollments and batch members
     let userBatchIds: string[] = [];
     let isAdmin = false;
 
     if (userId) {
-      const session = await auth.api.getSession({ headers: await headers() });
-      isAdmin = session?.user?.role === "admin";
-
-      if (!isAdmin) {
-        const enrollments = await db
+      const [userRecord, enrollmentRows, memberRows] = await Promise.all([
+        db.select({ role: user.role }).from(user).where(eq(user.id, userId)),
+        db
           .select({ batchId: batchEnrollments.batchId })
           .from(batchEnrollments)
           .where(
@@ -239,23 +239,44 @@ export async function getUserQbContainers(userId?: string) {
               eq(batchEnrollments.userId, userId),
               eq(batchEnrollments.status, "active"),
             ),
-          );
-        userBatchIds = enrollments.map((e) => e.batchId);
-      }
+          ),
+        db
+          .select({ batchId: batchMembers.batchId })
+          .from(batchMembers)
+          .where(
+            and(
+              eq(batchMembers.userId, userId),
+              eq(batchMembers.status, "active"),
+            ),
+          ),
+      ]);
+
+      isAdmin = userRecord[0]?.role === "admin";
+      userBatchIds = Array.from(
+        new Set([
+          ...enrollmentRows.map((e) => e.batchId),
+          ...memberRows.map((m) => m.batchId),
+        ]),
+      );
     }
 
     return allContainers.map((c) => {
-      const assignedBatches = c.batchAccess?.map((ba) => ({
-        id: ba.batch.id,
-        name: ba.batch.name,
-        slug: ba.batch.slug,
-        hscBatch: ba.batch.hscBatch,
-      })) || [];
+      const assignedBatches =
+        c.batchAccess?.map((ba) => ({
+          id: ba.batch.id,
+          name: ba.batch.name,
+          slug: ba.batch.slug,
+          hscBatch: ba.batch.hscBatch,
+        })) || [];
 
-      const isEnrolled = assignedBatches.some((b) => userBatchIds.includes(b.id));
-      const hasBatchAccess = isAdmin || c.isPublic || isEnrolled;
+      const isEnrolled = assignedBatches.some((b) =>
+        userBatchIds.includes(b.id),
+      );
+      // Strictly enforce access: only public containers or enrolled batch members have access on /qb
+      const hasBatchAccess = Boolean(c.isPublic || isEnrolled);
 
-      let accessType: "public" | "enrolled" | "admin" | "restricted" = "restricted";
+      let accessType: "public" | "enrolled" | "admin" | "restricted" =
+        "restricted";
       if (c.isPublic) {
         accessType = "public";
       } else if (isEnrolled) {
@@ -295,7 +316,10 @@ export async function getUserQbContainers(userId?: string) {
   }
 }
 
-export async function checkQbContainerAccess(containerSlug: string, userId?: string) {
+export async function checkQbContainerAccess(
+  containerSlug: string,
+  userId?: string,
+) {
   try {
     const container = await db.query.containers.findFirst({
       where: eq(containers.slug, containerSlug),
@@ -308,52 +332,103 @@ export async function checkQbContainerAccess(containerSlug: string, userId?: str
       },
     });
 
-    if (!container) return { exists: false, hasAccess: false, accessType: "restricted" as const, container: null, assignedBatches: [] };
+    if (!container)
+      return {
+        exists: false,
+        hasAccess: false,
+        accessType: "restricted" as const,
+        container: null,
+        assignedBatches: [],
+        isAdmin: false,
+        isEnrolled: false,
+      };
 
-    const assignedBatches = container.batchAccess?.map((ba) => ({
-      id: ba.batch.id,
-      name: ba.batch.name,
-      slug: ba.batch.slug,
-      hscBatch: ba.batch.hscBatch,
-    })) || [];
+    const assignedBatches =
+      container.batchAccess?.map((ba) => ({
+        id: ba.batch.id,
+        name: ba.batch.name,
+        slug: ba.batch.slug,
+        hscBatch: ba.batch.hscBatch,
+      })) || [];
 
     let isAdmin = false;
+    let userBatchIds: string[] = [];
+
     if (userId) {
-      const session = await auth.api.getSession({ headers: await headers() });
-      isAdmin = session?.user?.role === "admin";
+      const [userRecord, enrollmentRows, memberRows] = await Promise.all([
+        db.select({ role: user.role }).from(user).where(eq(user.id, userId)),
+        db
+          .select({ batchId: batchEnrollments.batchId })
+          .from(batchEnrollments)
+          .where(
+            and(
+              eq(batchEnrollments.userId, userId),
+              eq(batchEnrollments.status, "active"),
+            ),
+          ),
+        db
+          .select({ batchId: batchMembers.batchId })
+          .from(batchMembers)
+          .where(
+            and(
+              eq(batchMembers.userId, userId),
+              eq(batchMembers.status, "active"),
+            ),
+          ),
+      ]);
+
+      isAdmin = userRecord[0]?.role === "admin";
+      userBatchIds = Array.from(
+        new Set([
+          ...enrollmentRows.map((e) => e.batchId),
+          ...memberRows.map((m) => m.batchId),
+        ]),
+      );
     }
 
     if (container.isPublic) {
-      return { exists: true, hasAccess: true, accessType: "public" as const, container, assignedBatches };
-    }
-
-    let userBatchIds: string[] = [];
-    if (userId) {
-      const enrollments = await db
-        .select({ batchId: batchEnrollments.batchId })
-        .from(batchEnrollments)
-        .where(
-          and(
-            eq(batchEnrollments.userId, userId),
-            eq(batchEnrollments.status, "active"),
-          ),
-        );
-      userBatchIds = enrollments.map((e) => e.batchId);
+      return {
+        exists: true,
+        hasAccess: true,
+        accessType: "public" as const,
+        container,
+        assignedBatches,
+        isAdmin,
+        isEnrolled: true,
+      };
     }
 
     const isEnrolled = assignedBatches.some((b) => userBatchIds.includes(b.id));
-    const hasAccess = isAdmin || isEnrolled;
+    // Strictly enforce course access on student route: only enrolled batch members or public containers
+    const hasAccess = Boolean(isEnrolled);
 
-    let accessType: "public" | "enrolled" | "admin" | "restricted" = "restricted";
+    let accessType: "public" | "enrolled" | "admin" | "restricted" =
+      "restricted";
     if (isEnrolled) {
       accessType = "enrolled";
     } else if (isAdmin) {
       accessType = "admin";
     }
 
-    return { exists: true, hasAccess, accessType, isEnrolled, isAdmin, container, assignedBatches };
+    return {
+      exists: true,
+      hasAccess,
+      accessType,
+      isEnrolled,
+      isAdmin,
+      container,
+      assignedBatches,
+    };
   } catch (error) {
     console.error("Error checking QB container access:", error);
-    return { exists: false, hasAccess: false, accessType: "restricted" as const, container: null, assignedBatches: [] };
+    return {
+      exists: false,
+      hasAccess: false,
+      accessType: "restricted" as const,
+      container: null,
+      assignedBatches: [],
+      isAdmin: false,
+      isEnrolled: false,
+    };
   }
 }

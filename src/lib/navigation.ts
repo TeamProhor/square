@@ -16,7 +16,6 @@ export const USER_NAV_ITEMS: readonly NavItem[] = [
   { name: "প্রশ্নব্যাংক", path: "/qb", exact: false, icon: TaskSquare },
   { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
   { name: "পিডিএফ", path: "/pdf", exact: false, icon: DocumentDownload },
-  { name: "ক্যালেন্ডার", path: "/calendar", exact: false, icon: CalendarTick },
   { name: "পোল", path: "/poll", exact: false, icon: StatusUp },
   { name: "প্রোফাইল", path: "/profile", exact: false, icon: User },
 ];
@@ -37,12 +36,6 @@ export const ADMIN_NAV_ITEMS: readonly NavItem[] = [
     path: "/admin/exams",
     exact: true,
     icon: TaskSquare,
-  },
-  {
-    name: "রুটিন ক্যালেন্ডার",
-    path: "/admin/exams/routines",
-    exact: false,
-    icon: CalendarTick,
   },
   { name: "পিডিএফ সাজেশন", path: "/admin/pdf", exact: false, icon: BookOpen },
   {
@@ -69,7 +62,6 @@ export function getNavItems(
       { name: d.qb, path: "/qb", exact: false, icon: TaskSquare },
       { name: "পরীক্ষা", path: "/exams", exact: false, icon: CalendarTick },
       { name: d.pdf, path: "/pdf", exact: false, icon: DocumentDownload },
-      { name: d.calendar, path: "/calendar", exact: false, icon: CalendarTick },
       { name: d.poll, path: "/poll", exact: false, icon: StatusUp },
     ];
   }

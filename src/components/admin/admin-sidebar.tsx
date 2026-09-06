@@ -37,12 +37,6 @@ export function AdminSidebar() {
       exact: true,
       icon: TaskSquare,
     },
-    {
-      name: "রুটিন ক্যালেন্ডার",
-      path: "/admin/exams/routines",
-      exact: false,
-      icon: CalendarTick,
-    },
     { name: "পিডিএফ সাজেশন", path: "/admin/pdf", exact: false, icon: BookOpen },
     {
       name: "পোল ও কম্যুনিটি",

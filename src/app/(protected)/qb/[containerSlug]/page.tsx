@@ -40,7 +40,9 @@ export default async function QbSubjectsPage({
         </div>
         <QbAccessRestrictedCard
           title={qb.title}
+          containerSlug={containerSlug}
           assignedBatches={accessInfo.assignedBatches}
+          isAdmin={accessInfo.isAdmin}
         />
       </div>
     );

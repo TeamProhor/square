@@ -11,12 +11,16 @@ interface AssignedBatch {
 
 interface QbAccessRestrictedCardProps {
   readonly title: string;
+  readonly containerSlug?: string;
   readonly assignedBatches?: readonly AssignedBatch[];
+  readonly isAdmin?: boolean;
 }
 
 export function QbAccessRestrictedCard({
   title,
+  containerSlug,
   assignedBatches = [],
+  isAdmin = false,
 }: QbAccessRestrictedCardProps) {
   return (
     <div className="flex flex-col items-center justify-center p-8 sm:p-12 my-8 rounded-3xl border border-dashed border-border bg-card/60 text-center max-w-2xl mx-auto space-y-6 shadow-xs">
@@ -68,7 +72,7 @@ export function QbAccessRestrictedCard({
         </div>
       )}
 
-      <div className="pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
         <Link href="/qb">
           <Button
             variant="outline"
@@ -78,6 +82,15 @@ export function QbAccessRestrictedCard({
             প্রশ্নব্যাংক তালিকায় ফিরে যান
           </Button>
         </Link>
+        {isAdmin && containerSlug && (
+          <Link href={`/admin/qb/${containerSlug}`}>
+            <Button
+              className="rounded-xl text-xs font-bold gap-1.5 cursor-pointer"
+            >
+              অ্যাডমিন প্যানেলে পরিচালনা করুন &rarr;
+            </Button>
+          </Link>
+        )}
       </div>
     </div>
   );
