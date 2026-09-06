@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import { markdownComponents, sanitizeQuestionContent } from "@/lib/question-content";
 import {
   ArrowLeft2,
   Award,
@@ -275,9 +277,10 @@ export function FreeExamResultView({ slug, resultData }: FreeExamResultViewProps
                 <div className="text-sm font-semibold text-foreground leading-relaxed">
                   <ReactMarkdown
                     remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                    rehypePlugins={[rehypeKatex]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    components={markdownComponents}
                   >
-                    {q.questionText}
+                    {sanitizeQuestionContent(q.questionText)}
                   </ReactMarkdown>
                 </div>
 
@@ -317,9 +320,10 @@ export function FreeExamResultView({ slug, resultData }: FreeExamResultViewProps
                           <div className="flex-1 pt-0.5">
                             <ReactMarkdown
                               remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                              rehypePlugins={[rehypeKatex]}
+                              rehypePlugins={[rehypeRaw, rehypeKatex]}
+                              components={markdownComponents}
                             >
-                              {opt.optionText}
+                              {sanitizeQuestionContent(opt.optionText)}
                             </ReactMarkdown>
                           </div>
 
@@ -349,9 +353,10 @@ export function FreeExamResultView({ slug, resultData }: FreeExamResultViewProps
                     <div className="text-xs text-foreground/90 leading-relaxed pl-5 border-l-2 border-primary/40">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                        rehypePlugins={[rehypeKatex]}
+                        rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        components={markdownComponents}
                       >
-                        {q.explanation}
+                        {sanitizeQuestionContent(q.explanation)}
                       </ReactMarkdown>
                     </div>
                   </div>

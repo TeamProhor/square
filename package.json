@@ -41,6 +41,7 @@
     "react-resizable-panels": "^4.12.3",
     "recharts": "3.10.1",
     "rehype-katex": "^7.0.1",
+    "rehype-raw": "^7.0.0",
     "reicon-react": "^1.2.4",
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.1",

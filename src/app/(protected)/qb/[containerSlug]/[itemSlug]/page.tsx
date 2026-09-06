@@ -94,7 +94,7 @@ export default async function QbChaptersPage({
 
       <div className="flex flex-col gap-8">
         {chapterList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-5 w-full">
             {chapterList.map((ch) => {
               const qCount = ch.questions?.length || 0;
               const topicsCount = ch.topics?.length || 0;
@@ -103,32 +103,25 @@ export default async function QbChaptersPage({
                 <Link
                   href={`/qb/${qb.slug}/${subject.slug}/${ch.slug}`}
                   key={ch.id}
+                  className="block group h-full"
                 >
-                  <div className="group relative overflow-hidden rounded-2xl md:rounded-3xl p-5 md:p-6 cursor-pointer border border-border/70 bg-card hover:border-primary/50 shadow-2xs hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 active:scale-95 transition-all duration-300 min-h-[160px] flex flex-col justify-between">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative z-10 flex flex-col gap-1.5">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
-                          {qCount} টি প্রশ্ন
-                        </span>
-                        {topicsCount > 0 && (
-                          <span className="text-[11px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                            {topicsCount} টি টপিক
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-bold text-base md:text-lg leading-tight text-foreground group-hover:text-primary transition-colors duration-300 pt-2">
+                  <div className="group relative overflow-hidden rounded-[20px] md:rounded-[28px] p-3.5 sm:p-4 md:p-6 cursor-pointer hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-1 active:scale-95 transition-all duration-300 aspect-square flex flex-col items-center justify-center text-center text-white shadow-lg border bg-primary/20 border-border/50">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/85 opacity-95 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300" />
+
+                    <div className="relative z-10 flex flex-col items-center justify-center px-1 sm:px-2 w-full my-auto">
+                      <h3 className="font-black text-[15px] sm:text-[18px] md:text-[22px] lg:text-[24px] leading-tight drop-shadow-md text-white line-clamp-3">
                         {ch.name}
                       </h3>
-                    </div>
 
-                    <div className="relative z-10 pt-3 border-t border-border/40 flex items-center justify-between text-xs">
-                      <span className="text-[11px] text-muted-foreground">
-                        {qCount > 0 ? "অনুশীলন করুন" : "প্রশ্ন নেই"}
-                      </span>
-                      <span className="text-[11px] text-primary font-bold">
-                        প্রবেশ করুন →
-                      </span>
+                      <div className="mt-2.5 sm:mt-3.5 flex items-center gap-2 text-[10px] sm:text-xs text-white/90 font-semibold bg-black/20 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10 flex-wrap justify-center">
+                        <span>{qCount} টি প্রশ্ন</span>
+                        {topicsCount > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{topicsCount} টি টপিক</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>

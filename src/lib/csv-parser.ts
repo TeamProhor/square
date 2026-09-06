@@ -185,19 +185,27 @@ export function parseQuestionsCsv(csvText: string): ParsedCsvQuestion[] {
     else if (rawStd === "engineering") resolvedStd = "Engineering";
     else if (rawStd === "medical") resolvedStd = "Medical";
 
-    const explanation = (expCol >= 0 ? row[expCol] : "")?.trim() || undefined;
+    const cleanHtmlQuotes = (t: string) =>
+      t ? t.replace(/(<[^>]+>)/g, (m) => m.replace(/""/g, '"')) : t;
+
+    const explanation = expCol >= 0 && row[expCol] ? cleanHtmlQuotes(row[expCol].trim()) : undefined;
     const source = (secCol >= 0 ? row[secCol] : "")?.trim() || "CSV Import";
     const rawMarks = marksCol >= 0 ? parseInt(toEnglishDigits(row[marksCol]), 10) : 1;
     const marks = isNaN(rawMarks) || rawMarks <= 0 ? 1 : rawMarks;
 
+    const sanitizedMcqOptions = mcqOptions.map((opt) => ({
+      ...opt,
+      optionText: cleanHtmlQuotes(opt.optionText),
+    }));
+
     results.push({
-      questionText: questionText.trim(),
+      questionText: cleanHtmlQuotes(questionText.trim()),
       type: resolvedType,
       standard: resolvedStd,
       source,
       marks,
       explanation,
-      mcqOptions: resolvedType === "mcq" ? mcqOptions : undefined,
+      mcqOptions: resolvedType === "mcq" ? sanitizedMcqOptions : undefined,
     });
   }
 

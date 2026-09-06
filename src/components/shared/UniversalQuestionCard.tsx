@@ -3,10 +3,12 @@
 import type { ReactElement } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { Lightbulb } from "@/components/icons";
+import { markdownComponents, sanitizeQuestionContent } from "@/lib/question-content";
 import {
   Accordion,
   AccordionContent,
@@ -122,9 +124,10 @@ export function UniversalQuestionCard({
       <div className="text-[13.5px] sm:text-base font-medium text-foreground leading-relaxed mb-3.5 sm:mb-5 [&_p]:m-0">
         <ReactMarkdown
           remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-          rehypePlugins={[rehypeKatex]}
+          rehypePlugins={[rehypeRaw, rehypeKatex]}
+          components={markdownComponents}
         >
-          {questionText}
+          {sanitizeQuestionContent(questionText)}
         </ReactMarkdown>
       </div>
 
@@ -173,9 +176,10 @@ export function UniversalQuestionCard({
                     <div className="flex-1 [&_p]:m-0 font-medium">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                        rehypePlugins={[rehypeKatex]}
+                        rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        components={markdownComponents}
                       >
-                        {optText}
+                        {sanitizeQuestionContent(optText)}
                       </ReactMarkdown>
                     </div>
                   </button>
@@ -229,9 +233,10 @@ export function UniversalQuestionCard({
                   <div className="flex-1 [&_p]:m-0 font-medium">
                     <ReactMarkdown
                       remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                      rehypePlugins={[rehypeKatex]}
+                      rehypePlugins={[rehypeRaw, rehypeKatex]}
+                      components={markdownComponents}
                     >
-                      {optText}
+                      {sanitizeQuestionContent(optText)}
                     </ReactMarkdown>
                   </div>
                 </button>
@@ -279,9 +284,10 @@ export function UniversalQuestionCard({
                     <div className="text-[13px] sm:text-sm md:text-base flex-1 [&_p]:m-0 font-normal">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                        rehypePlugins={[rehypeKatex]}
+                        rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        components={markdownComponents}
                       >
-                        {pText}
+                        {sanitizeQuestionContent(pText)}
                       </ReactMarkdown>
                     </div>
                   </AccordionTrigger>
@@ -291,9 +297,10 @@ export function UniversalQuestionCard({
                       <div className="p-3 bg-primary/5 rounded-xl border border-primary/10">
                         <ReactMarkdown
                           remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                          rehypePlugins={[rehypeKatex]}
+                          rehypePlugins={[rehypeRaw, rehypeKatex]}
+                          components={markdownComponents}
                         >
-                          {aText}
+                          {sanitizeQuestionContent(aText)}
                         </ReactMarkdown>
                       </div>
                     </AccordionContent>
@@ -335,9 +342,10 @@ export function UniversalQuestionCard({
           <div className="text-xs sm:text-sm text-foreground/90 leading-relaxed [&_p]:m-0">
             <ReactMarkdown
               remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-              rehypePlugins={[rehypeKatex]}
+              rehypePlugins={[rehypeRaw, rehypeKatex]}
+              components={markdownComponents}
             >
-              {question.explanation}
+              {sanitizeQuestionContent(question.explanation)}
             </ReactMarkdown>
           </div>
         </div>

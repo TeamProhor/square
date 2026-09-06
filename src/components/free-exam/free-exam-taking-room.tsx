@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import { markdownComponents, sanitizeQuestionContent } from "@/lib/question-content";
 import {
   Clock,
   Danger,
@@ -287,12 +289,10 @@ export function FreeExamTakingRoom({
             <div className="text-sm sm:text-base font-semibold text-foreground leading-relaxed">
               <ReactMarkdown
                 remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                rehypePlugins={[rehypeKatex]}
-                components={{
-                  p: ({ children }) => <p className="mb-2 leading-relaxed">{children}</p>,
-                }}
+                rehypePlugins={[rehypeRaw, rehypeKatex]}
+                components={markdownComponents}
               >
-                {currentItem.question.questionText}
+                {sanitizeQuestionContent(currentItem.question.questionText)}
               </ReactMarkdown>
             </div>
 
@@ -332,9 +332,10 @@ export function FreeExamTakingRoom({
                       <div className="flex-1 text-xs sm:text-sm font-medium pt-0.5 leading-snug">
                         <ReactMarkdown
                           remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-                          rehypePlugins={[rehypeKatex]}
+                          rehypePlugins={[rehypeRaw, rehypeKatex]}
+                          components={markdownComponents}
                         >
-                          {opt.optionText}
+                          {sanitizeQuestionContent(opt.optionText)}
                         </ReactMarkdown>
                       </div>
                     </button>

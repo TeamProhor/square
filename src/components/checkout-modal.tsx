@@ -32,9 +32,8 @@ export function CheckoutModal({
   const [senderNumber, setSenderNumber] = useState("");
 
   const PAYMENT_NUMBERS = {
-    bkash: "017XXXXXXXX (Personal)",
-    nagad: "017XXXXXXXX (Personal)",
-    rocket: "017XXXXXXXX-X (Personal)",
+    bkash: "01603887439 (Personal)",
+    nagad: "01603887439 (Personal)",
   };
 
   const copyToClipboard = (text: string) => {
@@ -123,11 +122,10 @@ export function CheckoutModal({
             <Label className="text-base font-bold">
               ১. পেমেন্ট মেথড নির্বাচন করুন
             </Label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {Object.entries({
                 bkash: "বিকাশ",
                 nagad: "নগদ",
-                rocket: "রকেট",
               }).map(([key, label]) => (
                 <button
                   type="button"
