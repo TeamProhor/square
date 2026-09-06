@@ -9,16 +9,28 @@ import { cn } from "@/lib/utils";
  */
 export function sanitizeQuestionContent(content?: string | null): string {
   if (!content) return "";
-  let text = String(content);
+  let text = String(content).trim();
 
-  // 1. Fix doubled quotes inside HTML tags: e.g. <img class=""qimg"" src=""https://..."" >
+  // 1. Strip leading spaces on lines containing HTML tags so markdown doesn't parse them as code blocks
+  text = text
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trimStart();
+      if (trimmed.startsWith("<") || trimmed.startsWith("![")) {
+        return trimmed;
+      }
+      return line;
+    })
+    .join("\n");
+
+  // 2. Fix doubled quotes inside HTML tags: e.g. <img class=""qimg"" src=""https://..."" >
   text = text.replace(/(<[^>]+>)/g, (match) => match.replace(/""/g, '"'));
 
-  // 2. Fix variants like [!img](url), [!img}(url), ![img}(url), [!image](url)
+  // 3. Fix variants like [!img](url), [!img}(url), ![img}(url), [!image](url)
   text = text.replace(/\[!(?:img|image)[\]\}]\((https?:\/\/[^\s\)]+)\)/gi, "![]($1)");
   text = text.replace(/!\[([^\]]*)\]\}\((https?:\/\/[^\s\)]+)\)/gi, "![$1]($2)");
 
-  // 3. Standalone image URL on its own line: convert to ![](url)
+  // 4. Standalone image URL on its own line: convert to ![](url)
   text = text.replace(
     /^(https?:\/\/[^\s]+\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(?:\s*)$/gim,
     "![]($1)",

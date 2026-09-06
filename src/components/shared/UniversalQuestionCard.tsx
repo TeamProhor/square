@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
@@ -66,6 +66,19 @@ export function UniversalQuestionCard({
   );
   const shouldEvaluate =
     showCorrectAnswer ?? (Boolean(selectedOptionId) && hasEvaluationInfo);
+
+  const [internalSolutionOpen, setInternalSolutionOpen] = useState(false);
+  const resolvedSolutionOpen = onToggleSolution
+    ? isSolutionOpen
+    : (isSolutionOpen || internalSolutionOpen);
+
+  const handleToggle = () => {
+    if (onToggleSolution) {
+      onToggleSolution(question.id);
+    } else {
+      setInternalSolutionOpen((prev) => !prev);
+    }
+  };
 
   const isAnswered = Boolean(selectedOptionId);
   const questionText = question.question_text || question.questionText || "";
@@ -314,15 +327,15 @@ export function UniversalQuestionCard({
       {/* Explanation / Solution / Footer */}
       {!hideControls && (question.explanation || footerActions) && (
         <div className="mt-3 pt-2.5 border-t border-dashed border-border/40 flex flex-wrap items-center justify-between gap-2">
-          {!hideExplanation && question.explanation && onToggleSolution ? (
+          {!hideExplanation && question.explanation ? (
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onToggleSolution(question.id)}
+              onClick={handleToggle}
               className="text-[11px] sm:text-xs font-bold text-primary hover:text-primary hover:bg-primary/10 rounded-lg gap-1.5 h-7 sm:h-8 px-2 sm:px-2.5"
             >
               <Lightbulb className="size-3 sm:size-3.5" />
-              {isSolutionOpen ? "ব্যাখ্যা লুকান" : "ব্যাখ্যা / সমাধান দেখুন"}
+              {resolvedSolutionOpen ? "ব্যাখ্যা লুকান" : "ব্যাখ্যা / সমাধান দেখুন"}
             </Button>
           ) : (
             <div />
@@ -334,7 +347,7 @@ export function UniversalQuestionCard({
         </div>
       )}
 
-      {!hideExplanation && question.explanation && isSolutionOpen && (
+      {!hideExplanation && question.explanation && resolvedSolutionOpen && (
         <div className="mt-2.5 p-3 sm:p-4 bg-primary/5 rounded-xl sm:rounded-2xl border border-primary/10 animate-in fade-in slide-in-from-top-2">
           <p className="text-[10px] sm:text-xs font-bold text-primary uppercase mb-1">
             ব্যাখ্যা / সমাধান

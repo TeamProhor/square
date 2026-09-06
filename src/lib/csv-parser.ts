@@ -185,21 +185,28 @@ export function parseQuestionsCsv(csvText: string): ParsedCsvQuestion[] {
     else if (rawStd === "engineering") resolvedStd = "Engineering";
     else if (rawStd === "medical") resolvedStd = "Medical";
 
-    const cleanHtmlQuotes = (t: string) =>
-      t ? t.replace(/(<[^>]+>)/g, (m) => m.replace(/""/g, '"')) : t;
+    const cleanHtmlContent = (t: string) => {
+      if (!t) return "";
+      let s = t.trim();
+      s = s
+        .split("\n")
+        .map((l) => (l.trimStart().startsWith("<") ? l.trimStart() : l))
+        .join("\n");
+      return s.replace(/(<[^>]+>)/g, (m) => m.replace(/""/g, '"'));
+    };
 
-    const explanation = expCol >= 0 && row[expCol] ? cleanHtmlQuotes(row[expCol].trim()) : undefined;
+    const explanation = expCol >= 0 && row[expCol] ? cleanHtmlContent(row[expCol]) : undefined;
     const source = (secCol >= 0 ? row[secCol] : "")?.trim() || "CSV Import";
     const rawMarks = marksCol >= 0 ? parseInt(toEnglishDigits(row[marksCol]), 10) : 1;
     const marks = isNaN(rawMarks) || rawMarks <= 0 ? 1 : rawMarks;
 
     const sanitizedMcqOptions = mcqOptions.map((opt) => ({
       ...opt,
-      optionText: cleanHtmlQuotes(opt.optionText),
+      optionText: cleanHtmlContent(opt.optionText),
     }));
 
     results.push({
-      questionText: cleanHtmlQuotes(questionText.trim()),
+      questionText: cleanHtmlContent(questionText.trim()),
       type: resolvedType,
       standard: resolvedStd,
       source,

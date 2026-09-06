@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { useImportQuestions } from "@/hooks/use-admin-qb";
+import { parseQuestionsCsv } from "@/lib/csv-parser";
 import type { ImportQuestionItem, QuestionStandard } from "@/types";
 
 interface ImportQuestionsFormProps {
@@ -409,7 +410,6 @@ export function ImportQuestionsForm({
       if (!content) return;
 
       if (fileName.endsWith(".csv") || file.type.includes("csv")) {
-        const { parseQuestionsCsv } = await import("@/lib/csv-parser");
         const parsedCsv = parseQuestionsCsv(content);
         if (parsedCsv && parsedCsv.length > 0) {
           setJsonText(JSON.stringify(parsedCsv, null, 2));
@@ -434,7 +434,6 @@ export function ImportQuestionsForm({
     // Check if input is CSV format (e.g. starts with questions, or contains comma separated header)
     if (!trimmed.startsWith("[") && !trimmed.startsWith("{") && trimmed.includes(",")) {
       try {
-        const { parseQuestionsCsv } = require("@/lib/csv-parser");
         const parsedCsv = parseQuestionsCsv(trimmed);
         if (parsedCsv && parsedCsv.length > 0) {
           parsed = parsedCsv;
@@ -455,7 +454,6 @@ export function ImportQuestionsForm({
       } catch (err: unknown) {
         // Try parsing as CSV before failing
         try {
-          const { parseQuestionsCsv } = require("@/lib/csv-parser");
           const parsedCsv = parseQuestionsCsv(trimmed);
           if (parsedCsv && parsedCsv.length > 0) {
             parsed = parsedCsv;
@@ -520,7 +518,12 @@ export function ImportQuestionsForm({
       const rawType = String(item.type || "")
         .toLowerCase()
         .trim();
-      if (rawType !== "mcq" && rawType !== "cq") {
+      let type: "mcq" | "cq" = "mcq";
+      if (rawType === "cq" || rawType === "2") {
+        type = "cq";
+      } else if (rawType === "mcq" || rawType === "1" || !rawType) {
+        type = "mcq";
+      } else {
         errors.push(`প্রশ্ন #${qNum}: type অবশ্যই 'mcq' অথবা 'cq' হতে হবে।`);
         return;
       }
@@ -536,7 +539,7 @@ export function ImportQuestionsForm({
       const source = String(item.source || "").trim() || "Custom";
       const explanation = String(item.explanation || "").trim();
 
-      if (rawType === "mcq") {
+      if (type === "mcq") {
         const rawOptions = (item.mcqOptions ||
           item.mcq_options ||
           item.options) as Array<Record<string, unknown>> | undefined;
