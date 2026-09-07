@@ -40,17 +40,20 @@ export default async function MyCoursesPage() {
       {batches.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {batches.map((batch: any) => {
-            const modulesCount =
-              batch.modules?.length || batch.curriculum?.length || 0;
-            const totalClasses =
-              (batch.modules || batch.curriculum || [])?.reduce(
-                (acc: number, m: any) => acc + (m.totalClasses || 0),
-                0,
-              ) || 0;
+            const modulesList = Array.isArray(batch.modules)
+              ? batch.modules
+              : Array.isArray(batch.curriculum)
+                ? batch.curriculum
+                : [];
+            const modulesCount = modulesList.length;
+            const totalClasses = modulesList.reduce(
+              (acc: number, m: any) => acc + (m.totalClasses || 0),
+              0,
+            );
 
             return (
               <div
-                key={batch.enrollmentId}
+                key={batch.enrollmentId || batch.id}
                 className="group border border-border/70 rounded-2xl p-4 sm:p-6 bg-card flex flex-col justify-between gap-5 shadow-xs hover:border-primary/40 hover:shadow-md transition-all duration-200"
               >
                 <div className="space-y-4">

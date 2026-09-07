@@ -212,15 +212,34 @@ export async function getMyCourses(userId: string) {
   return (
     enrollments
       .filter((e: any) => e.status === "active")
-      .map((e: any) => ({
-        ...e.batch,
-        ...(e.batch?.details || {}),
-        title: e.batch?.name,
-        name: e.batch?.name,
-        details: undefined,
-        enrolledAt: e.enrolledAt,
-        accessGrantedBy: e.accessGrantedBy,
-      })) || []
+      .map((e: any) => {
+        const details = e.batch?.details || {};
+        const curriculumObj =
+          details?.curriculum &&
+          typeof details.curriculum === "object" &&
+          !Array.isArray(details.curriculum)
+            ? details.curriculum
+            : {};
+        const telegramGroupUrl =
+          curriculumObj.telegramGroupUrl || details?.telegramGroupUrl || "";
+
+        return {
+          ...details,
+          ...e.batch,
+          id: e.batch?.id,
+          batchDetailsId: details.id,
+          enrollmentId: e.id,
+          title: e.batch?.name,
+          name: e.batch?.name,
+          telegramGroupUrl,
+          details: {
+            ...details,
+            telegramGroupUrl,
+          },
+          enrolledAt: e.enrolledAt,
+          accessGrantedBy: e.accessGrantedBy,
+        };
+      }) || []
   );
 }
 
@@ -279,12 +298,14 @@ export async function getUserCourseById(userId: string, batchId: string) {
 
   if (enrollment?.status !== "active") return null;
 
+  const details = enrollment.batch?.details || {};
   return {
+    ...details,
     ...enrollment.batch,
-    ...(enrollment.batch?.details || {}),
+    id: enrollment.batch?.id,
     title: enrollment.batch?.name,
     name: enrollment.batch?.name,
-    details: undefined,
+    details,
     enrolledAt: enrollment.enrolledAt,
   };
 }
