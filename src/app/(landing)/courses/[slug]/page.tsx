@@ -84,11 +84,13 @@ export default async function CourseDetailPage({
       courseWithDetails.details?.instructors ||
       courseWithDetails.details?.mentorIds ||
       [],
-    modules:
-      courseWithDetails.modules ||
-      courseWithDetails.details?.modules ||
-      courseWithDetails.details?.curriculum ||
-      [],
+    modules: Array.isArray(courseWithDetails.modules)
+      ? courseWithDetails.modules
+      : Array.isArray(courseWithDetails.details?.modules)
+        ? courseWithDetails.details.modules
+        : Array.isArray(courseWithDetails.details?.curriculum)
+          ? courseWithDetails.details.curriculum
+          : [],
     faqs:
       courseWithDetails.faqs ||
       courseWithDetails.details?.faqs ||

@@ -63,9 +63,15 @@ export function CourseClassroomView({
   exams = [],
 }: CourseClassroomViewProps) {
   const details = batch?.details;
-  const modules = batch?.curriculum || batch?.modules || [];
-  const instructors = batch?.instructors || [];
-  const faqs = batch?.faqs || [];
+  const modules = Array.isArray(batch?.modules)
+    ? batch.modules
+    : Array.isArray(batch?.curriculum)
+      ? batch.curriculum
+      : [];
+  const instructors = Array.isArray(batch?.instructors)
+    ? batch.instructors
+    : [];
+  const faqs = Array.isArray(batch?.faqs) ? batch.faqs : [];
 
   // Active Video in Classroom
   const [selectedClass, setSelectedClass] = useState<CourseClass | null>(
