@@ -85,10 +85,17 @@ export default async function QbChaptersPage({
           <span className="text-foreground">{subject.name}</span>
         </div>
         <h1 className="text-2xl md:text-4xl font-bold text-foreground">
-          অধ্যায়সমূহ
+          {subject.name.includes("বোর্ড") ||
+          subject.name.includes("বিশ্ববিদ্যালয়") ||
+          qb.title.includes("বিশ্ববিদ্যালয়") ||
+          qb.title.includes("ভর্তি") ||
+          qb.title.includes("Varsity") ||
+          qb.title.includes("Admission")
+            ? "সালসমূহ / সেশন"
+            : "অধ্যায়সমূহ"}
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">
-          {subject.name} এর অধ্যায় নির্বাচন করুন
+          {subject.name} এর প্রশ্ন সমাধান করতে সাল বা অধ্যায় নির্বাচন করুন
         </p>
       </div>
 
@@ -118,7 +125,7 @@ export default async function QbChaptersPage({
                         {topicsCount > 0 && (
                           <>
                             <span>•</span>
-                            <span>{topicsCount} টি টপিক</span>
+                            <span>{topicsCount} টি বিষয়/টপিক</span>
                           </>
                         )}
                       </div>
@@ -130,7 +137,7 @@ export default async function QbChaptersPage({
           </div>
         ) : (
           <div className="col-span-full py-12 text-center text-muted-foreground border border-dashed rounded-2xl">
-            কোনো অধ্যায় পাওয়া যায়নি।
+            কোনো সাল বা অধ্যায় পাওয়া যায়নি।
           </div>
         )}
       </div>
