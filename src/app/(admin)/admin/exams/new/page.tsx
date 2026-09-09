@@ -48,6 +48,7 @@ export default function NewExamPage() {
     );
     const totalMarks = parseInt(formData.get("totalMarks") as string, 10);
     const negativeMarking = formData.get("negativeMarking") as string;
+    const standard = (formData.get("standard") as "HSC" | "Varsity" | "Engineering" | "Medical") || "HSC";
     const showResultImmediately =
       formData.get("showResultImmediately") === "true";
     const isPublished = formData.get("isPublished") === "true";
@@ -59,6 +60,7 @@ export default function NewExamPage() {
       slug,
       description,
       type,
+      standard,
       durationMinutes,
       totalMarks,
       negativeMarking,
@@ -132,27 +134,43 @@ export default function NewExamPage() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="batchId" className="text-sm font-medium">
-            কোর্স / ব্যাচ নির্বাচন করুন (ঐচ্ছিক)
-          </label>
-          <select
-            id="batchId"
-            name="batchId"
-            value={selectedBatchId}
-            onChange={(e) => setSelectedBatchId(e.target.value)}
-            className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">কোনো কোর্সে যুক্ত নয় (সরাসরি এক্সাম)</option>
-            {batches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-muted-foreground">
-            কোর্স নির্বাচন করলে স্বয়ংক্রিয়ভাবে সেই কোর্সের শিক্ষার্থীদের জন্য এক্সামটি উন্মুক্ত হবে।
-          </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label htmlFor="standard" className="text-sm font-medium">
+              পরীক্ষার স্ট্যান্ডার্ড / ক্যাটাগরি *
+            </label>
+            <select
+              id="standard"
+              name="standard"
+              defaultValue="HSC"
+              className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="HSC">বোর্ড (HSC Board Standard)</option>
+              <option value="Varsity">ভার্সিটি (Varsity Admission)</option>
+              <option value="Engineering">ইঞ্জিনিয়ারিং (Engineering)</option>
+              <option value="Medical">মেডিকেল (Medical Admission)</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="batchId" className="text-sm font-medium">
+              কোর্স / ব্যাচ নির্বাচন করুন (ঐচ্ছিক)
+            </label>
+            <select
+              id="batchId"
+              name="batchId"
+              value={selectedBatchId}
+              onChange={(e) => setSelectedBatchId(e.target.value)}
+              className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">কোনো কোর্সে যুক্ত নয় (সরাসরি এক্সাম)</option>
+              {batches.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4">

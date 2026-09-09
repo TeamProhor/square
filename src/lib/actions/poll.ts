@@ -6,9 +6,25 @@ import { db } from "@/db";
 import { pollOptions, pollVotes } from "@/db/schema";
 import type { MCQQuestion } from "@/types";
 
-export async function getPollItemsAction() {
+export async function getPollContainersAction() {
+  try {
+    const list = await db.query.containers.findMany({
+      orderBy: (containers, { asc }) => [asc(containers.createdAt)],
+    });
+    return list;
+  } catch (error: unknown) {
+    console.error("Error fetching poll containers:", error);
+    return [];
+  }
+}
+
+export async function getPollItemsAction(containerId?: string) {
   try {
     const list = await db.query.items.findMany({
+      where: (items, { eq }) =>
+        containerId && containerId !== "all"
+          ? eq(items.containerId, containerId)
+          : undefined,
       orderBy: (items, { asc }) => [asc(items.name)],
     });
     return list;

@@ -350,6 +350,7 @@ export interface ExamDetail {
     | "weekly"
     | "model_test"
     | "live_contest";
+  readonly standard?: QuestionStandard | string;
   readonly durationMinutes: number;
   readonly totalMarks: number;
   readonly negativeMarking: string;

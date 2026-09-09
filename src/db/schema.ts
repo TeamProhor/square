@@ -313,6 +313,11 @@ export const exams = pgTable("exams", {
   })
     .default("practice")
     .notNull(),
+  standard: text("standard", {
+    enum: ["HSC", "Varsity", "Engineering", "Medical"],
+  })
+    .default("HSC")
+    .notNull(),
   durationMinutes: integer("duration_minutes").default(30).notNull(),
   totalMarks: integer("total_marks").default(25).notNull(),
   // Stored as string for exact precision; parse with parseFloat()

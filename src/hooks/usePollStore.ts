@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { MCQQuestion } from "@/types";
 
 interface PollState {
+  container: string;
   item: string;
   paper: string;
   subitem: string;
@@ -11,6 +12,7 @@ interface PollState {
   userAnswers: { [qIdx: number]: number };
   currentQuestionIndex: number;
 
+  setContainer: (container: string) => void;
   setItem: (item: string) => void;
   setPaper: (paper: string) => void;
   setSubitem: (subitem: string) => void;
@@ -28,8 +30,9 @@ interface PollState {
 }
 
 export const usePollStore = create<PollState>((set) => ({
-  item: "physics",
-  paper: "1st",
+  container: "",
+  item: "",
+  paper: "all",
   subitem: "",
   standard: "board",
   questionLimit: 10,
@@ -37,6 +40,7 @@ export const usePollStore = create<PollState>((set) => ({
   userAnswers: {},
   currentQuestionIndex: 0,
 
+  setContainer: (container) => set({ container }),
   setItem: (item) => set({ item }),
   setPaper: (paper) => set({ paper }),
   setSubitem: (subitem) => set({ subitem }),

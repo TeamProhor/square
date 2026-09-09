@@ -18,6 +18,7 @@ export interface FreeExamListItem {
   title: string;
   slug: string;
   description?: string | null;
+  standard: string;
   durationMinutes: number;
   totalMarks: number;
   negativeMarking: string;
@@ -51,6 +52,7 @@ export async function getPublicFreeExamsListAction(): Promise<{
       title: e.title,
       slug: e.slug,
       description: e.description,
+      standard: e.standard || "HSC",
       durationMinutes: e.durationMinutes,
       totalMarks: e.totalMarks,
       negativeMarking: e.negativeMarking,

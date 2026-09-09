@@ -22,6 +22,7 @@ export async function createExamAction(data: {
   slug: string;
   description?: string;
   type: "practice" | "chapter_test" | "weekly" | "model_test" | "live_contest";
+  standard?: "HSC" | "Varsity" | "Engineering" | "Medical";
   durationMinutes: number;
   totalMarks: number;
   negativeMarking: string;
@@ -32,7 +33,13 @@ export async function createExamAction(data: {
 }) {
   try {
     const { batchId, ...examValues } = data;
-    const res = await db.insert(exams).values(examValues).returning();
+    const res = await db
+      .insert(exams)
+      .values({
+        ...examValues,
+        standard: examValues.standard || "HSC",
+      })
+      .returning();
     const createdExam = res[0] as unknown as ExamDetail;
 
     if (batchId && createdExam?.id) {
