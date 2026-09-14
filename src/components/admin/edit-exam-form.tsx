@@ -36,11 +36,17 @@ export function EditExamForm({ exam, onSuccess }: EditExamFormProps) {
     const type = (isFreeExam ? "practice" : "chapter_test") as
       | "practice"
       | "chapter_test";
+    const standard = (formData.get("standard") as
+      | "HSC"
+      | "Varsity"
+      | "Engineering"
+      | "Medical") || "HSC";
     const data = {
       title: formData.get("title") as string,
       slug: formData.get("slug") as string,
       description: formData.get("description") as string,
       type,
+      standard,
       durationMinutes: parseInt(formData.get("durationMinutes") as string, 10),
       totalMarks: parseInt(formData.get("totalMarks") as string, 10),
       negativeMarking: formData.get("negativeMarking") as string,
@@ -199,6 +205,23 @@ function ExamFormFields({
           defaultValue={exam.description || ""}
           className="rounded-xl min-h-[80px]"
         />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="standard" className="text-sm font-medium">
+          পরীক্ষার স্ট্যান্ডার্ড / ক্যাটাগরি *
+        </label>
+        <select
+          id="standard"
+          name="standard"
+          defaultValue={exam.standard || "HSC"}
+          className="w-full h-10 px-3 py-2 rounded-xl border bg-background text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="HSC">বোর্ড (HSC Board Standard)</option>
+          <option value="Varsity">ভার্সিটি (Varsity Admission)</option>
+          <option value="Engineering">ইঞ্জিনিয়ারিং (Engineering)</option>
+          <option value="Medical">মেডিকেল (Medical Admission)</option>
+        </select>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

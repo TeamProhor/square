@@ -17,6 +17,7 @@ interface Exam {
   title: string;
   slug: string;
   type: string;
+  standard?: string;
   isPublished: boolean;
   durationMinutes: number;
   totalMarks: number;
@@ -123,15 +124,30 @@ export function AdminExamsList({ exams }: AdminExamsListProps) {
               iconBg: "bg-primary/10",
               text: "text-primary",
               extra: (
-                <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                    exam.isPublished
-                      ? "bg-emerald-500/10 text-emerald-600"
-                      : "bg-amber-500/10 text-amber-600"
-                  }`}
-                >
-                  {exam.isPublished ? "Published" : "Draft"}
-                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {exam.standard && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
+                      {exam.standard === "HSC"
+                        ? "বোর্ড"
+                        : exam.standard === "Varsity"
+                          ? "ভার্সিটি"
+                          : exam.standard === "Engineering"
+                            ? "ইঞ্জিনিয়ারিং"
+                            : exam.standard === "Medical"
+                              ? "মেডিকেল"
+                              : exam.standard}
+                    </span>
+                  )}
+                  <span
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      exam.isPublished
+                        ? "bg-emerald-500/10 text-emerald-600"
+                        : "bg-amber-500/10 text-amber-600"
+                    }`}
+                  >
+                    {exam.isPublished ? "Published" : "Draft"}
+                  </span>
+                </div>
               ),
               rightElement: (
                 <div className="flex items-center gap-1">

@@ -63,9 +63,14 @@ export async function createExamAction(data: {
 
 export async function updateExamAction(id: string, data: Partial<ExamDetail>) {
   try {
+    const updateData: Partial<typeof exams.$inferInsert> = {
+      ...data,
+      standard: data.standard as ("Engineering" | "HSC" | "Medical" | "Varsity") | undefined,
+      updatedAt: new Date(),
+    };
     const res = await db
       .update(exams)
-      .set({ ...data, updatedAt: sql`(CURRENT_TIMESTAMP)` })
+      .set(updateData)
       .where(eq(exams.id, id))
       .returning();
     revalidatePath(`/admin/exams/${id}`);

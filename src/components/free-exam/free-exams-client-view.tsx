@@ -21,70 +21,73 @@ const TABS: { id: TabType; label: string }[] = [
   { id: "medical", label: "মেডিকেল" },
 ];
 
+function matchExamWithTab(exam: FreeExamListItem, tab: TabType): boolean {
+  if (tab === "all") return true;
+
+  const std = (exam.standard || "").toLowerCase();
+  const title = (exam.title || "").toLowerCase();
+
+  if (tab === "board") {
+    return (
+      std === "hsc" ||
+      std === "board" ||
+      title.includes("board") ||
+      title.includes("বোর্ড") ||
+      title.includes("hsc") ||
+      title.includes("ঢাকা") ||
+      title.includes("রাজশাহী") ||
+      title.includes("কুমিল্লা") ||
+      title.includes("চট্টগ্রাম")
+    );
+  }
+  if (tab === "varsity") {
+    return (
+      std === "varsity" ||
+      title.includes("varsity") ||
+      title.includes("ভার্সিটি") ||
+      title.includes("ঢাবি") ||
+      title.includes("রাবি") ||
+      title.includes("জাবি") ||
+      title.includes("গুচ্ছ") ||
+      title.includes("du") ||
+      title.includes("ru") ||
+      title.includes("ju")
+    );
+  }
+  if (tab === "engineering") {
+    return (
+      std === "engineering" ||
+      title.includes("engineering") ||
+      title.includes("ইঞ্জিনিয়ারিং") ||
+      title.includes("বুয়েট") ||
+      title.includes("buet") ||
+      title.includes("ckruet") ||
+      title.includes("kuet") ||
+      title.includes("ruet") ||
+      title.includes("cuet") ||
+      title.includes("iut") ||
+      title.includes("butex")
+    );
+  }
+  if (tab === "medical") {
+    return (
+      std === "medical" ||
+      title.includes("medical") ||
+      title.includes("মেডিকেল") ||
+      title.includes("dental") ||
+      title.includes("ডেন্টাল") ||
+      title.includes("mat") ||
+      title.includes("dat")
+    );
+  }
+  return true;
+}
+
 export function FreeExamsClientView({ examsList = [] }: FreeExamsClientViewProps) {
   const [activeTab, setActiveTab] = useState<TabType>("all");
 
   const filteredExams = useMemo(() => {
-    if (activeTab === "all") return examsList;
-
-    return examsList.filter((exam) => {
-      const std = (exam.standard || "").toLowerCase();
-      const title = (exam.title || "").toLowerCase();
-
-      if (activeTab === "board") {
-        return (
-          std === "hsc" ||
-          title.includes("board") ||
-          title.includes("বোর্ড") ||
-          title.includes("hsc") ||
-          title.includes("ঢাকা") ||
-          title.includes("রাজশাহী") ||
-          title.includes("কুমিল্লা") ||
-          title.includes("চট্টগ্রাম")
-        );
-      }
-      if (activeTab === "varsity") {
-        return (
-          std === "varsity" ||
-          title.includes("varsity") ||
-          title.includes("ভার্সিটি") ||
-          title.includes("ঢাবি") ||
-          title.includes("রাবি") ||
-          title.includes("জাবি") ||
-          title.includes("গুচ্ছ") ||
-          title.includes("du") ||
-          title.includes("ru") ||
-          title.includes("ju")
-        );
-      }
-      if (activeTab === "engineering") {
-        return (
-          std === "engineering" ||
-          title.includes("engineering") ||
-          title.includes("ইঞ্জিনিয়ারিং") ||
-          title.includes("বুয়েট") ||
-          title.includes("buet") ||
-          title.includes("ckruet") ||
-          title.includes("kuet") ||
-          title.includes("ruet") ||
-          title.includes("cuet") ||
-          title.includes("iut") ||
-          title.includes("butex")
-        );
-      }
-      if (activeTab === "medical") {
-        return (
-          std === "medical" ||
-          title.includes("medical") ||
-          title.includes("মেডিকেল") ||
-          title.includes("dental") ||
-          title.includes("ডেন্টাল") ||
-          title.includes("mat") ||
-          title.includes("dat")
-        );
-      }
-      return true;
-    });
+    return examsList.filter((exam) => matchExamWithTab(exam, activeTab));
   }, [examsList, activeTab]);
 
   // Counts for tabs
@@ -98,42 +101,10 @@ export function FreeExamsClientView({ examsList = [] }: FreeExamsClientViewProps
     };
 
     examsList.forEach((exam) => {
-      const std = (exam.standard || "").toLowerCase();
-      const title = (exam.title || "").toLowerCase();
-
-      if (
-        std === "hsc" ||
-        title.includes("board") ||
-        title.includes("বোর্ড") ||
-        title.includes("hsc")
-      ) {
-        counts.board++;
-      }
-      if (
-        std === "varsity" ||
-        title.includes("varsity") ||
-        title.includes("ভার্সিটি") ||
-        title.includes("ঢাবি")
-      ) {
-        counts.varsity++;
-      }
-      if (
-        std === "engineering" ||
-        title.includes("engineering") ||
-        title.includes("ইঞ্জিনিয়ারিং") ||
-        title.includes("বুয়েট") ||
-        title.includes("buet")
-      ) {
-        counts.engineering++;
-      }
-      if (
-        std === "medical" ||
-        title.includes("medical") ||
-        title.includes("মেডিকেল") ||
-        title.includes("dental")
-      ) {
-        counts.medical++;
-      }
+      if (matchExamWithTab(exam, "board")) counts.board++;
+      if (matchExamWithTab(exam, "varsity")) counts.varsity++;
+      if (matchExamWithTab(exam, "engineering")) counts.engineering++;
+      if (matchExamWithTab(exam, "medical")) counts.medical++;
     });
 
     return counts;

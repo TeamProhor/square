@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowRight2, Trophy } from "@/components/icons";
+import { ArrowRight2 } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -175,7 +175,7 @@ export default function PollConfigPage() {
         itemId: item || undefined,
         subitemId: subitem,
         paper,
-        standard,
+        standard: "all",
         limit: effectiveLimit,
       });
 
@@ -256,81 +256,52 @@ export default function PollConfigPage() {
             </Field>
           </div>
 
-          {/* Row 2: Chapter & Category */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
-            {/* Chapter / Year Select */}
-            <Field className="w-full">
-              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                  ৩. অধ্যায় / সাল সিলেক্ট করুন
-                </FieldLabel>
-                {currentChapterQuestions > 0 && (
-                  <span className="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                    {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন উপলব্ধ
-                  </span>
-                )}
-              </div>
-              <Select
-                value={subitem || "all"}
-                onValueChange={(v) => v && setSubitem(v)}
-              >
-                <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
-                  <SelectValue
-                    placeholder={
-                      loadingSubitems
-                        ? "অধ্যায় লোড হচ্ছে..."
-                        : "অধ্যায় সিলেক্ট করুন"
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectGroup>
-                    <SelectItem value="all">
-                      সকল অধ্যায় / সাল ({toBanglaDigits(totalSubitemsQuestions)} টি
-                      প্রশ্ন)
-                    </SelectItem>
-                    {dbSubitems.map((ch) => (
-                      <SelectItem key={ch.id} value={ch.id}>
-                        {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            {/* Standard Category */}
-            <Field className="w-full">
-              <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
-                ৪. পরীক্ষার ক্যাটাগরি
+          {/* Row 2: Chapter Selection */}
+          <Field className="w-full">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                ৩. অধ্যায় / সাল নির্বাচন করুন
               </FieldLabel>
-              <ToggleGroup
-                type="single"
-                value={standard}
-                onValueChange={(v) => v && setStandard(v)}
-                className="w-full grid grid-cols-2 gap-2.5 sm:gap-3 h-auto"
-              >
-                <ToggleGroupItem
-                  value="board"
-                  className="h-10 sm:h-12 flex flex-row items-center justify-center gap-2 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs font-semibold"
-                >
-                  <Trophy className="size-3.5 sm:size-4" /> বোর্ড
-                </ToggleGroupItem>
-                <ToggleGroupItem
-                  value="varsity"
-                  className="h-10 sm:h-12 flex flex-row items-center justify-center gap-2 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs font-semibold"
-                >
-                  <Trophy className="size-3.5 sm:size-4" /> এডমিশন
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </Field>
-          </div>
+              {currentChapterQuestions > 0 && (
+                <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md">
+                  {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন উপলব্ধ
+                </span>
+              )}
+            </div>
+            <Select
+              value={subitem || "all"}
+              onValueChange={(v) => v && setSubitem(v)}
+            >
+              <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
+                <SelectValue
+                  placeholder={
+                    loadingSubitems
+                      ? "অধ্যায় লোড হচ্ছে..."
+                      : "অধ্যায় সিলেক্ট করুন"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectGroup>
+                  <SelectItem value="all">
+                    সকল অধ্যায় / সাল ({toBanglaDigits(totalSubitemsQuestions)} টি
+                    প্রশ্ন)
+                  </SelectItem>
+                  {dbSubitems.map((ch) => (
+                    <SelectItem key={ch.id} value={ch.id}>
+                      {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
 
           {/* Row 3: Question Limit (5-10-20 or Enter Amount / সবগুলো) */}
           <Field className="w-full">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
               <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                ৫. প্রশ্নের সংখ্যা নির্বাচন করুন (Amount)
+                ৪. প্রশ্নের সংখ্যা নির্বাচন করুন (Amount)
               </FieldLabel>
               {isCustomLimit && (
                 <span className="text-[11px] font-bold text-primary">

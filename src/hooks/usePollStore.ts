@@ -34,7 +34,7 @@ export const usePollStore = create<PollState>((set) => ({
   item: "",
   paper: "all",
   subitem: "",
-  standard: "board",
+  standard: "all",
   questionLimit: 10,
   activeQuestions: [],
   userAnswers: {},
