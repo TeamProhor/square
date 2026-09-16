@@ -76,7 +76,7 @@ export default function PollConfigPage() {
       const conts = await getPollContainersAction();
       setDbContainers(conts);
       if (conts.length > 0) {
-        if (!container || !conts.some((c) => c.id === container)) {
+        if (!container || (!conts.some((c) => c.id === container) && container !== "all")) {
           setContainer(conts[0].id);
         }
       }
@@ -85,10 +85,14 @@ export default function PollConfigPage() {
     loadContainers();
   }, [setContainer, container]);
 
-  // 2. Fetch items (Subjects) when container changes
+  // 2. Fetch items (Subjects/Units) when container changes
   useEffect(() => {
     async function loadSubjects() {
-      if (!container) return;
+      if (!container || container === "all") {
+        setDbSubjects([]);
+        setItem("");
+        return;
+      }
       setLoadingSubjects(true);
       const subs = await getPollItemsAction(container);
       setDbSubjects(subs);
@@ -115,15 +119,20 @@ export default function PollConfigPage() {
       setLoadingChapters(true);
       const chs = await getPollSubitemsAction(item, paper);
       setDbChapters(chs);
-      if (chs.length > 0) {
-        setSubitem(chs[0].id);
-      } else {
-        setSubitem("all");
-      }
+      setSubitem("all");
       setLoadingChapters(false);
     }
     loadChapters();
   }, [item, paper, setSubitem]);
+
+  // Detect if current container is year-based (e.g. single item with years)
+  const isYearBasedContainer =
+    dbItems.length === 1 ||
+    dbContainers.find((c) => c.id === container)?.title.includes("বিশ্ববিদ্যালয়") ||
+    dbContainers.find((c) => c.id === container)?.title.includes("ভর্তি") ||
+    dbContainers.find((c) => c.id === container)?.title.includes("Varsity") ||
+    dbContainers.find((c) => c.id === container)?.title.includes("বুয়েট") ||
+    dbContainers.find((c) => c.id === container)?.title.includes("মেডিকেল");
 
   // Calculate total questions for selected filters
   const totalSubitemsQuestions = dbSubitems.reduce(
@@ -172,6 +181,7 @@ export default function PollConfigPage() {
             : questionLimit;
 
       const qbQuestions = await getPollQuestionsAction({
+        containerId: container && container !== "all" ? container : undefined,
         itemId: item || undefined,
         subitemId: subitem,
         paper,
@@ -198,8 +208,12 @@ export default function PollConfigPage() {
     <div className="w-full max-w-4xl mx-auto py-1 sm:py-4">
       <div className="w-full bg-card border border-border/60 rounded-2xl p-4 sm:p-6 md:p-8 shadow-xs">
         <FieldGroup className="flex flex-col gap-4 sm:gap-6 w-full">
-          {/* Row 1: Container (Question Bank) & Subject */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
+          {/* Row 1: Container (Question Bank) & Subject/Unit */}
+          <div
+            className={`grid grid-cols-1 ${
+              isYearBasedContainer ? "grid-cols-1 md:grid-cols-2" : "md:grid-cols-2"
+            } gap-4 sm:gap-6 w-full`}
+          >
             {/* Question Bank Select */}
             <Field className="w-full">
               <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
@@ -230,78 +244,119 @@ export default function PollConfigPage() {
               </Select>
             </Field>
 
-            {/* Subject Select */}
+            {/* Subject Select (if multiple items) OR Direct Year Select (if year-based / single item) */}
+            {!isYearBasedContainer || dbItems.length > 1 ? (
+              <Field className="w-full">
+                <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
+                  ২. বিষয় / ইউনিট নির্বাচন করুন
+                </FieldLabel>
+                <Select value={item} onValueChange={(v) => v && setItem(v)}>
+                  <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
+                    <SelectValue
+                      placeholder={
+                        loadingItems ? "লোড হচ্ছে..." : "বিষয় সিলেক্ট করুন"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      {dbItems.map((sub) => (
+                        <SelectItem key={sub.id} value={sub.id}>
+                          {sub.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            ) : (
+              <Field className="w-full">
+                <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                    ২. সাল / সেশন নির্বাচন করুন
+                  </FieldLabel>
+                  {currentChapterQuestions > 0 && (
+                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-md">
+                      {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন
+                    </span>
+                  )}
+                </div>
+                <Select
+                  value={subitem || "all"}
+                  onValueChange={(v) => v && setSubitem(v)}
+                >
+                  <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
+                    <SelectValue
+                      placeholder={
+                        loadingSubitems ? "সাল লোড হচ্ছে..." : "সাল সিলেক্ট করুন"
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectGroup>
+                      <SelectItem value="all">
+                        সকল সাল ({toBanglaDigits(totalSubitemsQuestions)} টি প্রশ্ন)
+                      </SelectItem>
+                      {dbSubitems.map((ch) => (
+                        <SelectItem key={ch.id} value={ch.id}>
+                          {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          </div>
+
+          {/* Row 2: Chapter Selection (if subject-based with multiple subjects) */}
+          {(!isYearBasedContainer || dbItems.length > 1) && (
             <Field className="w-full">
-              <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5 sm:mb-2">
-                ২. বিষয় নির্বাচন করুন
-              </FieldLabel>
-              <Select value={item} onValueChange={(v) => v && setItem(v)}>
+              <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
+                  ৩. অধ্যায় / সাল নির্বাচন করুন
+                </FieldLabel>
+                {currentChapterQuestions > 0 && (
+                  <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md">
+                    {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন উপলব্ধ
+                  </span>
+                )}
+              </div>
+              <Select
+                value={subitem || "all"}
+                onValueChange={(v) => v && setSubitem(v)}
+              >
                 <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
                   <SelectValue
                     placeholder={
-                      loadingItems ? "বিষয় লোড হচ্ছে..." : "বিষয় সিলেক্ট করুন"
+                      loadingSubitems
+                        ? "অধ্যায় লোড হচ্ছে..."
+                        : "অধ্যায় সিলেক্ট করুন"
                     }
                   />
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
-                    {dbItems.map((sub) => (
-                      <SelectItem key={sub.id} value={sub.id}>
-                        {sub.name}
+                    <SelectItem value="all">
+                      সকল অধ্যায় / সাল ({toBanglaDigits(totalSubitemsQuestions)} টি
+                      প্রশ্ন)
+                    </SelectItem>
+                    {dbSubitems.map((ch) => (
+                      <SelectItem key={ch.id} value={ch.id}>
+                        {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </Field>
-          </div>
-
-          {/* Row 2: Chapter Selection */}
-          <Field className="w-full">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                ৩. অধ্যায় / সাল নির্বাচন করুন
-              </FieldLabel>
-              {currentChapterQuestions > 0 && (
-                <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md">
-                  {toBanglaDigits(currentChapterQuestions)} টি প্রশ্ন উপলব্ধ
-                </span>
-              )}
-            </div>
-            <Select
-              value={subitem || "all"}
-              onValueChange={(v) => v && setSubitem(v)}
-            >
-              <SelectTrigger className="w-full h-10 sm:h-12 bg-background border-border/80 rounded-xl text-xs sm:text-sm font-semibold">
-                <SelectValue
-                  placeholder={
-                    loadingSubitems
-                      ? "অধ্যায় লোড হচ্ছে..."
-                      : "অধ্যায় সিলেক্ট করুন"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                <SelectGroup>
-                  <SelectItem value="all">
-                    সকল অধ্যায় / সাল ({toBanglaDigits(totalSubitemsQuestions)} টি
-                    প্রশ্ন)
-                  </SelectItem>
-                  {dbSubitems.map((ch) => (
-                    <SelectItem key={ch.id} value={ch.id}>
-                      {ch.name} ({toBanglaDigits(ch.questionCount || 0)} টি)
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </Field>
+          )}
 
           {/* Row 3: Question Limit (5-10-20 or Enter Amount / সবগুলো) */}
           <Field className="w-full">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2">
               <FieldLabel className="text-[11px] sm:text-xs font-bold text-muted-foreground uppercase tracking-wider block">
-                ৪. প্রশ্নের সংখ্যা নির্বাচন করুন (Amount)
+                {(!isYearBasedContainer || dbItems.length > 1) ? "৪" : "৩"}. প্রশ্নের সংখ্যা নির্বাচন করুন (Amount)
               </FieldLabel>
               {isCustomLimit && (
                 <span className="text-[11px] font-bold text-primary">
@@ -319,31 +374,31 @@ export default function PollConfigPage() {
               >
                 <ToggleGroupItem
                   value="5"
-                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold cursor-pointer"
                 >
                   ৫টি
                 </ToggleGroupItem>
                 <ToggleGroupItem
                   value="10"
-                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold cursor-pointer"
                 >
                   ১০টি
                 </ToggleGroupItem>
                 <ToggleGroupItem
                   value="20"
-                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold cursor-pointer"
                 >
                   ২০টি
                 </ToggleGroupItem>
                 <ToggleGroupItem
                   value="0"
-                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold cursor-pointer"
                 >
                   সবগুলো ({toBanglaDigits(currentChapterQuestions)})
                 </ToggleGroupItem>
                 <ToggleGroupItem
                   value="custom"
-                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold"
+                  className="h-10 sm:h-11 border border-border/80 rounded-xl data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary text-xs sm:text-sm font-semibold cursor-pointer"
                 >
                   Enter Amount ✎
                 </ToggleGroupItem>
@@ -405,3 +460,4 @@ export default function PollConfigPage() {
     </div>
   );
 }
+

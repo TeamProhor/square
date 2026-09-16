@@ -220,3 +220,336 @@ export async function getRecentUploadedQuestions(limit = 10) {
     return [];
   }
 }
+
+function slugifyYear(text: string): string {
+  const bnDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  let converted = text.trim();
+  bnDigits.forEach((bn, idx) => {
+    converted = converted.replaceAll(bn, String(idx));
+  });
+  return (
+    converted
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "") || `year-${Date.now()}`
+  );
+}
+
+export interface ImportYearQuestionsPayload {
+  containerId: string;
+  yearName: string;
+  questionsList: readonly any[];
+  standard?: "HSC" | "Varsity" | "Engineering" | "Medical";
+  type?: "mcq" | "cq";
+  source?: string;
+  isFree?: boolean;
+}
+
+export async function importYearBasedQuestionsAction(
+  payload: ImportYearQuestionsPayload,
+) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (session?.user?.role !== "admin") {
+      return { success: false, error: "শুধুমাত্র অ্যাডমিন এক্সেস প্রয়োজন।" };
+    }
+
+    if (!payload.containerId) {
+      return { success: false, error: "প্রশ্নব্যাংক নির্বাচন করুন।" };
+    }
+
+    const yearName = payload.yearName?.trim();
+    if (!yearName) {
+      return { success: false, error: "সাল বা সেশন উল্লেখ করুন।" };
+    }
+
+    if (!payload.questionsList || payload.questionsList.length === 0) {
+      return { success: false, error: "কোনো প্রশ্ন প্রদান করা হয়নি।" };
+    }
+
+    const container = await db.query.containers.findFirst({
+      where: eq(containers.id, payload.containerId),
+    });
+
+    if (!container) {
+      return { success: false, error: "প্রশ্নব্যাংক পাওয়া যায়নি।" };
+    }
+
+    const yearSlug = slugifyYear(yearName);
+
+    // 1. Find or create the root/general item for this container
+    let targetItem = await db.query.items.findFirst({
+      where: eq(items.containerId, container.id),
+    });
+
+    if (!targetItem) {
+      const newItemId = crypto.randomUUID();
+      const [createdItem] = await db
+        .insert(items)
+        .values({
+          id: newItemId,
+          containerId: container.id,
+          name: "সালসমূহ",
+          slug: "years",
+          code: "YEARS",
+        })
+        .returning();
+      targetItem = createdItem;
+    }
+
+    if (!targetItem) {
+      return { success: false, error: "আইটেম তৈরি বা পাওয়া যায়নি।" };
+    }
+
+    // 2. Find or create the subitem (Year) under targetItem
+    let targetSubitem = await db.query.subitems.findFirst({
+      where: (subitems, { and, eq, or }) =>
+        and(
+          eq(subitems.itemId, targetItem.id),
+          or(eq(subitems.name, yearName), eq(subitems.slug, yearSlug)),
+        ),
+    });
+
+    if (!targetSubitem) {
+      const [createdSubitem] = await db
+        .insert(subitems)
+        .values({
+          itemId: targetItem.id,
+          name: yearName,
+          slug: yearSlug,
+          orderNo: 0,
+        })
+        .returning();
+      targetSubitem = createdSubitem;
+    }
+
+    if (!targetSubitem) {
+      return { success: false, error: "সাল/সেশন রেকর্ড তৈরি করা সম্ভব হয়নি।" };
+    }
+
+    // 3. Insert questions into this subitem
+    const defaultSource =
+      payload.source?.trim() || `${container.title} ${yearName}`;
+    const defaultStandard =
+      payload.standard ||
+      (container.title.includes("বুয়েট") ||
+      container.title.includes("ইঞ্জিনিয়ারিং")
+        ? "Engineering"
+        : container.title.includes("মেডিকেল")
+          ? "Medical"
+          : "Varsity");
+
+    const insertedCount = await db.transaction(async (tx) => {
+      let count = 0;
+
+      for (const itemData of payload.questionsList) {
+        const qText = (
+          itemData.questionText ||
+          itemData.question_text ||
+          itemData.question ||
+          ""
+        ).trim();
+        if (!qText) continue;
+
+        const resolvedType =
+          (payload.type || itemData.type || "mcq") === "cq" ? "cq" : "mcq";
+        const resolvedStandard = (payload.standard ||
+          itemData.standard ||
+          defaultStandard) as "HSC" | "Varsity" | "Engineering" | "Medical";
+        const resolvedSource = (itemData.source || defaultSource).trim();
+        const resolvedIsFree = Boolean(
+          payload.isFree !== undefined
+            ? payload.isFree
+            : (itemData.isFree ?? itemData.is_free ?? false),
+        );
+        const resolvedExplanation =
+          (itemData.explanation || itemData.solution || "").trim() || null;
+
+        const [question] = await tx
+          .insert(questions)
+          .values({
+            subitemId: targetSubitem.id,
+            topicId: null,
+            type: resolvedType,
+            source: resolvedSource,
+            standard: resolvedStandard,
+            questionText: qText,
+            explanation: resolvedExplanation,
+            isFree: resolvedIsFree,
+          })
+          .returning();
+
+        if (!question) continue;
+        count++;
+
+        if (resolvedType === "mcq") {
+          const rawOptions =
+            itemData.mcqOptions || itemData.mcq_options || itemData.options || [];
+          if (Array.isArray(rawOptions) && rawOptions.length > 0) {
+            const correctIndex =
+              typeof itemData.correctIdx === "number"
+                ? itemData.correctIdx
+                : typeof itemData.correctIndex === "number"
+                  ? itemData.correctIndex
+                  : typeof itemData.correctOption === "number"
+                    ? itemData.correctOption
+                    : -1;
+
+            const optionsToInsert = rawOptions.map((opt: any, idx: number) => {
+              const optText = (
+                typeof opt === "string"
+                  ? opt
+                  : opt.optionText || opt.option_text || opt.text || ""
+              ).trim();
+
+              const isOptCorrect =
+                typeof opt === "object" && opt !== null && "isCorrect" in opt
+                  ? Boolean(opt.isCorrect)
+                  : typeof opt === "object" && opt !== null && "is_correct" in opt
+                    ? Boolean(opt.is_correct)
+                    : correctIndex === idx;
+
+              return {
+                questionId: question.id,
+                optionText: optText,
+                isCorrect: isOptCorrect,
+                orderNo: idx + 1,
+              };
+            });
+
+            if (
+              !optionsToInsert.some((o) => o.isCorrect) &&
+              optionsToInsert.length > 0
+            ) {
+              optionsToInsert[0].isCorrect = true;
+            }
+
+            await tx.insert(mcqOptions).values(optionsToInsert);
+          }
+        } else if (resolvedType === "cq") {
+          const rawParts =
+            itemData.cqParts || itemData.cq_parts || itemData.parts || [];
+          if (Array.isArray(rawParts) && rawParts.length > 0) {
+            const defaultKeys: Array<"a" | "b" | "c" | "d"> = [
+              "a",
+              "b",
+              "c",
+              "d",
+            ];
+            const partsToInsert = rawParts.map((pt: any, idx: number) => ({
+              questionId: question.id,
+              partKey: (pt.partKey ||
+                pt.part_key ||
+                defaultKeys[idx] ||
+                "a") as "a" | "b" | "c" | "d",
+              questionText: (
+                pt.questionText ||
+                pt.question_text ||
+                pt.text ||
+                ""
+              ).trim(),
+              answerText:
+                (
+                  pt.answerText ||
+                  pt.answer_text ||
+                  pt.answer ||
+                  ""
+                ).trim() || null,
+              marks: typeof pt.marks === "number" ? pt.marks : idx + 1,
+              orderNo: idx + 1,
+            }));
+            await tx.insert(cqParts).values(partsToInsert);
+          }
+        }
+      }
+
+      return count;
+    });
+
+    try {
+      revalidatePath("/admin/qb");
+      revalidatePath(`/admin/qb/${container.slug}`);
+      revalidatePath("/qb");
+      revalidatePath(`/qb/${container.slug}`);
+      revalidatePath(
+        `/qb/${container.slug}/${targetItem.slug}/${targetSubitem.slug}`,
+      );
+      revalidatePath("/poll");
+      revalidatePath("/poll/config");
+    } catch (err) {
+      console.warn("Revalidate error:", err);
+    }
+
+    return {
+      success: true,
+      count: insertedCount,
+      containerTitle: container.title,
+      containerSlug: container.slug,
+      itemSlug: targetItem.slug,
+      yearName: targetSubitem.name,
+      yearSlug: targetSubitem.slug,
+      subitemId: targetSubitem.id,
+    };
+  } catch (error: unknown) {
+    console.error("Error in importYearBasedQuestionsAction:", error);
+    return {
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "প্রশ্ন আপলোড করতে সমস্যা হয়েছে।",
+    };
+  }
+}
+
+export async function getContainerYearsAction(containerId: string) {
+  try {
+    if (!containerId) return [];
+    const container = await db.query.containers.findFirst({
+      where: eq(containers.id, containerId),
+      with: {
+        items: {
+          with: {
+            subitems: {
+              with: {
+                questions: {
+                  columns: { id: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!container) return [];
+
+    const allYears: Array<{
+      id: string;
+      name: string;
+      slug: string;
+      itemSlug: string;
+      questionCount: number;
+    }> = [];
+
+    for (const itm of container.items || []) {
+      for (const sub of itm.subitems || []) {
+        allYears.push({
+          id: sub.id,
+          name: sub.name,
+          slug: sub.slug,
+          itemSlug: itm.slug,
+          questionCount: sub.questions?.length || 0,
+        });
+      }
+    }
+
+    return allYears;
+  } catch (error) {
+    console.error("Error fetching container years:", error);
+    return [];
+  }
+}
+

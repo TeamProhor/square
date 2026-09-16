@@ -1,275 +1,269 @@
-# Graph Report - square  (2026-09-14)
+# Graph Report - square  (2026-09-16)
 
 ## Corpus Check
-- 286 files · ~234,158 words
+- 7 files · ~234,434 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 10 file(s) not represented in the graph (top: .ttf 5, .csv 2, (none) 1)
 
 ## Summary
-- 4188 nodes · 9690 edges · 265 communities (117 shown, 142 thin omitted)
+- 4189 nodes · 9680 edges · 261 communities (118 shown, 136 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 49 edges (avg confidence: 0.85)
-- Token cost: 100 input · 50 output
+- Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- PDF Forms & XFA Object Model
-- PDF Fonts & Character Mapping
-- PDF Encryption & Cryptography
-- PDF Forms & XFA Object Model
-- PDF Encryption & Cryptography
-- PDF Forms & XFA Object Model
-- PDF Fonts & Character Mapping
-- UI Components (Field / Native Select)
-- UI Components (Alert Dialog / Table)
-- PDF Worker Core Engine
-- UI Components (Sonner)
-- UI Components (Card)
-- PDF Encryption & Cryptography
-- UI Components (Tabs / Accordion)
-- Admin Batch Management
-- UI Components (Drawer)
-- PDF Annotations & Widgets
-- PDF Annotations & Widgets
-- PDF Forms & XFA Object Model
-- UI Components (Sidebar / Sheet)
-- PDF Encryption & Cryptography
-- Admin Exams & Question Bank
-- PDF Fonts & Character Mapping
-- Project Dependencies & Tooling
-- PDF Annotations & Widgets
-- PDF Fonts & Character Mapping
-- UI Components (Pagination / Select)
-- UI Components (Combobox / Command)
-- UI Components (Dialog)
-- Admin Exams & Question Bank
-- UI Components (Avatar)
-- PDF Fonts & Character Mapping
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- Project Dependencies & Tooling
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- UI Components (Bubble / Marker)
-- Admin Exams & Question Bank
-- Admin Management Portal
-- PDF Annotations & Widgets
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- UI Components (Menubar / Input Otp)
-- PDF Annotations & Widgets
-- PDF Worker Core Engine
-- biome.json Module
-- components.json Module
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- Admin Exams & Question Bank
-- PDF Worker Core Engine
-- PDF Object Stream & Output Compression
-- UI Components (Popover / Hover Card)
-- PDF Encryption & Cryptography
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- Admin Exams & Question Bank
-- UI Components (Item / Button Group)
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- Exam & Poll Taking Interface
-- tsconfig.json Module
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- Project Dependencies & Tooling
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- UI Components (Avatar)
-- UI Components (Context Menu)
-- UI Components (Dropdown Menu)
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Annotations & Widgets
-- UI Components (Carousel)
-- UI Components (Tooltip)
-- Course & Batch Detail Views
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- UI Components (Chart)
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Graphics & Stream Evaluation
-- shadcn OpenAI Agent Interface Metadata Module
-- Project Dependencies & Tooling
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- Admin Exams & Question Bank
-- UI Components (Attachment)
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Fonts & Character Mapping
-- UI Components (Confetti)
-- Admin Management Portal
-- Admin Exams & Question Bank
-- PDF Forms & XFA Object Model
-- PDF Fonts & Character Mapping
-- PDF Forms & XFA Object Model
-- UI Components (Animated Theme Toggler)
-- Admin Management Portal
-- UI Components (Navigation Menu)
-- Async I/O Model Module
-- google.svg Module
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Graphics & Stream Evaluation
-- Project Dependencies & Tooling
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- UI Components (Alert)
-- UI Components (Empty)
-- Project Dependencies & Tooling
-- PDF Annotations & Widgets
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- Database Schema & Storage
-- PDF Worker Core Engine
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- Project Dependencies & Tooling
-- tsc_errors2.txt Module
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Forms & XFA Object Model
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- Next.js Agent Rules Module
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Encryption & Cryptography
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Fonts & Character Mapping
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- README.md Module
-- doctor.config.mjs Module
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Object Stream & Output Compression
-- PDF Object Stream & Output Compression
-- PDF Object Stream & Output Compression
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Encryption & Cryptography
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- PDF Worker Core Engine
-- proxy.ts Module
-- postcss.config.mjs Module
-- Authentication & Protected Routes
-- Eng. Platform HTML Portal Module
+- Acrobat7
+- pdf.worker.min.js
+- Authentication & Sessions
+- addChildren()
+- AppearanceFilter
+- Acrobat
+- Authentication & Sessions
+- Exam Management & Proctoring
+- UI Primitives & Components
+- addString()
+- CalendarSymbols
+- applyAssist()
+- .fontFallback()
+- Courses & Batches
+- Exam Management & Proctoring
+- addHex()
+- AppearanceStreamEvaluator
+- Annotation
+- .peekBytes()
+- adjustWidths()
+- Question Bank & Access
+- XFAObject
+- UI Primitives & Components
+- Exam Management & Proctoring
+- AES128Cipher
+- Exam Management & Proctoring
+- Authentication & Sessions
+- Authentication & Sessions
+- Exam Management & Proctoring
+- #a()
+- AstArgument
+- UI Primitives & Components
+- ContextCache
+- Authentication & Sessions
+- BooleanElement
+- buildCodeblocks()
+- ConnectionSet
+- Body
+- .mustBePrinted()
+- decodeAndClamp()
+- Exam Management & Proctoring
+- addPara()
+- biome.json
+- components.json
+- add()
+- Area
+- Arc
+- Ascii85Stream
+- CFF
+- Courses & Batches
+- next.config.ts
+- .transform()
+- DatasetXMLParser
+- ExclGroup
+- Exam Management & Proctoring
+- ch()
+- ChunkedStream
+- getB()
+- UI Primitives & Components
+- tsconfig.json
+- BasePdfManager
+- .peekByte()
+- .fontInfo()
+- EvalState
+- .getData()
+- InclusionTree
+- .createNodes()
+- cobe
+- UI Primitives & Components
+- bind()
+- buildComponentData()
+- Caption
+- .constructor()
+- UI Primitives & Components
+- CalGrayCS
+- UI Primitives & Components
+- Live Polling System
+- BaseStream
+- CompositeGlyph
+- ContentObject
+- createFromArray()
+- UI Primitives & Components
+- Authentication & Sessions
+- CalRGBCS
+- ColorSpace
+- Exam Management & Proctoring
+- UI Primitives & Components
+- Shadcn UI Library
+- devDependencies
+- getStandardTable()
+- NullOptimizer
+- requestLoadedStream()
+- UI Primitives & Components
+- BitModel
+- getFullReader()
+- xfaFactory()
+- UI Primitives & Components
+- Exam Management & Proctoring
+- _addNamespacePrefix()
+- B
+- CFFDict
+- CompiledFont
+- compileGlyf()
+- onBeginElement()
+- Stream
+- XFAAttribute
+- UI Primitives & Components
+- UI Primitives & Components
+- Turso Storage & Async I/O
+- google.svg
+- _addPixels()
+- Color
+- compileCharString()
+- DecodeStream
+- scripts
+- AlternateCS
+- Contour
+- PageArea
+- .text()
+- TextState
+- UI Primitives & Components
+- UI Primitives & Components
+- UI Primitives & Components
+- AnnotationBorderStyle
+- .xdp()
+- Datasets
+- IndexedCS
+- profile/page.tsx
+- UI Primitives & Components
+- Database Schema & Client
+- annotationGlobals()
+- BaseLocalCache
+- Br
+- cancelAllRequests()
+- CFFFDSelect
+- CFFIndex
+- .validate()
+- DeviceCmykCS
+- ExData
+- on()
+- Signature
+- transform()
+- WorkerTask
+- UI Primitives & Components
+- @react-pdf-viewer/core
+- tsc_errors2.txt
+- BaseShading
+- buildRoot()
+- DeviceGrayCS
+- DeviceRgbCS
+- GlyphHeader
+- Ref
+- Stylesheet
+- .traverse()
+- .ui()
+- UI Primitives & Components
+- Exam Management & Proctoring
+- ManageEnrollmentModal()
+- UI Primitives & Components
+- Next.js Agent Rules
+- Assist
+- BehaviorOverride
+- .exclude()
+- .log()
+- .packets()
+- .picture()
+- .range()
+- .relevant()
+- .script()
+- .uri()
+- .window()
+- Font
+- Html
+- Linear
+- LockDocument
+- Margin
+- Para
+- Radial
+- Solid
+- .variables()
+- README.md
+- doctor.config.mjs
+- AddViewerPreferences
+- AdjustData
+- AlwaysEmbed
+- Amd
+- Attributes
+- Base
+- BatchOutput
+- Certificates
+- Change
+- Cmd
+- Compress
+- Compression
+- CompressObjectStream
+- .copies()
+- .creator()
+- .currentPage()
+- .debug()
+- .defaultTypeface()
+- .destination()
+- .duplexOption()
+- .encryptionLevel()
+- .equate()
+- .formFieldFilling()
+- .ifEmpty()
+- .interactive()
+- .jog()
+- .labelPrinter()
+- .layout()
+- .level()
+- .linearized()
+- .mediumInfo()
+- .numberOfCopies()
+- .output()
+- .outputXSL()
+- .overprint()
+- .pagination()
+- .paginationOverride()
+- .pcl()
+- .pickTrayByPDFSize()
+- .print()
+- .printerName()
+- .printHighQuality()
+- .printScaling()
+- .producer()
+- .ps()
+- .renderPolicy()
+- .silentPrint()
+- .staple()
+- .submitFormat()
+- .suppressBanner()
+- .threshold()
+- .to()
+- .type()
+- .validationMessaging()
+- .viewerPreferences()
+- .webClient()
+- .whitespace()
+- .xsl()
+- .zpl()
+- .xmlConnection()
+- .xsdConnection()
+- Encoding
+- Encodings
+- Hyphenation
+- Issuers
+- Keep
+- Oid
+- SetProperty
+- proxy.ts
+- postcss.config.mjs
+- Authentication & Sessions
+- Eng. Platform HTML Portal
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 357 edges
@@ -279,514 +273,518 @@
 5. `Button()` - 82 edges
 6. `XFAObjectArray` - 66 edges
 7. `has()` - 65 edges
-8. `create()` - 56 edges
-9. `XFAObject` - 56 edges
+8. `XFAObject` - 56 edges
+9. `create()` - 56 edges
 10. `constructor()` - 47 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Hierarchical AGENTS.md Generator` --generates_structure_for--> `Next.js Agent Rules`  [INFERRED]
   .agents/skills/index-knowledge/SKILL.md → AGENTS.md
-- `FeatureCard()` --calls--> `cn()`  [EXTRACTED]
-  src/components/feature-section.tsx → src/lib/utils.ts
-- `FeatureTitle()` --calls--> `cn()`  [EXTRACTED]
-  src/components/feature-section.tsx → src/lib/utils.ts
-- `FeatureDescription()` --calls--> `cn()`  [EXTRACTED]
-  src/components/feature-section.tsx → src/lib/utils.ts
-- `AlertDescription()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/alert.tsx → src/lib/utils.ts
+- `ExamResultResponse` --references--> `Question`  [EXTRACTED]
+  src/components/exams/exam-result-view.tsx → src/types/index.ts
+- `AttachmentAction()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/attachment.tsx → src/lib/utils.ts
+- `AttachmentActions()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/attachment.tsx → src/lib/utils.ts
+- `AttachmentContent()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/attachment.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (265 total, 142 thin omitted)
+## Communities (261 total, 136 thin omitted)
 
-### Community 0 - "PDF Forms & XFA Object Model"
+### Community 0 - "Acrobat7"
 Cohesion: 0.01
-Nodes (44): AlwaysEmbed, Amd, BatchOutput, CompressObjectStream, ConfigNamespace, ContentCopy, Destination, Driver (+36 more)
+Nodes (47): Acrobat7, AddSilentPrint, AdobeExtensionLevel, AutoSave, CompressLogicalStructure, ConfigNamespace, Conformance, ContentCopy (+39 more)
 
-### Community 1 - "PDF Fonts & Character Mapping"
+### Community 1 - "pdf.worker.min.js"
 Cohesion: 0.02
-Nodes (66): accept(), ADBE_JSConsole, ADBE_JSDebugger, amend(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), applyTransform(), BaseException() (+58 more)
+Nodes (78): accept(), ADBE_JSConsole, ADBE_JSDebugger, applyTransform(), BaseException(), bezierBoundingBox(), byteIn(), bytesToString() (+70 more)
 
-### Community 2 - "PDF Encryption & Cryptography"
-Cohesion: 0.02
-Nodes (30): AppearanceFilter, Barcode, Bookend, Break, Certificate, Certificates, DefaultUi, DigestMethod (+22 more)
+### Community 2 - "Authentication & Sessions"
+Cohesion: 0.03
+Nodes (87): dynamic, { GET, POST }, DashboardPage(), dynamic, CourseDetailPageProps, dynamic, MyCourseClassroomPage(), dynamic (+79 more)
 
-### Community 3 - "PDF Forms & XFA Object Model"
+### Community 3 - "addChildren()"
 Cohesion: 0.04
-Nodes (25): addChildren(), addTopLevelNode(), adjustMapping(), calculationOrderIds(), Catalog, appendIfJavaScriptDict(), addPageDict(), parseNestedOrder() (+17 more)
+Nodes (29): addChildren(), addNode(), addTopLevelNode(), adjustMapping(), calculationOrderIds(), Catalog, appendIfJavaScriptDict(), addPageDict() (+21 more)
 
-### Community 4 - "PDF Encryption & Cryptography"
+### Community 4 - "AppearanceFilter"
 Cohesion: 0.02
-Nodes (28): Acrobat, Agent, Common, Config, Data, Desc, DigestMethods, Encodings (+20 more)
+Nodes (30): AppearanceFilter, Barcode, Bookend, Break, Certificate, Comb, Connect, DefaultUi (+22 more)
 
-### Community 5 - "PDF Forms & XFA Object Model"
+### Community 5 - "Acrobat"
+Cohesion: 0.02
+Nodes (27): Acrobat, Agent, Common, Config, Data, Desc, DigestMethods, Encryption (+19 more)
+
+### Community 6 - "Authentication & Sessions"
+Cohesion: 0.08
+Nodes (38): class-variance-authority, @phosphor-icons/react, radix-ui, react, BatchExamEditModalProps, BatchMembersTabProps, EnrollmentRequestData, EditExamFormProps (+30 more)
+
+### Community 7 - "Exam Management & Proctoring"
+Cohesion: 0.07
+Nodes (60): sonner, AdminContainersManager(), AdminContainersManagerProps, AdminItemsManagerProps, AdminQbManager(), AdminQuestionsManager(), AdminQuestionsManagerProps, AdminSubitemsManager() (+52 more)
+
+### Community 8 - "UI Primitives & Components"
+Cohesion: 0.04
+Nodes (65): Breadcrumb(), BreadcrumbEllipsis(), BreadcrumbItem(), BreadcrumbLink(), BreadcrumbList(), BreadcrumbPage(), BreadcrumbSeparator(), CalendarDayButton() (+57 more)
+
+### Community 9 - "addString()"
+Cohesion: 0.06
+Nodes (15): addString(), ButtonWidgetAnnotation, charsToGlyphs(), ChoiceWidgetAnnotation, Dict, documentInfo(), encodeString(), FakeUnicodeFont (+7 more)
+
+### Community 10 - "CalendarSymbols"
 Cohesion: 0.03
 Nodes (24): CalendarSymbols, CurrencySymbol, CurrencySymbols, DatePattern, DatePatterns, DateTimeSymbols, Day, DayNames (+16 more)
 
-### Community 6 - "PDF Fonts & Character Mapping"
-Cohesion: 0.06
-Nodes (11): EvalState, getTransformMatrix(), normalizeRect(), OperatorList, parseShading(), PartialEvaluator, buildPath(), closePendingRestoreOPS() (+3 more)
-
-### Community 7 - "UI Components (Field / Native Select)"
-Cohesion: 0.12
-Nodes (32): react, EditExamFormProps, ExamFormFieldsProps, ExamQuestionBuilderProps, ExamWithQuestions, NewChapterFormProps, NewQuestionBankFormProps, NewQuestionFormProps (+24 more)
-
-### Community 8 - "UI Components (Alert Dialog / Table)"
-Cohesion: 0.05
-Nodes (56): AlertDialogAction(), AlertDialogCancel(), AlertDialogContent(), AlertDialogDescription(), AlertDialogFooter(), AlertDialogHeader(), AlertDialogMedia(), AlertDialogOverlay() (+48 more)
-
-### Community 9 - "PDF Worker Core Engine"
+### Community 11 - "applyAssist()"
 Cohesion: 0.04
 Nodes (22): applyAssist(), ariaLabel(), BreakAfter, BreakBefore, Button, CheckButton, ChoiceList, ContentArea (+14 more)
 
-### Community 10 - "UI Components (Sonner)"
+### Community 12 - ".fontFallback()"
 Cohesion: 0.06
-Nodes (57): sonner, AdminContainersManager(), AdminContainersManagerProps, AdminItemsManager(), AdminItemsManagerProps, AdminQbManager(), AdminQuestionsManager(), AdminSubitemsManager() (+49 more)
+Nodes (12): clean(), forEach(), getCached(), loadXfaFonts(), OperatorList, parseShading(), PartialEvaluator, closePendingRestoreOPS() (+4 more)
 
-### Community 11 - "UI Components (Card)"
+### Community 13 - "Courses & Batches"
 Cohesion: 0.06
-Nodes (46): dynamic, FreeExamsPortalPage(), dynamic, FreeExamLeaderboardPage(), FreeExamLeaderboardPageProps, dynamic, FreeExamOverviewPage(), FreeExamOverviewPageProps (+38 more)
+Nodes (53): @tanstack/react-query, AdminPdfPage(), GET(), CourseDetailPage(), CourseDetailPageProps, dynamic, BatchClassesTab(), getYouTubeEmbedUrl() (+45 more)
 
-### Community 12 - "PDF Encryption & Cryptography"
+### Community 14 - "Exam Management & Proctoring"
+Cohesion: 0.05
+Nodes (53): drizzle-orm, ExamsBrowserPage(), ExamLobbyPage(), TakeExamPage(), AdminBatchesManagerProps, BatchExamsTabProps, ExamWithQuestions, ExamAccess (+45 more)
+
+### Community 15 - "addHex()"
 Cohesion: 0.06
-Nodes (32): AppearanceStreamEvaluator, buildHuffmanTable(), sanitizeTTProgram(), clean(), forEach(), generateFont(), getBaseStreams(), getBeginChunk() (+24 more)
+Nodes (23): addHex(), BinaryCMapStream, CMap, createBuiltInCMap(), expectInt(), expectString(), extendCMap(), getUint32() (+15 more)
 
-### Community 13 - "UI Components (Tabs / Accordion)"
-Cohesion: 0.08
-Nodes (42): GET(), CourseDetailPageProps, dynamic, BatchClassesTab(), getYouTubeEmbedUrl(), BatchPdfsTab(), BatchQbAccessTab(), ContainerItem (+34 more)
-
-### Community 14 - "Admin Batch Management"
-Cohesion: 0.06
-Nodes (42): BatchDetailPage(), NewBatchPage(), handleSubmit(), AdminBatchesPage(), NewExamPage(), handleSubmit(), AdminBatchesManager(), AdminBatchesManagerProps (+34 more)
-
-### Community 15 - "UI Components (Drawer)"
+### Community 16 - "AppearanceStreamEvaluator"
 Cohesion: 0.07
-Nodes (35): vaul, AdminSidebar(), LoginForm(), HambergerMenu(), LanguageToggler(), MobileBottomNav(), MobileBottomNavProps, Sidebar() (+27 more)
+Nodes (34): AppearanceStreamEvaluator, buildHuffmanTable(), sanitizeTTProgram(), findNextFileMarker(), generateFont(), getBaseStreams(), getBeginChunk(), getEndChunk() (+26 more)
 
-### Community 16 - "PDF Annotations & Widgets"
-Cohesion: 0.07
-Nodes (16): addNode(), Dict, documentInfo(), FakeUnicodeFont, findNextFileMarker(), formInfo(), FreeTextAnnotation, generateImages() (+8 more)
-
-### Community 17 - "PDF Annotations & Widgets"
+### Community 17 - "Annotation"
 Cohesion: 0.08
-Nodes (23): #a(), CaretAnnotation, CircleAnnotation, create(), getInt(), fieldObjects(), FileAttachmentAnnotation, getPdfColorArray() (+15 more)
+Nodes (9): Annotation, getPdfColorArray(), getQuadPoints(), getRgbColor(), getTransformMatrix(), intersect(), LinkAnnotation, normalizeRect() (+1 more)
 
-### Community 19 - "UI Components (Sidebar / Sheet)"
+### Community 18 - ".peekBytes()"
+Cohesion: 0.07
+Nodes (18): CipherTransform, EvaluatorPreprocessor, fetchCompressed(), fetchUncompressed(), getNumber(), Jbig2Stream, Lexer, load() (+10 more)
+
+### Community 19 - "adjustWidths()"
 Cohesion: 0.06
-Nodes (39): Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay(), SheetTitle(), Sidebar() (+31 more)
+Nodes (45): adjustWidths(), amend(), amendFallbackToUnicode(), applyStandardFontGlyphMap(), buildToFontChar(), charCodeOf(), checkAndRepair(), readNameTable() (+37 more)
 
-### Community 20 - "PDF Encryption & Cryptography"
+### Community 20 - "Question Bank & Access"
+Cohesion: 0.07
+Nodes (42): AdminAddQuestionPage(), dynamic, AdminAddQuestionPage(), dynamic, EditChapterForm(), EditQuestionBankForm(), EditSubjectForm(), EditTopicForm() (+34 more)
+
+### Community 22 - "UI Primitives & Components"
+Cohesion: 0.06
+Nodes (40): Sheet(), SheetContent(), SheetDescription(), SheetFooter(), SheetHeader(), SheetOverlay(), SheetTitle(), Sidebar() (+32 more)
+
+### Community 23 - "Exam Management & Proctoring"
+Cohesion: 0.08
+Nodes (32): react-markdown, rehype-katex, rehype-raw, remark-breaks, remark-gfm, remark-math, PollConfigPage(), PollSolvePage() (+24 more)
+
+### Community 24 - "AES128Cipher"
 Cohesion: 0.08
 Nodes (10): AES128Cipher, AES256Cipher, AESBaseCipher, ARCFourCipher, calculateSHA384(), CipherTransformFactory, Encrypt, NullCipher (+2 more)
 
-### Community 21 - "Admin Exams & Question Bank"
-Cohesion: 0.06
-Nodes (37): PollSolvePage(), toBengaliNumber(), PollTakePage(), EditQuestionFormProps, ExamOverviewDialog(), ExamOverviewDialogProps, ExamResultResponse, ExamResultSubmission (+29 more)
+### Community 25 - "Exam Management & Proctoring"
+Cohesion: 0.08
+Nodes (37): ExamQuestionsPage(), ExamResultsPage(), AdminExamsPage(), AdminExamsList(), AdminExamsListProps, Batch, Exam, TYPE_LABELS (+29 more)
 
-### Community 22 - "PDF Fonts & Character Mapping"
-Cohesion: 0.07
-Nodes (16): CMap, createBuiltInCMap(), expectInt(), expectString(), extendCMap(), getUint32(), IdentityCMap, parseBfChar() (+8 more)
-
-### Community 23 - "Project Dependencies & Tooling"
+### Community 26 - "Authentication & Sessions"
 Cohesion: 0.05
 Nodes (42): dependencies, @base-ui/react, better-auth, canvas-confetti, class-variance-authority, clsx, cmdk, cobe (+34 more)
 
-### Community 24 - "PDF Annotations & Widgets"
-Cohesion: 0.10
-Nodes (8): addString(), ButtonWidgetAnnotation, charsToGlyphs(), ChoiceWidgetAnnotation, encodeString(), getCharPositions(), TextWidgetAnnotation, WidgetAnnotation
-
-### Community 25 - "PDF Fonts & Character Mapping"
-Cohesion: 0.06
-Nodes (19): compileCharString(), bezierCurveTo(), lineTo(), moveTo(), CompiledFont, compileGlyf(), lineTo(), moveTo() (+11 more)
-
-### Community 26 - "UI Components (Pagination / Select)"
-Cohesion: 0.16
-Nodes (28): @tanstack/react-query, AdminQuestionsManagerProps, EnrollmentRequestRow, EnrollmentRequestsListProps, EditQuestionForm(), items, AssignedBatchInfo, CategoryFilter (+20 more)
-
-### Community 27 - "UI Components (Combobox / Command)"
-Cohesion: 0.06
-Nodes (32): @base-ui/react, cmdk, ComboboxChip(), ComboboxChips(), ComboboxChipsInput(), ComboboxClear(), ComboboxContent(), ComboboxEmpty() (+24 more)
-
-### Community 28 - "UI Components (Dialog)"
-Cohesion: 0.10
-Nodes (29): react-markdown, rehype-katex, rehype-raw, remark-breaks, remark-gfm, remark-math, dynamic, FreeExamTakePage() (+21 more)
-
-### Community 29 - "Admin Exams & Question Bank"
+### Community 27 - "Authentication & Sessions"
 Cohesion: 0.09
-Nodes (23): dynamic, { GET, POST }, CourseDetailPage(), DashboardPage(), dynamic, dynamic, MyCoursesPage(), dynamic (+15 more)
+Nodes (31): vaul, AdminSidebar(), HambergerMenu(), LanguageToggler(), MobileBottomNav(), MobileBottomNavProps, Sidebar(), Drawer() (+23 more)
 
-### Community 30 - "UI Components (Avatar)"
-Cohesion: 0.10
-Nodes (28): ExamsBrowserPage(), ExamLeaderboardPage(), ExamLobbyPage(), ExamResultPage(), TakeExamPage(), ExamLobbyView(), ExamResultView(), LiveExamView() (+20 more)
+### Community 28 - "Exam Management & Proctoring"
+Cohesion: 0.09
+Nodes (31): BatchDetailPage(), NewBatchPage(), handleSubmit(), AdminBatchesPage(), NewExamPage(), handleSubmit(), AdminBatchesManager(), BatchDetailView() (+23 more)
 
-### Community 31 - "PDF Fonts & Character Mapping"
+### Community 29 - "#a()"
 Cohesion: 0.08
-Nodes (23): adjustWidths(), byteIn(), constructor(), _createBuiltInEncoding(), DatasetXMLParser, decrypt(), extractFontHeader(), extractFontProgram() (+15 more)
+Nodes (21): #a(), _cache(), CaretAnnotation, CircleAnnotation, create(), getInt(), fieldObjects(), FileAttachmentAnnotation (+13 more)
 
-### Community 32 - "PDF Forms & XFA Object Model"
-Cohesion: 0.10
-Nodes (21): annotationGlobals(), checkFirstPage(), checkLastPage(), createGlobals(), ensure(), on(), requestLoadedStream(), resetNewTemporaryRef() (+13 more)
-
-### Community 33 - "PDF Worker Core Engine"
+### Community 30 - "AstArgument"
 Cohesion: 0.09
-Nodes (12): AstArgument, AstBinaryOperation, AstLiteral, AstMin, AstNode, AstVariable, AstVariableDefinition, buildAddOperation() (+4 more)
+Nodes (13): AstArgument, AstBinaryOperation, AstLiteral, AstMin, AstNode, AstVariable, AstVariableDefinition, buildAddOperation() (+5 more)
 
-### Community 34 - "Project Dependencies & Tooling"
+### Community 31 - "UI Primitives & Components"
+Cohesion: 0.06
+Nodes (30): @base-ui/react, cmdk, ComboboxChip(), ComboboxChips(), ComboboxChipsInput(), ComboboxClear(), ComboboxContent(), ComboboxEmpty() (+22 more)
+
+### Community 32 - "ContextCache"
+Cohesion: 0.12
+Nodes (14): ContextCache, decodeBitmap(), decodeIAID(), decodeInteger(), readBits(), decodeMMRBitmap(), decodeRefinement(), decodeTextRegion() (+6 more)
+
+### Community 33 - "Authentication & Sessions"
 Cohesion: 0.06
 Nodes (31): ignoreScripts, name, packageManager, private, trustedDependencies, version, babel-plugin-react-compiler, better-auth (+23 more)
 
-### Community 35 - "PDF Worker Core Engine"
+### Community 34 - "BooleanElement"
 Cohesion: 0.06
 Nodes (8): BooleanElement, DateElement, DateTime, Decimal, Float, Integer, Time, valueToHtml()
 
-### Community 36 - "PDF Worker Core Engine"
+### Community 35 - "buildCodeblocks()"
 Cohesion: 0.09
 Nodes (22): buildCodeblocks(), buildPackets(), buildPrecincts(), Calculate, calculateComponentDimensions(), calculateTileGrids(), ComponentPositionResolutionLayerIterator(), createPacket() (+14 more)
 
-### Community 37 - "PDF Forms & XFA Object Model"
+### Community 36 - "ConnectionSet"
 Cohesion: 0.08
-Nodes (12): ConnectionSet, ConnectionSetNamespace, EffectiveInputPolicy, EffectiveOutputPolicy, getMeasurement(), parseExpression(), RootElement, SoapAction (+4 more)
+Nodes (12): ConnectionSet, ConnectionSetNamespace, EffectiveInputPolicy, EffectiveOutputPolicy, getMeasurement(), Operation, parseExpression(), RootElement (+4 more)
 
-### Community 38 - "UI Components (Bubble / Marker)"
-Cohesion: 0.09
-Nodes (19): class-variance-authority, radix-ui, Badge(), badgeVariants, Bubble(), BubbleContent(), BubbleGroup(), BubbleReactions() (+11 more)
-
-### Community 39 - "Admin Exams & Question Bank"
-Cohesion: 0.13
-Nodes (17): dynamic, QbChaptersPage(), dynamic, QbChapterPage(), dynamic, QbSubjectsPage(), ChapterQuestionsViewer(), AssignedBatch (+9 more)
-
-### Community 40 - "Admin Management Portal"
-Cohesion: 0.06
-Nodes (29): account, batchDetailsRelations, batchEnrollmentRequestsRelations, batchEnrollmentsRelations, batchesRelations, batchExamsRelations, batchMembersRelations, batchQbAccessRelations (+21 more)
-
-### Community 41 - "PDF Annotations & Widgets"
-Cohesion: 0.13
-Nodes (3): Annotation, getRgbColor(), PopupAnnotation
-
-### Community 42 - "PDF Worker Core Engine"
-Cohesion: 0.08
-Nodes (18): bind(), _bindElement(), _bindItems(), _bindOccurrences(), _bindValue(), _createOccurrences(), createText(), _findDataByNameToConsume() (+10 more)
-
-### Community 43 - "PDF Forms & XFA Object Model"
+### Community 37 - "Body"
 Cohesion: 0.08
 Nodes (10): Body, Li, mapStyle(), Ol, Span, Sub, Sup, Ul (+2 more)
 
-### Community 44 - "PDF Worker Core Engine"
+### Community 38 - ".mustBePrinted()"
+Cohesion: 0.09
+Nodes (3): Page, printNewAnnotations(), saveNewAnnotations()
+
+### Community 39 - "decodeAndClamp()"
 Cohesion: 0.12
 Nodes (5): decodeAndClamp(), Fill, ImageResizer, PDFImage, resizeImageMask()
 
-### Community 45 - "UI Components (Menubar / Input Otp)"
-Cohesion: 0.07
-Nodes (20): input-otp, @phosphor-icons/react, buttonVariants, Calendar(), CalendarDayButton(), Checkbox(), InputOTP(), InputOTPGroup() (+12 more)
+### Community 40 - "Exam Management & Proctoring"
+Cohesion: 0.14
+Nodes (22): dynamic, FreeExamOverviewPage(), FreeExamOverviewPageProps, FreeExamLeaderboardViewProps, FreeExamStartForm(), FreeExamStartFormProps, FreeExamsClientViewProps, TABS (+14 more)
 
-### Community 46 - "PDF Annotations & Widgets"
+### Community 41 - "addPara()"
 Cohesion: 0.10
-Nodes (3): Page, printNewAnnotations(), saveNewAnnotations()
+Nodes (14): addPara(), decrypt(), extractFontHeader(), extractFontProgram(), getToken(), isSpecial(), P, PostScriptToken (+6 more)
 
-### Community 47 - "PDF Worker Core Engine"
-Cohesion: 0.11
-Nodes (8): _cache(), createFromArray(), Execute, getCached(), parseCff(), PDFFunction, PostScriptCompiler, toNumberArray()
-
-### Community 48 - "biome.json Module"
+### Community 42 - "biome.json"
 Cohesion: 0.07
 Nodes (26): source, assist, actions, css, parser, next, react, files (+18 more)
 
-### Community 49 - "components.json Module"
+### Community 43 - "components.json"
 Cohesion: 0.07
 Nodes (26): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent (+18 more)
 
-### Community 50 - "PDF Fonts & Character Mapping"
-Cohesion: 0.18
+### Community 44 - "add()"
+Cohesion: 0.17
 Nodes (4): add(), addPdfFont(), CFFCompiler, CFFOffsetTracker
 
-### Community 51 - "PDF Worker Core Engine"
+### Community 45 - "Area"
 Cohesion: 0.07
 Nodes (4): Area, getContainedChildren(), Subform, SubformSet
 
-### Community 52 - "PDF Forms & XFA Object Model"
-Cohesion: 0.12
-Nodes (6): isWhitespace(), onText(), parseFromString(), XFAParser, XMLParserBase, skipWs()
-
-### Community 53 - "Admin Exams & Question Bank"
-Cohesion: 0.12
-Nodes (21): drizzle-orm, ExamResultsPage(), EditExamForm(), handleDelete(), handleSubmit(), ExamQuestionBuilder(), handleAddQuestion(), handleAddSelectedQuestions() (+13 more)
-
-### Community 54 - "PDF Worker Core Engine"
+### Community 46 - "Arc"
 Cohesion: 0.08
 Nodes (7): Arc, Border, Corner, Edge, hasMargin(), Line, Rectangle
 
-### Community 55 - "PDF Object Stream & Output Compression"
-Cohesion: 0.15
-Nodes (12): fetchCompressed(), fetchUncompressed(), getNumber(), indexObjects(), Lexer, nextChar(), processXRefStream(), processXRefTable() (+4 more)
-
-### Community 56 - "UI Components (Popover / Hover Card)"
+### Community 47 - "Ascii85Stream"
 Cohesion: 0.08
-Nodes (13): react-resizable-panels, QuickList(), QuickListItem, QuickListProps, HoverCardContent(), PopoverContent(), PopoverDescription(), PopoverHeader() (+5 more)
+Nodes (7): Ascii85Stream, AsciiHexStream, CCITTFaxStream, JpxStream, LZWStream, PredictorStream, RunLengthStream
 
-### Community 57 - "PDF Encryption & Cryptography"
-Cohesion: 0.18
-Nodes (3): CipherTransform, Parser, ParserEOFException
+### Community 48 - "CFF"
+Cohesion: 0.09
+Nodes (8): CFF, CFFCharset, CFFHeader, CFFPrivateDict, CFFStrings, CFFTopDict, parseHeader(), wrap()
 
-### Community 58 - "PDF Worker Core Engine"
-Cohesion: 0.18
-Nodes (11): decodeIAID(), decodeInteger(), decodeRefinement(), decodeTextRegion(), getCustomHuffmanTable(), getStandardTable(), HuffmanLine, HuffmanTable (+3 more)
-
-### Community 59 - "PDF Worker Core Engine"
-Cohesion: 0.10
-Nodes (6): Ascii85Stream, AsciiHexStream, CCITTFaxStream, JpxStream, PredictorStream, RunLengthStream
-
-### Community 60 - "PDF Fonts & Character Mapping"
+### Community 49 - "Courses & Batches"
 Cohesion: 0.13
-Nodes (16): charCodeOf(), convert(), getCharCodes(), createCmapTable(), createNameTable(), createOS2Table(), createPostscriptName(), createPostTable() (+8 more)
+Nodes (18): AdminSlidersPage(), dynamic, dynamic, LandingHomePage(), AdminSlidersManager(), CoursesPricingSection(), loadCourses(), DEFAULT_IMAGES (+10 more)
 
-### Community 61 - "PDF Worker Core Engine"
-Cohesion: 0.10
-Nodes (8): B, cancelAllRequests(), getFullReader(), getRangeReader(), PDFWorkerStreamRangeReader, PDFWorkerStreamReader, sendProgressiveData(), getPdfManager()
+### Community 50 - "next.config.ts"
+Cohesion: 0.12
+Nodes (9): nextConfig, next, next-themes, ReactQueryProvider(), ThemeProvider(), anekBangla, siteJsonLd, siteMetadata (+1 more)
 
-### Community 62 - "PDF Worker Core Engine"
+### Community 51 - ".transform()"
 Cohesion: 0.22
 Nodes (13): addFakeSpaces(), appendEOL(), applyInverseRotation(), buildTextContentItem(), compareWithLastPosition(), ensureTextContentItem(), flushTextContentItem(), getCurrentTextTransform() (+5 more)
 
-### Community 63 - "PDF Worker Core Engine"
+### Community 52 - "DatasetXMLParser"
+Cohesion: 0.16
+Nodes (5): DatasetXMLParser, isWhitespace(), onText(), XMLParserBase, skipWs()
+
+### Community 53 - "ExclGroup"
 Cohesion: 0.10
 Nodes (3): ExclGroup, Image, Value
 
-### Community 64 - "Admin Exams & Question Bank"
-Cohesion: 0.17
-Nodes (15): AdminAddQuestionPage(), dynamic, ExamQuestionsPage(), AdminAddQuestionPage(), dynamic, handleOpenChange(), UniversalQuestionCreator(), cqParts (+7 more)
+### Community 54 - "Exam Management & Proctoring"
+Cohesion: 0.15
+Nodes (16): dynamic, FreeExamsPortalPage(), dynamic, FreeExamLeaderboardPage(), FreeExamLeaderboardPageProps, dynamic, FreeExamResultPage(), FreeExamResultPageProps (+8 more)
 
-### Community 65 - "UI Components (Item / Button Group)"
-Cohesion: 0.13
-Nodes (17): ButtonGroup(), ButtonGroupSeparator(), ButtonGroupText(), buttonGroupVariants, Item(), ItemActions(), ItemContent(), ItemDescription() (+9 more)
-
-### Community 67 - "PDF Worker Core Engine"
+### Community 55 - "ch()"
 Cohesion: 0.20
 Nodes (8): ch(), littleSigma(), littleSigmaPrime(), maj(), rotr(), sigma(), sigmaPrime(), Word64
 
-### Community 69 - "Exam & Poll Taking Interface"
-Cohesion: 0.19
-Nodes (17): PollConfigPage(), loadChapters(), loadContainers(), loadSubjects(), pollOptions, pollVotes, usePollSubitems(), usePollSubjects() (+9 more)
+### Community 57 - "getB()"
+Cohesion: 0.23
+Nodes (3): getB(), MeshShading, MeshStreamReader
 
-### Community 70 - "tsconfig.json Module"
+### Community 58 - "UI Primitives & Components"
+Cohesion: 0.12
+Nodes (17): ButtonGroup(), ButtonGroupSeparator(), ButtonGroupText(), buttonGroupVariants, Item(), ItemActions(), ItemContent(), ItemDescription() (+9 more)
+
+### Community 59 - "tsconfig.json"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+10 more)
 
-### Community 71 - "PDF Fonts & Character Mapping"
-Cohesion: 0.18
-Nodes (15): checkAndRepair(), readNameTable(), readOpenTypeHeader(), readTableEntry(), readTables(), sanitizeGlyph(), getFontFileType(), getUint16() (+7 more)
+### Community 61 - ".peekByte()"
+Cohesion: 0.25
+Nodes (4): checkHeader(), FlateStream, readXRefStream(), startXRef()
 
-### Community 72 - "PDF Worker Core Engine"
-Cohesion: 0.24
-Nodes (3): getB(), MeshShading, MeshStreamReader
+### Community 62 - ".fontInfo()"
+Cohesion: 0.13
+Nodes (5): find(), FontInfo, FontSelector, getDefault(), PageSet
 
-### Community 73 - "PDF Worker Core Engine"
-Cohesion: 0.18
-Nodes (14): buildComponentData(), readBits(), decodeScan(), decodeBlock(), decodeHuffman(), decodeMcu(), readBit(), receive() (+6 more)
+### Community 63 - "EvalState"
+Cohesion: 0.20
+Nodes (5): EvalState, fetch(), fetchIfRef(), getNewTemporaryRef(), StructTreeRoot
 
-### Community 74 - "PDF Forms & XFA Object Model"
-Cohesion: 0.12
-Nodes (3): getCatalogObj(), GlobalImageCache, RefSetCache
+### Community 64 - ".getData()"
+Cohesion: 0.15
+Nodes (3): JpegStream, parseCff(), XFAParser
 
-### Community 75 - "PDF Worker Core Engine"
-Cohesion: 0.16
-Nodes (6): InclusionTree, LZWStream, parseTilePackets(), readCodingpasses(), skipBytes(), skipMarkerIfEqual()
+### Community 65 - "InclusionTree"
+Cohesion: 0.15
+Nodes (6): InclusionTree, parseTilePackets(), readCodingpasses(), skipBytes(), skipMarkerIfEqual(), TagTree
 
-### Community 77 - "Project Dependencies & Tooling"
+### Community 67 - "cobe"
 Cohesion: 0.12
 Nodes (6): cobe, CobeGlobe(), FeatureCard(), FeatureDescription(), features, FeatureTitle()
 
-### Community 78 - "PDF Worker Core Engine"
+### Community 68 - "UI Primitives & Components"
+Cohesion: 0.12
+Nodes (11): Menubar(), MenubarCheckboxItem(), MenubarContent(), MenubarItem(), MenubarLabel(), MenubarRadioItem(), MenubarSeparator(), MenubarShortcut() (+3 more)
+
+### Community 69 - "bind()"
+Cohesion: 0.18
+Nodes (13): bind(), _bindElement(), _bindItems(), _bindOccurrences(), _bindValue(), _createOccurrences(), createText(), _findDataByNameToConsume() (+5 more)
+
+### Community 70 - "buildComponentData()"
+Cohesion: 0.19
+Nodes (13): buildComponentData(), decodeScan(), decodeBlock(), decodeHuffman(), decodeMcu(), readBit(), receive(), receiveAndExtend() (+5 more)
+
+### Community 71 - "Caption"
 Cohesion: 0.12
 Nodes (4): Caption, Draw, Field, _setValue()
 
-### Community 79 - "PDF Worker Core Engine"
-Cohesion: 0.20
-Nodes (5): ContextCache, decodeBitmap(), decodeMMRBitmap(), DecodingContext, SimpleSegmentVisitor
+### Community 72 - ".constructor()"
+Cohesion: 0.13
+Nodes (3): getCatalogObj(), GlobalImageCache, RefSetCache
 
-### Community 80 - "UI Components (Avatar)"
-Cohesion: 0.16
-Nodes (9): MenuItemProps, ProfileMenu(), ProfileBadgeProps, ProfileSidebar(), Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup() (+1 more)
-
-### Community 81 - "UI Components (Context Menu)"
-Cohesion: 0.12
-Nodes (10): ContextMenuCheckboxItem(), ContextMenuContent(), ContextMenuItem(), ContextMenuLabel(), ContextMenuRadioItem(), ContextMenuSeparator(), ContextMenuShortcut(), ContextMenuSubContent() (+2 more)
-
-### Community 82 - "UI Components (Dropdown Menu)"
+### Community 73 - "UI Primitives & Components"
 Cohesion: 0.12
 Nodes (9): DropdownMenuCheckboxItem(), DropdownMenuContent(), DropdownMenuItem(), DropdownMenuLabel(), DropdownMenuRadioItem(), DropdownMenuSeparator(), DropdownMenuShortcut(), DropdownMenuSubContent() (+1 more)
 
-### Community 83 - "PDF Fonts & Character Mapping"
-Cohesion: 0.24
-Nodes (7): addHex(), BinaryCMapStream, hexToInt(), hexToStr(), incHex(), process(), readNumber()
-
-### Community 85 - "PDF Annotations & Widgets"
-Cohesion: 0.26
-Nodes (4): fetch(), fetchIfRef(), getNewTemporaryRef(), StructTreeRoot
-
-### Community 86 - "UI Components (Carousel)"
+### Community 75 - "UI Primitives & Components"
 Cohesion: 0.17
 Nodes (14): embla-carousel-react, Carousel(), CarouselApi, CarouselContent(), CarouselContext, CarouselContextProps, CarouselItem(), CarouselNext() (+6 more)
 
-### Community 87 - "UI Components (Tooltip)"
-Cohesion: 0.18
-Nodes (8): next-themes, ReactQueryProvider(), ThemeProvider(), TooltipProvider(), anekBangla, siteJsonLd, siteMetadata, ThemeProviderProps
+### Community 76 - "Live Polling System"
+Cohesion: 0.21
+Nodes (13): pollOptions, pollVotes, usePollSubitems(), usePollSubjects(), useVotePoll(), getPollContainersAction(), getPollItemsAction(), getPollQuestionCountAction() (+5 more)
 
-### Community 88 - "Course & Batch Detail Views"
-Cohesion: 0.16
-Nodes (13): CourseDetailPageProps, dynamic, MyCourseClassroomPage(), batchDetails, batchExams, courseClasses, coursePdfs, CreateClassPayload (+5 more)
-
-### Community 89 - "PDF Fonts & Character Mapping"
+### Community 78 - "CompositeGlyph"
 Cohesion: 0.18
 Nodes (5): CompositeGlyph, getSize(), Glyph, scale(), write()
 
-### Community 90 - "PDF Worker Core Engine"
+### Community 79 - "ContentObject"
 Cohesion: 0.14
 Nodes (4): ContentObject, IntegerObject, OptionObject, StringObject
 
-### Community 91 - "UI Components (Chart)"
+### Community 80 - "createFromArray()"
+Cohesion: 0.23
+Nodes (4): createFromArray(), PDFFunction, PostScriptEvaluator, toNumberArray()
+
+### Community 81 - "UI Primitives & Components"
 Cohesion: 0.19
 Nodes (12): recharts, ChartConfig, ChartContainer(), ChartContext, ChartContextProps, ChartLegendContent(), ChartTooltipContent(), getPayloadConfigFromPayload() (+4 more)
 
-### Community 94 - "PDF Worker Core Engine"
-Cohesion: 0.17
-Nodes (6): CFFCharset, CFFHeader, CFFPrivateDict, CFFTopDict, parseHeader(), wrap()
+### Community 82 - "Authentication & Sessions"
+Cohesion: 0.21
+Nodes (5): LoginForm(), Shell(), authClient, dictionary, ShellProps
 
-### Community 95 - "PDF Worker Core Engine"
+### Community 85 - "Exam Management & Proctoring"
+Cohesion: 0.24
+Nodes (9): ExamLeaderboardPage(), ProfileBadgeProps, Avatar(), AvatarBadge(), AvatarFallback(), AvatarGroup(), AvatarGroupCount(), AvatarImage() (+1 more)
+
+### Community 86 - "UI Primitives & Components"
 Cohesion: 0.15
-Nodes (3): checkHeader(), startXRef(), Stream
+Nodes (9): AlertDialogAction(), AlertDialogCancel(), AlertDialogContent(), AlertDialogDescription(), AlertDialogFooter(), AlertDialogHeader(), AlertDialogMedia(), AlertDialogOverlay() (+1 more)
 
-### Community 97 - "shadcn OpenAI Agent Interface Metadata Module"
+### Community 87 - "Shadcn UI Library"
 Cohesion: 0.17
 Nodes (12): shadcn OpenAI Agent Interface Metadata, shadcn CLI Reference, shadcn Theming and Customization, shadcn MCP Server, shadcn Registry Authoring & Distribution, Base vs Radix Composition Rules, Chat & Messaging Components Guide, Component Composition Rules (+4 more)
 
-### Community 98 - "Project Dependencies & Tooling"
+### Community 88 - "devDependencies"
 Cohesion: 0.17
 Nodes (12): devDependencies, babel-plugin-react-compiler, @biomejs/biome, drizzle-kit, postgres, react-doctor, tailwindcss, @tailwindcss/postcss (+4 more)
 
-### Community 99 - "PDF Fonts & Character Mapping"
-Cohesion: 0.17
-Nodes (5): addPara(), I, P, popFont(), pushData()
+### Community 89 - "getStandardTable()"
+Cohesion: 0.23
+Nodes (4): getStandardTable(), HuffmanLine, HuffmanTable, HuffmanTreeNode
 
-### Community 100 - "PDF Worker Core Engine"
-Cohesion: 0.18
-Nodes (3): DecodeStream, DecryptStream, readBlock()
+### Community 91 - "requestLoadedStream()"
+Cohesion: 0.33
+Nodes (11): requestLoadedStream(), resetNewTemporaryRef(), serializeXfaData(), terminate(), ensureNotTerminated(), finishWorkerTask(), loadDocument(), onFailure() (+3 more)
 
-### Community 101 - "PDF Fonts & Character Mapping"
-Cohesion: 0.21
-Nodes (4): find(), FontInfo, FontSelector, getDefault()
-
-### Community 103 - "Admin Exams & Question Bank"
-Cohesion: 0.21
-Nodes (9): AdminExamsPage(), AdminExamsList(), AdminExamsListProps, Batch, Exam, TYPE_LABELS, ExamEditorModal(), ExamEditorModalProps (+1 more)
-
-### Community 104 - "UI Components (Attachment)"
+### Community 92 - "UI Primitives & Components"
 Cohesion: 0.20
 Nodes (11): Attachment(), AttachmentAction(), AttachmentActions(), AttachmentContent(), AttachmentDescription(), AttachmentGroup(), AttachmentMedia(), attachmentMediaVariants (+3 more)
 
-### Community 106 - "PDF Worker Core Engine"
-Cohesion: 0.20
-Nodes (7): Jbig2Stream, parseChunks(), processSegment(), processSegments(), readRegionSegmentInformation(), readSegmentHeader(), readSegments()
+### Community 94 - "getFullReader()"
+Cohesion: 0.18
+Nodes (4): getFullReader(), PDFWorkerStreamReader, sendProgressiveData(), getPdfManager()
 
-### Community 108 - "UI Components (Confetti)"
+### Community 96 - "UI Primitives & Components"
 Cohesion: 0.18
 Nodes (9): canvas-confetti, Api, Confetti, ConfettiButton, ConfettiButtonProps, ConfettiComponent, ConfettiContext, ConfettiRef (+1 more)
 
-### Community 109 - "Admin Management Portal"
-Cohesion: 0.35
-Nodes (9): AdminPdfPage(), pdfSuggestions, useCreatePdfSuggestion(), useDeletePdfSuggestion(), usePdfSuggestions(), CreatePdfPayload, createPdfSuggestion(), deletePdfSuggestion() (+1 more)
+### Community 97 - "Exam Management & Proctoring"
+Cohesion: 0.24
+Nodes (8): ExamResultPage(), ExamResultResponse, ExamResultSubmission, ExamResultView(), ExamResultViewProps, ExamScoreCard(), ExamScoreCardProps, getSubmissionResult()
 
-### Community 110 - "Admin Exams & Question Bank"
-Cohesion: 0.29
-Nodes (9): cleanJsonInput(), ImportQuestionsForm(), ImportQuestionsFormProps, useImportQuestions(), parseCsvRows(), ParsedCsvQuestion, parseQuestionsCsv(), toEnglishDigits() (+1 more)
-
-### Community 111 - "PDF Forms & XFA Object Model"
+### Community 98 - "_addNamespacePrefix()"
 Cohesion: 0.22
 Nodes (6): _addNamespacePrefix(), build(), Empty, _getNamespaceToUse(), _searchNamespace(), UnknownNamespace
 
-### Community 114 - "UI Components (Animated Theme Toggler)"
+### Community 99 - "B"
+Cohesion: 0.20
+Nodes (4): B, I, popFont(), pushData()
+
+### Community 100 - "CFFDict"
+Cohesion: 0.31
+Nodes (4): CFFDict, createDict(), emptyPrivateDictionary(), parsePrivateDict()
+
+### Community 101 - "CompiledFont"
+Cohesion: 0.24
+Nodes (4): CompiledFont, lookupCmap(), buildPath(), TrueTypeCompiled
+
+### Community 102 - "compileGlyf()"
+Cohesion: 0.29
+Nodes (7): compileGlyf(), lineTo(), moveTo(), quadraticCurveTo(), getFloat214(), getInt16(), getInt8()
+
+### Community 103 - "onBeginElement()"
+Cohesion: 0.22
+Nodes (3): onBeginElement(), onCdata(), SimpleDOMNode
+
+### Community 106 - "UI Primitives & Components"
 Cohesion: 0.27
 Nodes (7): react-dom, AnimatedThemeToggler(), AnimatedThemeTogglerProps, getThemeTransitionClipPaths(), polygonCollapsed(), TransitionVariant, ThemeTogglerProps
 
-### Community 115 - "Admin Management Portal"
-Cohesion: 0.27
-Nodes (8): AdminSlidersPage(), dynamic, LandingHomePage(), AdminSlidersManager(), siteSettings, DEFAULT_SLIDERS, getHeroSliders(), updateHeroSliders()
+### Community 107 - "UI Primitives & Components"
+Cohesion: 0.33
+Nodes (8): Table(), TableBody(), TableCaption(), TableCell(), TableFooter(), TableHead(), TableHeader(), TableRow()
 
-### Community 116 - "UI Components (Navigation Menu)"
-Cohesion: 0.22
-Nodes (9): NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList(), NavigationMenuTrigger(), navigationMenuTriggerStyle (+1 more)
-
-### Community 117 - "Async I/O Model Module"
+### Community 108 - "Turso Storage & Async I/O"
 Cohesion: 0.22
 Nodes (9): Async I/O Model, CompletionGroup, IOResult, Re-Entrancy Pitfalls in Cooperative Yielding, Avoid Over-Engineering, Code Quality Guide, Correctness Paramount (Crash > Corrupt), SQLite B-tree & Page Storage Format (+1 more)
 
-### Community 119 - "PDF Worker Core Engine"
+### Community 110 - "_addPixels()"
 Cohesion: 0.50
 Nodes (9): _addPixels(), _addPixelsNeg(), _eatBits(), _findTableCode(), _getBlackCode(), _getTwoDimCode(), _getWhiteCode(), _lookBits() (+1 more)
 
-### Community 120 - "PDF Worker Core Engine"
-Cohesion: 0.33
-Nodes (4): CFFDict, createDict(), emptyPrivateDictionary(), parsePrivateDict()
-
-### Community 121 - "PDF Graphics & Stream Evaluation"
+### Community 111 - "Color"
 Cohesion: 0.22
 Nodes (3): Color, makeHexColor(), Stipple
 
-### Community 122 - "Project Dependencies & Tooling"
+### Community 112 - "compileCharString()"
+Cohesion: 0.28
+Nodes (6): compileCharString(), bezierCurveTo(), lineTo(), moveTo(), getSubroutineBias(), Type2Compiled
+
+### Community 114 - "scripts"
 Cohesion: 0.25
 Nodes (8): scripts, build, dev, doctor, format, lint, start, typecheck
 
-### Community 128 - "UI Components (Alert)"
+### Community 120 - "UI Primitives & Components"
 Cohesion: 0.36
 Nodes (5): Alert(), AlertAction(), AlertDescription(), AlertTitle(), alertVariants
 
-### Community 129 - "UI Components (Empty)"
+### Community 121 - "UI Primitives & Components"
 Cohesion: 0.29
 Nodes (7): Empty(), EmptyContent(), EmptyDescription(), EmptyHeader(), EmptyMedia(), emptyMediaVariants, EmptyTitle()
 
-### Community 137 - "Database Schema & Storage"
+### Community 122 - "UI Primitives & Components"
+Cohesion: 0.25
+Nodes (4): PopoverContent(), PopoverDescription(), PopoverHeader(), PopoverTitle()
+
+### Community 127 - "profile/page.tsx"
+Cohesion: 0.33
+Nodes (3): MenuItemProps, ProfileMenu(), ProfileSidebar()
+
+### Community 128 - "UI Primitives & Components"
+Cohesion: 0.38
+Nodes (6): Bubble(), BubbleContent(), BubbleGroup(), BubbleReactions(), bubbleReactionsVariants, bubbleVariants
+
+### Community 129 - "Database Schema & Client"
 Cohesion: 0.48
 Nodes (5): profiles, useUpdateUserProfile(), useUserProfile(), getUserProfileAction(), updateUserProfileAction()
 
-### Community 140 - "PDF Worker Core Engine"
+### Community 130 - "annotationGlobals()"
+Cohesion: 0.47
+Nodes (3): annotationGlobals(), createGlobals(), ensure()
+
+### Community 133 - "cancelAllRequests()"
+Cohesion: 0.33
+Nodes (3): cancelAllRequests(), getRangeReader(), PDFWorkerStreamRangeReader
+
+### Community 134 - "CFFFDSelect"
 Cohesion: 0.40
 Nodes (4): CFFFDSelect, parseCharString(), parseCharStrings(), stackFn()
 
-### Community 143 - "PDF Worker Core Engine"
+### Community 139 - "on()"
 Cohesion: 0.47
-Nodes (5): #E(), #N(), #R(), sendWithStream(), wrapReason()
+Nodes (3): on(), send(), WorkerMessageHandler
 
-### Community 151 - "Project Dependencies & Tooling"
+### Community 143 - "UI Primitives & Components"
+Cohesion: 0.33
+Nodes (4): input-otp, InputOTP(), InputOTPGroup(), InputOTPSlot()
+
+### Community 144 - "@react-pdf-viewer/core"
 Cohesion: 0.33
 Nodes (4): @react-pdf-viewer/core, @react-pdf-viewer/default-layout, ReactPdfViewerCore, ReactPdfViewerCoreProps
 
-### Community 162 - "Next.js Agent Rules Module"
+### Community 155 - "UI Primitives & Components"
+Cohesion: 0.40
+Nodes (3): react-resizable-panels, ResizableHandle(), ResizablePanelGroup()
+
+### Community 156 - "Exam Management & Proctoring"
+Cohesion: 0.50
+Nodes (4): dynamic, FreeExamTakePage(), FreeExamTakePageProps, getFreeExamQuestionsForTakingAction()
+
+### Community 157 - "ManageEnrollmentModal()"
+Cohesion: 0.60
+Nodes (5): ManageEnrollmentModal(), handleApprove(), handleReject(), approveEnrollmentRequest(), rejectEnrollmentRequest()
+
+### Community 158 - "UI Primitives & Components"
+Cohesion: 0.50
+Nodes (4): Marker(), MarkerContent(), MarkerIcon(), markerVariants
+
+### Community 159 - "Next.js Agent Rules"
 Cohesion: 0.50
 Nodes (4): Next.js Agent Rules, Hierarchical AGENTS.md Generator, Index Knowledge Skill, Claude Config Directive
 
-### Community 188 - "README.md Module"
+### Community 180 - "README.md"
 Cohesion: 0.50
 Nodes (3): Geist Font Family, Next.js create-next-app bootstrap, Vercel Platform Deployment
 
 ## Knowledge Gaps
-- **316 isolated node(s):** `$schema`, `enabled`, `clientKind`, `useIgnoreFile`, `ignoreUnknown` (+311 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1251 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **142 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **320 isolated node(s):** `QuickListProps`, `ImportDefaults`, `ExamEditorModalProps`, `Api`, `ConfettiButtonProps` (+315 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1259 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **136 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `XFAObject` connect `PDF Forms & XFA Object Model` to `PDF Fonts & Character Mapping`, `PDF Forms & XFA Object Model`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Forms & XFA Object Model`, `PDF Worker Core Engine`?**
-  _High betweenness centrality (0.028) - this node is a cross-community bridge._
-- **Why does `cn()` connect `UI Components (Alert Dialog / Table)` to `UI Components (Alert)`, `UI Components (Empty)`, `UI Components (Field / Native Select)`, `UI Components (Sonner)`, `UI Components (Card)`, `UI Components (Tabs / Accordion)`, `Admin Batch Management`, `UI Components (Drawer)`, `UI Components (Sidebar / Sheet)`, `UI Components (Pagination / Select)`, `UI Components (Combobox / Command)`, `UI Components (Dialog)`, `UI Components (Avatar)`, `UI Components (Bubble / Marker)`, `Admin Exams & Question Bank`, `UI Components (Menubar / Input Otp)`, `UI Components (Popover / Hover Card)`, `UI Components (Item / Button Group)`, `Project Dependencies & Tooling`, `UI Components (Avatar)`, `UI Components (Context Menu)`, `UI Components (Dropdown Menu)`, `UI Components (Carousel)`, `UI Components (Chart)`, `UI Components (Attachment)`, `UI Components (Animated Theme Toggler)`, `UI Components (Navigation Menu)`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Why does `ConfigNamespace` connect `PDF Forms & XFA Object Model` to `PDF Fonts & Character Mapping`, `PDF Encryption & Cryptography`, `PDF Encryption & Cryptography`, `PDF Forms & XFA Object Model`, `PDF Encryption & Cryptography`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Fonts & Character Mapping`, `PDF Worker Core Engine`, `PDF Forms & XFA Object Model`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Encryption & Cryptography`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Object Stream & Output Compression`, `PDF Object Stream & Output Compression`, `PDF Object Stream & Output Compression`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Encryption & Cryptography`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`, `PDF Worker Core Engine`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **What connects `$schema`, `enabled`, `clientKind` to the rest of the system?**
-  _316 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `PDF Forms & XFA Object Model` be split into smaller, more focused modules?**
-  _Cohesion score 0.014597018037743718 - nodes in this community are weakly interconnected._
-- **Should `PDF Fonts & Character Mapping` be split into smaller, more focused modules?**
-  _Cohesion score 0.01986434108527132 - nodes in this community are weakly interconnected._
-- **Should `PDF Encryption & Cryptography` be split into smaller, more focused modules?**
-  _Cohesion score 0.020618556701030927 - nodes in this community are weakly interconnected._
+- **Why does `ConfigNamespace` connect `Acrobat7` to `pdf.worker.min.js`, `Acrobat`, `.validate()`, `CalendarSymbols`, `AES128Cipher`, `BehaviorOverride`, `.exclude()`, `.log()`, `.packets()`, `.picture()`, `.range()`, `.relevant()`, `.script()`, `.uri()`, `.window()`, `Area`, `.transform()`, `AddViewerPreferences`, `AdjustData`, `AlwaysEmbed`, `Amd`, `Attributes`, `Base`, `BatchOutput`, `.fontInfo()`, `Change`, `Compress`, `Compression`, `CompressObjectStream`, `.copies()`, `.creator()`, `.currentPage()`, `.debug()`, `.defaultTypeface()`, `.destination()`, `.duplexOption()`, `.encryptionLevel()`, `.equate()`, `.formFieldFilling()`, `.ifEmpty()`, `.interactive()`, `.jog()`, `.labelPrinter()`, `.layout()`, `.level()`, `.linearized()`, `.mediumInfo()`, `.numberOfCopies()`, `.output()`, `.outputXSL()`, `.overprint()`, `.pagination()`, `.paginationOverride()`, `.pcl()`, `.pickTrayByPDFSize()`, `.print()`, `.printerName()`, `.printHighQuality()`, `.printScaling()`, `.producer()`, `.ps()`, `.renderPolicy()`, `.silentPrint()`, `.staple()`, `.submitFormat()`, `.suppressBanner()`, `.threshold()`, `.to()`, `.type()`, `.validationMessaging()`, `.viewerPreferences()`, `.webClient()`, `.whitespace()`, `.xsl()`, `.zpl()`, `.xdp()`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `cn()` connect `UI Primitives & Components` to `UI Primitives & Components`, `Authentication & Sessions`, `Authentication & Sessions`, `Exam Management & Proctoring`, `Courses & Batches`, `UI Primitives & Components`, `Question Bank & Access`, `UI Primitives & Components`, `Exam Management & Proctoring`, `Authentication & Sessions`, `UI Primitives & Components`, `Exam Management & Proctoring`, `UI Primitives & Components`, `UI Primitives & Components`, `Exam Management & Proctoring`, `Exam Management & Proctoring`, `UI Primitives & Components`, `cobe`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `Exam Management & Proctoring`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`, `UI Primitives & Components`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
+- **Why does `TemplateNamespace` connect `AppearanceFilter` to `pdf.worker.min.js`, `Acrobat`, `.validate()`, `ExData`, `applyAssist()`, `Signature`, `adjustWidths()`, `AES128Cipher`, `.traverse()`, `.ui()`, `Assist`, `BooleanElement`, `buildCodeblocks()`, `.picture()`, `decodeAndClamp()`, `.script()`, `Area`, `Arc`, `Linear`, `LockDocument`, `Margin`, `Para`, `Radial`, `Solid`, `ExclGroup`, `.variables()`, `Certificates`, `.fontInfo()`, `Caption`, `SetProperty`, `Color`, `Encoding`, `Encodings`, `Hyphenation`, `Issuers`, `Keep`, `Oid`, `PageArea`, `.text()`?**
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+- **What connects `QuickListProps`, `ImportDefaults`, `ExamEditorModalProps` to the rest of the system?**
+  _320 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Acrobat7` be split into smaller, more focused modules?**
+  _Cohesion score 0.013332171488323458 - nodes in this community are weakly interconnected._
+- **Should `pdf.worker.min.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.018199233716475097 - nodes in this community are weakly interconnected._
+- **Should `Authentication & Sessions` be split into smaller, more focused modules?**
+  _Cohesion score 0.03478608556577369 - nodes in this community are weakly interconnected._

@@ -117,13 +117,17 @@ export default async function QbChapterPage({
           >
             {qb.title}
           </Link>
-          <span>/</span>
-          <Link
-            href={`/qb/${qb.slug}/${subject.slug}`}
-            className="hover:text-primary transition-colors"
-          >
-            {subject.name}
-          </Link>
+          {subject.name !== "সালসমূহ" && subject.name !== "Years" && (
+            <>
+              <span>/</span>
+              <Link
+                href={`/qb/${qb.slug}/${subject.slug}`}
+                className="hover:text-primary transition-colors"
+              >
+                {subject.name}
+              </Link>
+            </>
+          )}
           <span>/</span>
           <span className="text-foreground">{chapter.name}</span>
         </div>
@@ -133,7 +137,9 @@ export default async function QbChapterPage({
               {chapter.name} - প্রশ্নসমূহ
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-1">
-              টপিক অনুযায়ী ফিল্টার করে প্রশ্নগুলো অনুশীলন করুন
+              {subject.name === "সালসমূহ" || subject.name === "Years"
+                ? `${qb.title} (${chapter.name}) এর প্রশ্নসমূহ অনুশীলন করুন`
+                : "টপিক অনুযায়ী ফিল্টার করে প্রশ্নগুলো অনুশীলন করুন"}
             </p>
           </div>
 

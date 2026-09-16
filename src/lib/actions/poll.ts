@@ -81,6 +81,7 @@ function getStandardFilter(standard?: string) {
 }
 
 export async function getPollQuestionCountAction(params: {
+  containerId?: string;
   itemId?: string;
   subitemId?: string;
   paper?: string;
@@ -89,13 +90,45 @@ export async function getPollQuestionCountAction(params: {
   try {
     let subitemIds: string[] = [];
 
-    if (params.subitemId && params.subitemId !== "none" && params.subitemId !== "all") {
+    if (
+      params.subitemId &&
+      params.subitemId !== "none" &&
+      params.subitemId !== "all"
+    ) {
       subitemIds = [params.subitemId];
-    } else if (params.itemId && params.itemId !== "all" && params.itemId !== "none") {
+    } else if (
+      params.itemId &&
+      params.itemId !== "all" &&
+      params.itemId !== "none"
+    ) {
       const subitemsList = await db.query.subitems.findMany({
         where: (subitems, { and, eq }) => {
           const conditions = [eq(subitems.itemId, params.itemId!)];
-          if (params.paper && params.paper !== "all") conditions.push(eq(subitems.paper, params.paper));
+          if (params.paper && params.paper !== "all")
+            conditions.push(eq(subitems.paper, params.paper));
+          return and(...conditions);
+        },
+        columns: { id: true },
+      });
+      subitemIds = subitemsList.map((s) => s.id);
+      if (subitemIds.length === 0) return 0;
+    } else if (
+      params.containerId &&
+      params.containerId !== "all" &&
+      params.containerId !== "none"
+    ) {
+      const itemsList = await db.query.items.findMany({
+        where: (items, { eq }) => eq(items.containerId, params.containerId!),
+        columns: { id: true },
+      });
+      const itemIds = itemsList.map((i) => i.id);
+      if (itemIds.length === 0) return 0;
+
+      const subitemsList = await db.query.subitems.findMany({
+        where: (subitems, { and, inArray, eq }) => {
+          const conditions = [inArray(subitems.itemId, itemIds)];
+          if (params.paper && params.paper !== "all")
+            conditions.push(eq(subitems.paper, params.paper));
           return and(...conditions);
         },
         columns: { id: true },
@@ -116,7 +149,12 @@ export async function getPollQuestionCountAction(params: {
           conditions.push(
             inArray(
               questions.standard,
-              standards as unknown as ("HSC" | "Varsity" | "Engineering" | "Medical")[],
+              standards as unknown as (
+                | "HSC"
+                | "Varsity"
+                | "Engineering"
+                | "Medical"
+              )[],
             ),
           );
         }
@@ -133,6 +171,7 @@ export async function getPollQuestionCountAction(params: {
 }
 
 export async function getPollQuestionsAction(params: {
+  containerId?: string;
   itemId?: string;
   subitemId?: string;
   paper?: string;
@@ -142,13 +181,45 @@ export async function getPollQuestionsAction(params: {
   try {
     let subitemIds: string[] = [];
 
-    if (params.subitemId && params.subitemId !== "none" && params.subitemId !== "all") {
+    if (
+      params.subitemId &&
+      params.subitemId !== "none" &&
+      params.subitemId !== "all"
+    ) {
       subitemIds = [params.subitemId];
-    } else if (params.itemId && params.itemId !== "all" && params.itemId !== "none") {
+    } else if (
+      params.itemId &&
+      params.itemId !== "all" &&
+      params.itemId !== "none"
+    ) {
       const subitemsList = await db.query.subitems.findMany({
         where: (subitems, { and, eq }) => {
           const conditions = [eq(subitems.itemId, params.itemId!)];
-          if (params.paper && params.paper !== "all") conditions.push(eq(subitems.paper, params.paper));
+          if (params.paper && params.paper !== "all")
+            conditions.push(eq(subitems.paper, params.paper));
+          return and(...conditions);
+        },
+        columns: { id: true },
+      });
+      subitemIds = subitemsList.map((s) => s.id);
+      if (subitemIds.length === 0) return [];
+    } else if (
+      params.containerId &&
+      params.containerId !== "all" &&
+      params.containerId !== "none"
+    ) {
+      const itemsList = await db.query.items.findMany({
+        where: (items, { eq }) => eq(items.containerId, params.containerId!),
+        columns: { id: true },
+      });
+      const itemIds = itemsList.map((i) => i.id);
+      if (itemIds.length === 0) return [];
+
+      const subitemsList = await db.query.subitems.findMany({
+        where: (subitems, { and, inArray, eq }) => {
+          const conditions = [inArray(subitems.itemId, itemIds)];
+          if (params.paper && params.paper !== "all")
+            conditions.push(eq(subitems.paper, params.paper));
           return and(...conditions);
         },
         columns: { id: true },
@@ -169,7 +240,12 @@ export async function getPollQuestionsAction(params: {
           conditions.push(
             inArray(
               questions.standard,
-              standards as unknown as ("HSC" | "Varsity" | "Engineering" | "Medical")[],
+              standards as unknown as (
+                | "HSC"
+                | "Varsity"
+                | "Engineering"
+                | "Medical"
+              )[],
             ),
           );
         }
