@@ -47,6 +47,7 @@ interface ChapterQuestionsViewerProps {
   readonly questions: Question[];
   readonly hasFullAccess?: boolean;
   readonly assignedBatches?: AssignedBatchInfo[];
+  readonly isYearBased?: boolean;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -58,6 +59,7 @@ export function ChapterQuestionsViewer({
   questions = [],
   hasFullAccess = true,
   assignedBatches = [],
+  isYearBased = false,
 }: ChapterQuestionsViewerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -418,38 +420,40 @@ export function ChapterQuestionsViewer({
           )}
         </div>
 
-        {/* Row 3: Category Filter Pills */}
-        <div className="flex items-center gap-1.5 flex-wrap pt-1">
-          <span className="text-xs font-bold text-muted-foreground mr-1">
-            ক্যাটাগরি:
-          </span>
-          {[
-            { id: "all", label: "সব ক্যাটাগরি" },
-            { id: "hsc", label: "HSC বোর্ড" },
-            { id: "varsity", label: "ভার্সিটি" },
-            { id: "engineering", label: "ইঞ্জিনিয়ারিং" },
-            { id: "medical", label: "মেডিকেল" },
-          ].map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => {
-                  setSelectedCategory(cat.id as CategoryFilter);
-                  setCurrentPage(1);
-                }}
-                className={`px-3 py-1 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs font-bold"
-                    : "bg-background text-muted-foreground border-border/70 hover:border-primary/40 hover:text-foreground"
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
-        </div>
+        {/* Row 3: Category Filter Pills (Only for Chapter/Subject-based view, hidden in Year-based/Chorcha style view) */}
+        {!isYearBased && (
+          <div className="flex items-center gap-1.5 flex-wrap pt-1">
+            <span className="text-xs font-bold text-muted-foreground mr-1">
+              ক্যাটাগরি:
+            </span>
+            {[
+              { id: "all", label: "সব ক্যাটাগরি" },
+              { id: "hsc", label: "HSC বোর্ড" },
+              { id: "varsity", label: "ভার্সিটি" },
+              { id: "engineering", label: "ইঞ্জিনিয়ারিং" },
+              { id: "medical", label: "মেডিকেল" },
+            ].map((cat) => {
+              const isActive = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(cat.id as CategoryFilter);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 py-1 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+                    isActive
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs font-bold"
+                      : "bg-background text-muted-foreground border-border/70 hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Practice Progress Bar (if in practice mode without answers and questions answered) */}

@@ -157,6 +157,18 @@ export default async function QbChapterPage({
           questions={formattedQuestions || []}
           hasFullAccess={accessInfo.hasAccess}
           assignedBatches={accessInfo.assignedBatches}
+          isYearBased={
+            subject.name === "সালসমূহ" ||
+            subject.name === "Years" ||
+            qb.title.includes("বিশ্ববিদ্যালয়") ||
+            qb.title.includes("ভর্তি") ||
+            qb.title.includes("Varsity") ||
+            qb.title.includes("Admission") ||
+            qb.title.includes("বুয়েট") ||
+            qb.title.includes("মেডিকেল") ||
+            qb.title.includes("ডেন্টাল") ||
+            qb.title.includes("গুচ্ছ")
+          }
         />
       </div>
     </div>

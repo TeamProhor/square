@@ -110,11 +110,15 @@ export function UniversalQuestionCard({
               <span className="text-[11px] sm:text-xs uppercase font-bold text-primary">
                 {type}
               </span>
-              {!hideHeaderBadge && question.source && (
-                <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
-                  • {question.source}
-                </span>
-              )}
+              {!hideHeaderBadge &&
+                question.source &&
+                !["csv import", "exam import", "custom", "null", "undefined"].includes(
+                  question.source.trim().toLowerCase(),
+                ) && (
+                  <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
+                    • {question.source}
+                  </span>
+                )}
               {question.standard && (
                 <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
                   • {question.standard}

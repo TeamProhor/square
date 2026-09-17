@@ -358,7 +358,14 @@ export async function importYearBasedQuestionsAction(
         const resolvedStandard = (payload.standard ||
           itemData.standard ||
           defaultStandard) as "HSC" | "Varsity" | "Engineering" | "Medical";
-        const resolvedSource = (itemData.source || defaultSource).trim();
+        const rawItemSource = (itemData.source || "").trim();
+        const resolvedSource =
+          rawItemSource &&
+          !["csv import", "exam import", "custom"].includes(
+            rawItemSource.toLowerCase(),
+          )
+            ? rawItemSource
+            : defaultSource;
         const resolvedIsFree = Boolean(
           payload.isFree !== undefined
             ? payload.isFree

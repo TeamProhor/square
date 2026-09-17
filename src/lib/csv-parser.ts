@@ -196,7 +196,7 @@ export function parseQuestionsCsv(csvText: string): ParsedCsvQuestion[] {
     };
 
     const explanation = expCol >= 0 && row[expCol] ? cleanHtmlContent(row[expCol]) : undefined;
-    const source = (secCol >= 0 ? row[secCol] : "")?.trim() || "CSV Import";
+    const source = (secCol >= 0 ? row[secCol] : "")?.trim() || "";
     const rawMarks = marksCol >= 0 ? parseInt(toEnglishDigits(row[marksCol]), 10) : 1;
     const marks = isNaN(rawMarks) || rawMarks <= 0 ? 1 : rawMarks;
 
