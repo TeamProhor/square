@@ -442,12 +442,48 @@ export async function getFreeExamResultAction(submissionId: string) {
       return { success: false, error: "Submission not found" };
     }
 
+    // Fetch all exam questions to guarantee 100% of questions are displayed
+    const allExamQuestions = await db.query.examQuestions.findMany({
+      where: eq(examQuestions.examId, submission.examId),
+      orderBy: (eqs, { asc }) => [asc(eqs.orderNo)],
+      with: {
+        question: {
+          with: {
+            mcqOptions: {
+              orderBy: (opts, { asc }) => [asc(opts.orderNo)],
+            },
+            cqParts: {
+              orderBy: (parts, { asc }) => [asc(parts.orderNo)],
+            },
+          },
+        },
+      },
+    });
+
+    const existingResponses = submission.responses || [];
+    const completeResponses = allExamQuestions.map((eqData) => {
+      const found = existingResponses.find((r) => r.examQuestionId === eqData.id);
+      if (found) return found;
+      return {
+        id: `unattempted-${eqData.id}`,
+        submissionId: submission.id,
+        examQuestionId: eqData.id,
+        selectedOptionId: null,
+        cqAnswerText: null,
+        isCorrect: false,
+        marksObtained: "0",
+        examQuestion: eqData,
+      };
+    });
+
+    submission.responses = completeResponses as any;
+
     // Calculate metrics
     let correctCount = 0;
     let wrongCount = 0;
     let unattemptedCount = 0;
 
-    for (const r of submission.responses) {
+    for (const r of completeResponses) {
       if (!r.selectedOptionId && !r.cqAnswerText) {
         unattemptedCount++;
       } else if (r.isCorrect) {

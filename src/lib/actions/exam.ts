@@ -312,44 +312,44 @@ export async function submitExamAction(
       marksObtained: string;
     }
 
-    const insertResponses = responses
-      .map((r): InsertResponse | null => {
-        const eqData = examQs.find((q) => q.id === r.examQuestionId);
-        if (!eqData) return null;
+    const insertResponses: InsertResponse[] = examQs.map((eqData) => {
+      const userResp = responses.find((r) => r.examQuestionId === eqData.id);
+      const selectedOptionId = userResp?.selectedOptionId || null;
+      const cqAnswerText = userResp?.cqAnswerText || null;
 
-        let isCorrect = false;
-        let marksObtained = 0;
+      let isCorrect = false;
+      let marksObtained = 0;
 
-        if (eqData.question?.type === "mcq") {
-          const correctOpt = eqData.question.mcqOptions.find(
-            (o) => o.isCorrect,
-          );
-          if (correctOpt && correctOpt.id === r.selectedOptionId) {
-            isCorrect = true;
-            marksObtained = eqData.marks;
-          } else if (r.selectedOptionId) {
-            // Attempted but wrong -> negative marking
-            isCorrect = false;
-            marksObtained = -negativeMark;
-          }
-        } else {
-          // CQ evaluation is manual later
+      if (!selectedOptionId && !cqAnswerText) {
+        isCorrect = false;
+        marksObtained = 0;
+      } else if (eqData.question?.type === "mcq") {
+        const correctOpt = eqData.question.mcqOptions.find((o) => o.isCorrect);
+        if (correctOpt && correctOpt.id === selectedOptionId) {
+          isCorrect = true;
+          marksObtained = eqData.marks;
+        } else if (selectedOptionId) {
+          // Attempted but wrong -> negative marking
           isCorrect = false;
-          marksObtained = 0;
+          marksObtained = -negativeMark;
         }
+      } else {
+        // CQ evaluation is manual later
+        isCorrect = false;
+        marksObtained = 0;
+      }
 
-        totalScore += marksObtained;
+      totalScore += marksObtained;
 
-        return {
-          submissionId,
-          examQuestionId: r.examQuestionId,
-          selectedOptionId: r.selectedOptionId || null,
-          cqAnswerText: r.cqAnswerText || null,
-          isCorrect,
-          marksObtained: marksObtained.toString(),
-        };
-      })
-      .filter((r): r is InsertResponse => r !== null);
+      return {
+        submissionId,
+        examQuestionId: eqData.id,
+        selectedOptionId,
+        cqAnswerText,
+        isCorrect,
+        marksObtained: marksObtained.toString(),
+      };
+    });
 
     if (insertResponses.length > 0) {
       await db.insert(examResponses).values(insertResponses);
@@ -410,7 +410,45 @@ export async function getSubmissionResult(
     });
 
     if (!submission) return { success: false, error: "Result not found" };
-    return { success: true, data: submission };
+
+    // Fetch all exam questions to guarantee 100% of questions are displayed in result
+    const allExamQuestions = await db.query.examQuestions.findMany({
+      where: eq(examQuestions.examId, submission.examId),
+      orderBy: (eqs, { asc }) => [asc(eqs.orderNo)],
+      with: {
+        question: {
+          with: {
+            mcqOptions: true,
+            cqParts: true,
+          },
+        },
+      },
+    });
+
+    // Merge existing responses with full exam questions list
+    const existingResponses = submission.responses || [];
+    const completeResponses = allExamQuestions.map((eqData) => {
+      const found = existingResponses.find((r) => r.examQuestionId === eqData.id);
+      if (found) return found;
+      return {
+        id: `unattempted-${eqData.id}`,
+        submissionId: submission.id,
+        examQuestionId: eqData.id,
+        selectedOptionId: null,
+        cqAnswerText: null,
+        isCorrect: false,
+        marksObtained: "0",
+        examQuestion: eqData,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        ...submission,
+        responses: completeResponses,
+      },
+    };
   } catch (_error: unknown) {
     return { success: false, error: "Failed to fetch result" };
   }
