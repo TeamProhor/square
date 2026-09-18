@@ -305,8 +305,9 @@ export async function submitExamAction(
     });
 
     if (!submission) return { success: false, error: "Submission not found" };
-    if (submission.status !== "in_progress")
-      return { success: false, error: "Exam already submitted" };
+    if (submission.status !== "in_progress") {
+      return { success: true, submission };
+    }
 
     const exam = submission.exam;
     if (!exam) return { success: false, error: "Exam data missing" };
@@ -373,6 +374,9 @@ export async function submitExamAction(
     });
 
     if (insertResponses.length > 0) {
+      await db
+        .delete(examResponses)
+        .where(eq(examResponses.submissionId, submissionId));
       await db.insert(examResponses).values(insertResponses);
     }
 
@@ -383,7 +387,7 @@ export async function submitExamAction(
         totalMarks: totalExamMarks,
         status: "submitted",
         timeTakenSeconds,
-        submittedAt: sql`(CURRENT_TIMESTAMP)`,
+        submittedAt: new Date(),
       })
       .where(eq(examSubmissions.id, submissionId))
       .returning();

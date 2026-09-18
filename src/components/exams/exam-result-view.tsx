@@ -42,6 +42,9 @@ interface ExamResultViewProps {
 }
 
 export function ExamResultView({ submission, slug }: ExamResultViewProps) {
+  const exam = submission.exam;
+  const responses = submission.responses || [];
+
   const [openSolutions, setOpenSolutions] = useState<Record<string, boolean>>(
     () => {
       const initial: Record<string, boolean> = {};
@@ -53,9 +56,6 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
       return initial;
     },
   );
-
-  const exam = submission.exam;
-  const responses = submission.responses || [];
 
   const scoreNum = parseFloat(submission.score || "0");
   const totalMarks = submission.totalMarks || 1;
