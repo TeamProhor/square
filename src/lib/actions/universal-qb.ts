@@ -286,13 +286,14 @@ export async function importYearBasedQuestionsAction(
 
     if (!targetItem) {
       const newItemId = crypto.randomUUID();
+      const uniqueItemSlug = `${container.slug}-years`;
       const [createdItem] = await db
         .insert(items)
         .values({
           id: newItemId,
           containerId: container.id,
           name: "সালসমূহ",
-          slug: "years",
+          slug: uniqueItemSlug,
           code: "YEARS",
         })
         .returning();
