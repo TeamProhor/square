@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
@@ -549,10 +549,21 @@ export async function getFreeExamLeaderboardAction(slug: string): Promise<{
       with: {
         user: true,
       },
+      orderBy: [asc(examSubmissions.attemptNumber), asc(examSubmissions.startedAt)],
     });
 
+    // Count only first attempt per student in merit leaderboard
+    const firstAttemptsMap = new Map<string, typeof list[0]>();
+    for (const sub of list) {
+      if (!firstAttemptsMap.has(sub.userId)) {
+        firstAttemptsMap.set(sub.userId, sub);
+      }
+    }
+
+    const uniqueFirstAttempts = Array.from(firstAttemptsMap.values());
+
     // Sort by score DESC, then timeTakenSeconds ASC
-    const sorted = list.sort((a, b) => {
+    const sorted = uniqueFirstAttempts.sort((a, b) => {
       const scoreA = parseFloat(a.score);
       const scoreB = parseFloat(b.score);
       if (scoreB !== scoreA) return scoreB - scoreA;

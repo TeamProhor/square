@@ -20,6 +20,9 @@ interface ExamAccess {
   allowed: boolean;
   error?: string;
   batchExamId?: string | null;
+  previousAttemptsCount?: number;
+  latestSubmissionId?: string | null;
+  latestSubmissionStatus?: string | null;
 }
 
 interface ExamLobbyViewProps {
@@ -206,21 +209,50 @@ export function ExamLobbyView({ exam, access, userId }: ExamLobbyViewProps) {
             )}
           </div>
         ) : (
-          <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto min-w-[240px] px-8 h-12 rounded-xl text-base font-bold shadow-sm transition-all"
-              onClick={handleStart}
-              disabled={startExamMutation.isPending}
-            >
-              {startExamMutation.isPending ? (
-                <>
-                  <Spinner className="size-5 mr-2" /> পরীক্ষা লোড হচ্ছে...
-                </>
-              ) : (
-                "পরীক্ষা শুরু করুন →"
-              )}
-            </Button>
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full justify-center">
+            {access.previousAttemptsCount && access.previousAttemptsCount > 0 && access.latestSubmissionId ? (
+              <>
+                <Link href={`/exams/${exam.slug}/result?sid=${access.latestSubmissionId}`}>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full sm:w-auto min-w-[200px] px-6 h-12 rounded-xl text-sm sm:text-base font-bold shadow-xs cursor-pointer"
+                  >
+                    আগের ফলাফল দেখুন 📊
+                  </Button>
+                </Link>
+
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto min-w-[220px] px-8 h-12 rounded-xl text-sm sm:text-base font-bold shadow-sm transition-all cursor-pointer bg-primary text-primary-foreground"
+                  onClick={handleStart}
+                  disabled={startExamMutation.isPending}
+                >
+                  {startExamMutation.isPending ? (
+                    <>
+                      <Spinner className="size-5 mr-2" /> পরীক্ষা লোড হচ্ছে...
+                    </>
+                  ) : (
+                    "পুনরায় প্র্যাকটিস পরীক্ষা দিন 🔁"
+                  )}
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full sm:w-auto min-w-[240px] px-8 h-12 rounded-xl text-base font-bold shadow-sm transition-all cursor-pointer"
+                onClick={handleStart}
+                disabled={startExamMutation.isPending}
+              >
+                {startExamMutation.isPending ? (
+                  <>
+                    <Spinner className="size-5 mr-2" /> পরীক্ষা লোড হচ্ছে...
+                  </>
+                ) : (
+                  "পরীক্ষা শুরু করুন →"
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
@@ -177,6 +177,18 @@ export async function checkExamAccess(userId: string, examId: string) {
 
     const targetBatchIds = bExams.map((be) => be.batchId);
 
+    // Check previous submissions for this user
+    const userSubmissions = await db.query.examSubmissions.findMany({
+      where: and(
+        eq(examSubmissions.examId, examId),
+        eq(examSubmissions.userId, userId),
+      ),
+      orderBy: [desc(examSubmissions.startedAt)],
+    });
+
+    const previousAttemptsCount = userSubmissions.length;
+    const latestSubmission = userSubmissions[0] || null;
+
     // 2. Direct batch membership check
     const membership = await db.query.batchMembers.findFirst({
       where: and(
@@ -190,7 +202,13 @@ export async function checkExamAccess(userId: string, examId: string) {
       const relatedBatchExam = bExams.find(
         (be) => be.batchId === membership.batchId,
       );
-      return { allowed: true, batchExamId: relatedBatchExam?.id };
+      return {
+        allowed: true,
+        batchExamId: relatedBatchExam?.id,
+        previousAttemptsCount,
+        latestSubmissionId: latestSubmission?.id || null,
+        latestSubmissionStatus: latestSubmission?.status || null,
+      };
     }
 
     // 3. Batch enrollment check
@@ -209,6 +227,9 @@ export async function checkExamAccess(userId: string, examId: string) {
       return {
         allowed: true,
         batchExamId: relatedBatchExam?.id || bExams[0]?.id || null,
+        previousAttemptsCount,
+        latestSubmissionId: latestSubmission?.id || null,
+        latestSubmissionStatus: latestSubmission?.status || null,
       };
     }
 
@@ -467,10 +488,21 @@ export async function getExamLeaderboard(examId: string) {
       with: {
         user: true,
       },
+      orderBy: [asc(examSubmissions.attemptNumber), asc(examSubmissions.startedAt)],
     });
 
+    // Take only the FIRST attempt (attemptNumber === 1) for each user so subsequent practice attempts do not alter the merit list
+    const firstAttemptsMap = new Map<string, typeof list[0]>();
+    for (const sub of list) {
+      if (!firstAttemptsMap.has(sub.userId)) {
+        firstAttemptsMap.set(sub.userId, sub);
+      }
+    }
+
+    const uniqueFirstAttempts = Array.from(firstAttemptsMap.values());
+
     // Sort by score DESC, then timeTakenSeconds ASC
-    const sorted = list.sort((a, b) => {
+    const sorted = uniqueFirstAttempts.sort((a, b) => {
       const scoreA = parseFloat(a.score);
       const scoreB = parseFloat(b.score);
       if (scoreB !== scoreA) return scoreB - scoreA;

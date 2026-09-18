@@ -31,6 +31,7 @@ import {
   formatGoogleDriveDownloadUrl,
   formatGoogleDriveUrl,
 } from "@/lib/drive";
+import { formatBanglaDateTime } from "@/lib/date";
 import { PdfEmbedViewer } from "@/components/pdf/pdf-embed-viewer";
 import type { CourseClass, CoursePdf } from "@/types";
 
@@ -272,7 +273,7 @@ export function CourseClassroomView({
                         </span>
                         <span className="text-xs text-muted-foreground font-medium">
                           {be.startsAt
-                            ? `শুরু: ${new Date(be.startsAt).toLocaleDateString("bn-BD")}`
+                            ? `শুরু: ${formatBanglaDateTime(be.startsAt)}`
                             : "যেকোনো সময়"}
                         </span>
                       </div>

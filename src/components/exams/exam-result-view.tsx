@@ -43,7 +43,15 @@ interface ExamResultViewProps {
 
 export function ExamResultView({ submission, slug }: ExamResultViewProps) {
   const [openSolutions, setOpenSolutions] = useState<Record<string, boolean>>(
-    {},
+    () => {
+      const initial: Record<string, boolean> = {};
+      for (const r of responses) {
+        if (r.examQuestion?.question?.id) {
+          initial[r.examQuestion.question.id] = true;
+        }
+      }
+      return initial;
+    },
   );
 
   const exam = submission.exam;
@@ -163,6 +171,7 @@ export function ExamResultView({ submission, slug }: ExamResultViewProps) {
                   question={question}
                   questionIndex={idx}
                   selectedOptionId={resp.selectedOptionId ?? undefined}
+                  showCorrectAnswer={true}
                   isSolutionOpen={Boolean(openSolutions[question.id])}
                   onToggleSolution={toggleSolution}
                   badgeText={`প্রশ্ন ${toBanglaDigits(idx + 1)}`}

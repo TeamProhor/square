@@ -42,7 +42,10 @@ export function BatchExamEditModal({ batchExam }: BatchExamEditModalProps) {
 
   function toDatetimeLocal(val?: string | null) {
     if (!val) return "";
-    return new Date(val).toISOString().slice(0, 16);
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return "";
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

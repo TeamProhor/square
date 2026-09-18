@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getPublishedExams, getStudentExams } from "@/lib/actions/exam";
 import { auth } from "@/lib/auth";
+import { formatBanglaDateTime } from "@/lib/date";
 
 export default async function ExamsBrowserPage({
   searchParams,
@@ -92,21 +93,13 @@ export default async function ExamsBrowserPage({
                       <span className="font-medium text-foreground/80">
                         শুরু:
                       </span>
-                      <span>
-                        {be.startsAt
-                          ? new Date(be.startsAt).toLocaleString("bn-BD")
-                          : "যে কোনো সময়"}
-                      </span>
+                      <span>{formatBanglaDateTime(be.startsAt)}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-foreground/80">
                         শেষ:
                       </span>
-                      <span>
-                        {be.endsAt
-                          ? new Date(be.endsAt).toLocaleString("bn-BD")
-                          : "যে কোনো সময়"}
-                      </span>
+                      <span>{formatBanglaDateTime(be.endsAt)}</span>
                     </div>
                   </div>
                   <Link href={`/exams/${exam.slug}`} className="mt-auto">
